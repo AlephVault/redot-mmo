@@ -8,6 +8,7 @@ func _init() -> void:
 	world.name = "World"
 	add_child(world, true)
 	world.owner = self
+	_world = world
 
 	# Create the spawner (attach it with ownership).
 	var spawner = MultiplayerSpawner.new()
@@ -29,6 +30,14 @@ var _address: String
 
 # The current port from the current launch.
 var _port: int
+
+# The world.
+var _world: AVMMOClientWorld
+
+## The world created for this client.
+var world: AVMMOClientWorld:
+	get:
+		return _world
 
 ## The current address from the current launch.
 var address: String:

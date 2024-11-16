@@ -8,6 +8,7 @@ func _init() -> void:
 	world.name = "World"
 	add_child(world, true)
 	world.owner = self
+	_world = world
 
 	# Create the spawner (attach it with ownership).
 	var spawner = MultiplayerSpawner.new()
@@ -17,7 +18,6 @@ func _init() -> void:
 
 	# Set, in the spawner, the spawn path to the world.
 	spawner.spawn_path = world.get_path()
-
 
 ## The signal triggered when the server starts.
 signal server_started
@@ -36,6 +36,14 @@ var _address: String
 
 # The current port from the current launch.
 var _port: int
+
+# The world.
+var _world: AVMMOServerWorld
+
+## The world created for this server.
+var world: AVMMOServerWorld:
+	get:
+		return _world
 
 ## The current address from the current launch.
 var address: String:
