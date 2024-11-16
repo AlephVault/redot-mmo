@@ -2,6 +2,11 @@ extends Node
 
 class_name AVMMOServer
 
+func _init() -> void:
+	var spawner = MultiplayerSpawner.new()
+	spawner.name = "MultiplayerSpawner"
+	add_child(spawner, true)
+
 ## The signal triggered when the server starts.
 signal server_started
 

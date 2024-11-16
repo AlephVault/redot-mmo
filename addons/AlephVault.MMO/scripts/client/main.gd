@@ -2,6 +2,11 @@ extends Node
 
 class_name AVMMOClient
 
+func _init() -> void:
+	var spawner = MultiplayerSpawner.new()
+	spawner.name = "MultiplayerSpawner"
+	add_child(spawner, true)
+
 ## The signal triggered when the client connected to a server.
 signal client_started
 
