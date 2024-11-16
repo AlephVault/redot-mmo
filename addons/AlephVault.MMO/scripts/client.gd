@@ -49,6 +49,7 @@ func join_server(
 	_port = port
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	multiplayer.connection_failed.connect(_on_connection_failed)
 	return OK
 
 ## Leaves the current server.
@@ -71,6 +72,8 @@ func leave_server() -> bool:
 		
 	multiplayer.multiplayer_peer.close()
 	multiplayer.multiplayer_peer = null
+	_address = ""
+	_port = 0
 	return true
 
 func _on_connected_to_server():
@@ -78,3 +81,7 @@ func _on_connected_to_server():
 
 func _on_server_disconnected():
 	client_stopped.emit()
+
+func _on_connection_failed():
+	_address = ""
+	_port = 0

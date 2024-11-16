@@ -69,10 +69,10 @@ func stop() -> bool:
 	"""
 	
 	if multiplayer.is_server():
-		_address = ""
-		_port = 0
 		multiplayer.multiplayer_peer.close()
 		multiplayer.multiplayer_peer = null
+		_address = ""
+		_port = 0
 		server_stopped.emit()
 		return true
 	return false
