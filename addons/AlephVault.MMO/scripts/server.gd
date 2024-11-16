@@ -30,36 +30,6 @@ var port: int:
 	get:
 		return _port
 
-# The default scenes.
-var _default_scenes: Array[PackedScene] = []
-
-## Adds a scene to be loaded by default.
-##
-## This must be done when creating this component (e.g. on _ready).
-## It will NOT spawn it if the server is already running.
-func add_default_scene(scene: PackedScene):
-	"""
-	Adds a scene to be loaded by default.
-	"""
-	
-	_default_scenes.append(scene)
-
-## Gets the number of default scenes configured in the client.
-func get_default_scenes_count() -> int:
-	"""
-	Gets the number of default scenes configured in the client.
-	"""
-	
-	return len(_default_scenes)
-
-## Gets a packed scene by its index.
-func get_default_scene(index: int) -> PackedScene:
-	"""
-	Gets a scene by its index.
-	"""
-	
-	return _default_scenes[index]
-
 ## Launches a server.
 ##
 ## All the parameters are forwarded to set_bind_ip
@@ -99,10 +69,10 @@ func stop() -> bool:
 	"""
 	
 	if multiplayer.is_server():
-		multiplayer.multiplayer_peer.close()
-		multiplayer.multiplayer_peer = null
 		_address = ""
 		_port = 0
+		multiplayer.multiplayer_peer.close()
+		multiplayer.multiplayer_peer = null
 		server_stopped.emit()
 		return true
 	return false
