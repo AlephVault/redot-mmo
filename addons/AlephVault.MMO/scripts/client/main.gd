@@ -15,6 +15,7 @@ func _init() -> void:
 	spawner.name = "MultiplayerSpawner"
 	add_child(spawner, true)
 	spawner.owner = self
+	_spawner = spawner
 
 	# Set, in the spawner, the spawn path to the world.
 	spawner.spawn_path = world.get_path()
@@ -38,6 +39,14 @@ var _world: AVMMOClientWorld
 var world: AVMMOClientWorld:
 	get:
 		return _world
+
+# The spawner.
+var _spawner: MultiplayerSpawner
+
+## The spawner created for this client.
+var spawner: MultiplayerSpawner:
+	get:
+		return _spawner
 
 ## The current address from the current launch.
 var address: String:
