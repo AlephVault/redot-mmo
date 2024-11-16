@@ -3,9 +3,21 @@ extends Node
 class_name AVMMOServer
 
 func _init() -> void:
+	# Create the world (attach it with ownership).
+	var world = AVMMOServerWorld.new()
+	world.name = "World"
+	add_child(world, true)
+	world.owner = self
+
+	# Create the spawner (attach it with ownership).
 	var spawner = MultiplayerSpawner.new()
 	spawner.name = "MultiplayerSpawner"
 	add_child(spawner, true)
+	spawner.owner = self
+
+	# Set, in the spawner, the spawn path to the world.
+	spawner.spawn_path = world.get_path()
+
 
 ## The signal triggered when the server starts.
 signal server_started
