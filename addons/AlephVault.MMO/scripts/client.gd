@@ -24,6 +24,38 @@ var port: int:
 	get:
 		return _port
 
+# The default scenes.
+var _default_scenes: Array[PackedScene] = []
+
+## Adds a scene to be available as default-loaded from the server.
+##
+## This must be done when creating this component (e.g. on _ready).
+## It will NOT have the scene ready if the client is already running.
+## Default scenes in the client are only spawned when the server
+## spawns them (and it's visible for the client).
+func add_default_scene(scene: PackedScene):
+	"""
+	Adds a scene to be loaded by default.
+	"""
+	
+	_default_scenes.append(scene)
+
+## Gets the number of default scenes configured in the client.
+func get_default_scenes_count() -> int:
+	"""
+	Gets the number of default scenes configured in the client.
+	"""
+	
+	return len(_default_scenes)
+
+## Gets a packed scene by its index.
+func get_default_scene(index: int) -> PackedScene:
+	"""
+	Gets a scene by its index.
+	"""
+	
+	return _default_scenes[index]
+
 ## Joins a server.
 ##
 ## All the parameters are forwarded to create_client.
