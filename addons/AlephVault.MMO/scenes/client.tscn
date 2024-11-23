@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://wvpus5xyhyn5"]
 
-[ext_resource type="Script" path="res://addons/AlephVault.MMO/scripts/client/client.gd" id="1_8aqgk"]
+[ext_resource type="Script" path="res://addons/AlephVault.MMO/scripts/client/main.gd" id="1_8aqgk"]
 
 [node name="Client" type="Node2D"]
 script = ExtResource("1_8aqgk")

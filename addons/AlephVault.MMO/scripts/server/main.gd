@@ -1,4 +1,6 @@
 extends Node
+## This is a base MMO Server node. Everything will occur
+## right below this class related to MMO games.
 
 class_name AVMMOServer
 
