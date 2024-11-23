@@ -1,2 +1,2 @@
 # redot-mmo
-A Godot add-on to make multiplayer massive online games
+A Redot/Godot add-on to make multiplayer massive online games
