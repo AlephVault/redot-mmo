@@ -71,7 +71,7 @@ var port: int:
 ## All the parameters are forwarded to set_bind_ip
 ## or create_server, respectively.
 func launch(
-	port: int, max_clients: int = 4096, max_channels: int = 0,
+	port: int, max_clients: int = 4095, max_channels: int = 0,
 	in_bandwidth: int = 0, out_bandwidth: int = 0, address: String = "*"
 ) -> Error:
 	"""

@@ -26,6 +26,9 @@ signal client_started
 ## The signal triggered when the client disconnected from a server.
 signal client_stopped
 
+## The signal triggered when the client failed to connect to a server.
+signal client_failed
+
 # The current address from the current launch.
 var _address: String
 
@@ -119,3 +122,4 @@ func _on_server_disconnected():
 func _on_connection_failed():
 	_address = ""
 	_port = 0
+	client_failed.emit()

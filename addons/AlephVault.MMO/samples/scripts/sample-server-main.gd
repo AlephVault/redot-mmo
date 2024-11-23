@@ -3,9 +3,32 @@ extends AVMMOServer
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	self.server_started.connect(_server_started)
+	self.server_stopped.connect(_server_stopped)
+	self.client_entered.connect(_client_entered)
+	self.client_left.connect(_client_left)
+	print("Started the MMO Server scene")
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
+	if Input.is_action_just_pressed("server_start"):
+		self.launch(6777)
+	if Input.is_action_just_pressed("server_stop"):
+		self.stop()
+
+
+func _server_started():
+	print("Server started")
+
+
+func _server_stopped():
+	print("Server stopped")
+
+
+func _client_left(id: int):
+	print("Client left: %s" % id)
+
+
+func _client_entered(id: int):
+	print("Client entered: %s" % id)

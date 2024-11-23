@@ -1,3 +1,6 @@
-[gd_scene format=3 uid="uid://cyiciou8jxc1d"]
+[gd_scene load_steps=2 format=3 uid="uid://cyiciou8jxc1d"]
 
-[node name="Game" type="Node2D"]
+[ext_resource type="Script" path="res://addons/AlephVault.MMO/samples/scripts/sample-client-main.gd" id="1_lc12v"]
+
+[node name="CanvasLayer" type="CanvasLayer"]
+script = ExtResource("1_lc12v")
