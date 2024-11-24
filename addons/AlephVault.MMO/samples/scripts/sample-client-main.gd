@@ -12,9 +12,9 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("client_join"):
-		self.join_server("127.0.0.1", 6777)
+		print("join_server() result:", self.join_server("127.0.0.1", 6777))
 	if Input.is_action_just_pressed("client_leave"):
-		self.leave_server()
+		print("leave_server() result:", self.leave_server())
 
 
 func _client_started():

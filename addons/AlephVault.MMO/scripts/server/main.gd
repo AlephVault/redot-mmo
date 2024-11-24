@@ -4,7 +4,10 @@ extends Node
 
 class_name AVMMOServer
 
-func _init() -> void:
+func _ready() -> void:
+	multiplayer.peer_connected.connect(_on_peer_connected)
+	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+
 	# Create the world (attach it with ownership).
 	var world = AVMMOServerWorld.new()
 	world.name = "World"
@@ -18,9 +21,27 @@ func _init() -> void:
 	add_child(spawner, true)
 	spawner.owner = self
 	_spawner = spawner
-
+	
 	# Set, in the spawner, the spawn path to the world.
-	spawner.spawn_path = world.get_path()
+	_spawner.spawn_path = _world.get_path()
+	request_ready()
+
+func _exit_tree() -> void:
+	if is_instance_valid(multiplayer):
+		multiplayer.peer_connected.disconnect(_on_peer_connected)
+		multiplayer.peer_disconnected.disconnect(_on_peer_disconnected)
+
+	# Remove the world.
+	if _world != null:
+		remove_child(_world)
+		_world.queue_free()
+		_world = null
+	
+	# Remove the spawner.
+	if _spawner != null:
+		remove_child(_spawner)
+		_spawner.queue_free()
+		_spawner = null
 
 ## The signal triggered when the server starts.
 signal server_started
@@ -87,13 +108,11 @@ func launch(
 		port, max_clients, max_clients,
 		in_bandwidth, out_bandwidth
 	)
-	if err != null:
+	if err != OK:
 		return err
-	multiplayer.multiplayer_peer = peer
 	_address = address
 	_port = port
-	multiplayer.peer_connected.connect(_on_peer_connected)
-	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	multiplayer.multiplayer_peer = peer
 	return OK
 
 ## Stops a server.
