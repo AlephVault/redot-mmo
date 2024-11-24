@@ -13,8 +13,8 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("choose_client"):
-		print("Choosing client")
+		print("Choosing client mode")
 		get_tree().change_scene_to_packed(client)
 	elif Input.is_action_just_pressed("choose_server"):
-		print("Choosing server")
+		print("Choosing server mode")
 		get_tree().change_scene_to_packed(server)

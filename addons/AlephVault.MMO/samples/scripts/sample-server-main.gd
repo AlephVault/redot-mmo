@@ -13,7 +13,7 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("server_start"):
-		print("launch() result:", self.launch(6777))
+		print("launch() result:", self.launch(6777, 32, 0, 0, 0))
 	if Input.is_action_just_pressed("server_stop"):
 		print("stop() result:", self.stop())
 

@@ -3,10 +3,6 @@ extends Node
 class_name AVMMOClient
 
 func _ready() -> void:
-	multiplayer.connected_to_server.connect(_on_connected_to_server)
-	multiplayer.server_disconnected.connect(_on_server_disconnected)
-	multiplayer.connection_failed.connect(_on_connection_failed)
-
 	# Create the world (attach it with ownership).
 	var world = AVMMOClientWorld.new()
 	world.name = "World"
@@ -26,10 +22,6 @@ func _ready() -> void:
 	request_ready()
 
 func _exit_tree() -> void:
-	multiplayer.connected_to_server.disconnect(_on_connected_to_server)
-	multiplayer.server_disconnected.disconnect(_on_server_disconnected)
-	multiplayer.connection_failed.disconnect(_on_connection_failed)
-
 	# Remove the world.
 	if _world != null:
 		remove_child(_world)
@@ -98,14 +90,19 @@ func join_server(
 
 	var peer = ENetMultiplayerPeer.new()
 	var err: Error = peer.create_client(
-		address, port, channel_count,
-		in_bandwidth, out_bandwidth, local_port
+		address, port
 	)
 	if err != OK:
 		return err
 	_address = address
 	_port = port
 	multiplayer.multiplayer_peer = peer
+	if not multiplayer.connected_to_server.is_connected(_on_connected_to_server):
+		multiplayer.connected_to_server.connect(_on_connected_to_server)
+	if not multiplayer.server_disconnected.is_connected(_on_server_disconnected):
+		multiplayer.server_disconnected.connect(_on_server_disconnected)
+	if not multiplayer.connection_failed.is_connected(_on_connection_failed):
+		multiplayer.connection_failed.connect(_on_connection_failed)
 	return OK
 
 ## Leaves the current server.
@@ -116,32 +113,28 @@ func leave_server() -> bool:
 	Leaves the server (stops the client).
 	"""
 
-	if multiplayer.is_server():
-		print("*** is server")
+	if not is_instance_valid(multiplayer.multiplayer_peer) or multiplayer.is_server():
 		return false
 
 	if not multiplayer.has_multiplayer_peer():
-		print("*** does not have multiplayer server")
-		return false
-	
-	var status: MultiplayerPeer.ConnectionStatus = multiplayer.multiplayer_peer.get_connection_status()
-	if status != MultiplayerPeer.ConnectionStatus.CONNECTION_CONNECTED:
-		print("*** the status is not connected")
 		return false
 		
-	multiplayer.multiplayer_peer.close()
+	# multiplayer.multiplayer_peer.close()
 	multiplayer.multiplayer_peer = null
 	_address = ""
 	_port = 0
 	return true
 
 func _on_connected_to_server():
+	print("*** on_connected_to_server")
 	client_started.emit()
 
 func _on_server_disconnected():
+	print("*** on_server_disconnected")
 	client_stopped.emit()
 
 func _on_connection_failed():
+	print("*** on_connection_failed")
 	_address = ""
 	_port = 0
 	client_failed.emit()

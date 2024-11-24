@@ -5,9 +5,6 @@ extends Node
 class_name AVMMOServer
 
 func _ready() -> void:
-	multiplayer.peer_connected.connect(_on_peer_connected)
-	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
-
 	# Create the world (attach it with ownership).
 	var world = AVMMOServerWorld.new()
 	world.name = "World"
@@ -27,10 +24,6 @@ func _ready() -> void:
 	request_ready()
 
 func _exit_tree() -> void:
-	if is_instance_valid(multiplayer):
-		multiplayer.peer_connected.disconnect(_on_peer_connected)
-		multiplayer.peer_disconnected.disconnect(_on_peer_disconnected)
-
 	# Remove the world.
 	if _world != null:
 		remove_child(_world)
@@ -93,7 +86,7 @@ var port: int:
 ## or create_server, respectively.
 func launch(
 	port: int, max_clients: int = 4095, max_channels: int = 0,
-	in_bandwidth: int = 0, out_bandwidth: int = 0, address: String = "*"
+	in_bandwidth: int = 0, out_bandwidth: int = 0
 ) -> Error:
 	"""
 	Launches a server.
@@ -103,16 +96,18 @@ func launch(
 	"""
 	
 	var peer = ENetMultiplayerPeer.new()
-	peer.set_bind_ip(address)
 	var err: Error = peer.create_server(
-		port, max_clients, max_clients,
-		in_bandwidth, out_bandwidth
+		port, max_clients
 	)
 	if err != OK:
 		return err
 	_address = address
 	_port = port
 	multiplayer.multiplayer_peer = peer
+	if not multiplayer.peer_connected.is_connected(_on_peer_connected):
+		multiplayer.peer_connected.connect(_on_peer_connected)
+	if not multiplayer.peer_disconnected.is_connected(_on_peer_disconnected):
+		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	return OK
 
 ## Stops a server.
@@ -123,21 +118,23 @@ func stop() -> bool:
 	Stops a server.
 	"""
 	
-	if multiplayer.is_server():
+	if is_instance_valid(multiplayer.multiplayer_peer) && multiplayer.is_server():
 		_address = ""
 		_port = 0
-		multiplayer.multiplayer_peer.close()
+		# multiplayer.multiplayer_peer.close()
 		multiplayer.multiplayer_peer = null
 		server_stopped.emit()
 		return true
 	return false
 
 func _on_peer_connected(id: int):
+	print("*** on_peer_connected", id)
 	if id == 1:
 		server_started.emit()
 	else:
 		client_entered.emit(id)
 
 func _on_peer_disconnected(id: int):
+	print("*** on_peer_disconnected", id)
 	if id != 1:
 		client_left.emit(id)

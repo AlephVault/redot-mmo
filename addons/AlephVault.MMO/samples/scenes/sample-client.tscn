@@ -4,3 +4,8 @@
 
 [node name="CanvasLayer" type="CanvasLayer"]
 script = ExtResource("1_lc12v")
+
+[node name="Label" type="Label" parent="."]
+offset_right = 113.0
+offset_bottom = 26.0
+text = "Sample Client"
