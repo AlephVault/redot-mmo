@@ -97,7 +97,8 @@ func launch(
 	
 	var peer = ENetMultiplayerPeer.new()
 	var err: Error = peer.create_server(
-		port, max_clients
+		port, max_clients, max_channels, in_bandwidth,
+		out_bandwidth
 	)
 	if err != OK:
 		return err
@@ -108,6 +109,7 @@ func launch(
 		multiplayer.peer_connected.connect(_on_peer_connected)
 	if not multiplayer.peer_disconnected.is_connected(_on_peer_disconnected):
 		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	server_started.emit()
 	return OK
 
 ## Stops a server.
@@ -128,13 +130,9 @@ func stop() -> bool:
 	return false
 
 func _on_peer_connected(id: int):
-	print("*** on_peer_connected", id)
-	if id == 1:
-		server_started.emit()
-	else:
+	if id != 1:
 		client_entered.emit(id)
 
 func _on_peer_disconnected(id: int):
-	print("*** on_peer_disconnected", id)
 	if id != 1:
 		client_left.emit(id)

@@ -90,7 +90,7 @@ func join_server(
 
 	var peer = ENetMultiplayerPeer.new()
 	var err: Error = peer.create_client(
-		address, port
+		address, port, channel_count, in_bandwidth, out_bandwidth, local_port
 	)
 	if err != OK:
 		return err
@@ -126,15 +126,12 @@ func leave_server() -> bool:
 	return true
 
 func _on_connected_to_server():
-	print("*** on_connected_to_server")
 	client_started.emit()
 
 func _on_server_disconnected():
-	print("*** on_server_disconnected")
 	client_stopped.emit()
 
 func _on_connection_failed():
-	print("*** on_connection_failed")
 	_address = ""
 	_port = 0
 	client_failed.emit()
