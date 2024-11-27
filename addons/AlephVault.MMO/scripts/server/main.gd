@@ -23,7 +23,7 @@ func _ready() -> void:
 	_spawner.spawn_path = _world.get_path()
 	
 	# Also, set a place for the child connections.
-	var connections = Node.new()
+	var connections = AVMMOServerConnections.new()
 	connections.name = "Connections"
 	add_child(connections, true)
 	_connections = connections
@@ -78,10 +78,10 @@ var spawner: MultiplayerSpawner:
 		return _spawner
 
 # The parent of the connections.
-var _connections: Node
+var _connections: AVMMOServerConnections
 
 ## The parent of the connections.
-var connections: Node:
+var connections: AVMMOServerConnections:
 	get:
 		return _connections
 
