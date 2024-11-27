@@ -6,11 +6,12 @@ class_name AVMMOClientConnections
 # one connection will belong here.
 var _connections: Dictionary = {}
 
-## Adds a new connection object for the given
+## Adds a new connection object for the current
 ## connection id. It will be the only one here.
-func add_client(id: int) -> AVMMOClientConnection:
+func add_client() -> AVMMOClientConnection:
 	# Create the node.
 	var node = AVMMOClientConnection.new()
+	var id = multiplayer.get_unique_id()
 	node.name = "Connection.%s" % id
 	add_child(node, true)
 	
