@@ -21,6 +21,13 @@ func _ready() -> void:
 	
 	# Set, in the spawner, the spawn path to the world.
 	_spawner.spawn_path = _world.get_path()
+	
+	# Also, set a place for the child connections.
+	var connections = Node.new()
+	connections.name = "Connections"
+	add_child(connections, true)
+	_connections = connections
+	
 	request_ready()
 
 func _exit_tree() -> void:
@@ -69,6 +76,14 @@ var _spawner: MultiplayerSpawner
 var spawner: MultiplayerSpawner:
 	get:
 		return _spawner
+
+# The parent of the connections.
+var _connections: Node
+
+## The parent of the connections.
+var connections: Node:
+	get:
+		return _connections
 
 ## The current address from the current launch.
 var address: String:
