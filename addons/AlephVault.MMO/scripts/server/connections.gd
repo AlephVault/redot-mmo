@@ -11,6 +11,7 @@ func add_client(id: int) -> AVMMOServerConnection:
 	# Create the node.
 	var node = AVMMOServerConnection.new()
 	node.name = "Connection.%s" % id
+	node.id = id
 	add_child(node, true)
 	
 	# Return the node.

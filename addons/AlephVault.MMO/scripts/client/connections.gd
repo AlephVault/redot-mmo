@@ -13,6 +13,7 @@ func add_client() -> AVMMOClientConnection:
 	var node = AVMMOClientConnection.new()
 	var id = multiplayer.get_unique_id()
 	node.name = "Connection.%s" % id
+	node.id = id
 	add_child(node, true)
 	
 	# Return the node.
