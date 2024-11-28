@@ -42,6 +42,12 @@ func _exit_tree() -> void:
 		remove_child(_spawner)
 		_spawner.queue_free()
 		_spawner = null
+	
+	# Remove the connections.
+	if _connections != null:
+		remove_child(_connections)
+		_connections.queue_free()
+		_connections = null
 
 ## The signal triggered when the server starts.
 signal server_started
