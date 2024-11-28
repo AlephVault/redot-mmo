@@ -3,6 +3,7 @@ extends AVMMOServer
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	super()
 	self.server_started.connect(_server_started)
 	self.server_stopped.connect(_server_stopped)
 	self.client_entered.connect(_client_entered)

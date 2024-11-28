@@ -3,6 +3,7 @@ extends AVMMOClient
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	super()
 	self.client_started.connect(_client_started)
 	self.client_stopped.connect(_client_stopped)
 	self.client_failed.connect(_client_failed)
