@@ -2,6 +2,8 @@ extends Node
 
 class_name AVMMOServerConnection
 
+signal scope_changed(id: int)
+
 ## The is for this (server) connection.
 var id: int = 0:
 	set(value):
@@ -9,6 +11,13 @@ var id: int = 0:
 			assert(true, "The id for this connection is already set: %s" % id)
 		else:
 			id = value
+
+## The current scope.
+var scope: int:
+	get:
+		return get_parent().get_connection_scope(id)
+	set(value):
+		assert(false, "The scope cannot be set this way")
 
 func _make_commands_node() -> AVMMOServerConnectionCommands:
 	# Override this to instantiate the node serving the
