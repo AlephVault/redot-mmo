@@ -106,7 +106,6 @@ func set_connection_scope(connection_id: int, scope_id: int):
 			node.scope_changed.emit(scope_id)
 			node.notifications.set_scope(scope_id)
 
-
 ## Tells whether the connection is registered here.
 func has_connection(connection_id: int) -> bool:
 	return _connections.has(connection_id)
