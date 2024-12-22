@@ -29,7 +29,7 @@ var connection_class: Script = AVMMOClientConnection:
 ## connection id. It will be the only one here.
 func add_client() -> AVMMOClientConnection:
 	# Create the node.
-	var node = AVMMOClientConnection.new()
+	var node = connection_class.new()
 	var id = multiplayer.get_unique_id()
 	node.name = "Connection.%s" % id
 	node.id = id

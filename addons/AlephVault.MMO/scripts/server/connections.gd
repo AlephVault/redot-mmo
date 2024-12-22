@@ -101,7 +101,7 @@ var _scopes: Dictionary = {
 ## connection id.
 func add_client(id: int) -> AVMMOServerConnection:
 	# Create the node.
-	var node = AVMMOServerConnection.new()
+	var node = connection_class.new()
 	node.name = "Connection.%s" % id
 	node.id = id
 	add_child(node, true)
