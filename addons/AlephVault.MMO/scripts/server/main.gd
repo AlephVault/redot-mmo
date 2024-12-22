@@ -31,6 +31,8 @@ func _ready() -> void:
 	request_ready()
 
 func _exit_tree() -> void:
+	stop()
+	
 	# Remove the world.
 	if _world != null:
 		remove_child(_world)
