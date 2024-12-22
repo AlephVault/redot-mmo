@@ -1,3 +1,3 @@
 extends Node
 
-class_name AVMMOClientWorld
+class_name AVMMOServerWorld
