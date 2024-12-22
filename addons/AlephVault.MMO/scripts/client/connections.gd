@@ -37,3 +37,13 @@ func add_client() -> AVMMOClientConnection:
 	
 	# Return the node.
 	return node
+
+## Removes a client connection object for the
+## given connection id.
+func remove_client():
+	# Remove the node. It will be only one single
+	# child, and the id might not be THAT retrievable
+	# because by this point the connection might be
+	# terminated.
+	var node = get_child(0)
+	remove_child(node)
