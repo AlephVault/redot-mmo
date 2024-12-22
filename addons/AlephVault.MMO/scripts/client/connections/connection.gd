@@ -2,6 +2,8 @@ extends Node
 
 class_name AVMMOClientConnection
 
+signal scope_changed(id: int)
+
 ## The is for this (client) connection.
 var id: int = 0:
 	set(value):
@@ -19,6 +21,10 @@ var scope: int:
 		return _scope
 	set(value):
 		assert(false, "The scope cannot be set this way")
+
+func _set_scope(id: int):
+	_scope = id
+	scope_changed.emit(id)
 
 func _make_commands_node() -> AVMMOClientConnectionCommands:
 	# Override this to instantiate the node serving the
