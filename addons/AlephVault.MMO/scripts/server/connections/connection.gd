@@ -22,8 +22,22 @@ func _make_notifications_mode() -> AVMMOServerConnectionNotifications:
 	# notifications are implemented through RPC.
 	return AVMMOServerConnectionNotifications.new()
 
-var _commands: Node
-var _notifications: Node
+var _commands: AVMMOServerConnectionCommands
+var _notifications: AVMMOServerConnectionNotifications
+
+## Gets the commands node from the connection.
+var commands: AVMMOServerConnectionCommands:
+	get:
+		return _commands
+	set(value):
+		assert(false, "The commands node cannot be set")
+
+## Gets the notifications node from the connection.
+var notifications: AVMMOServerConnectionNotifications:
+	get:
+		return _notifications
+	set(value):
+		assert(false, "The notifications node cannot be set")
 
 func init_authority():
 	_commands = _make_commands_node()
