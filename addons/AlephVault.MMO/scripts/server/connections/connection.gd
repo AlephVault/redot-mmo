@@ -27,8 +27,10 @@ var _notifications: Node
 
 func init_authority():
 	_commands = _make_commands_node()
-	add_child(_commands)
+	_commands.name = "Commands"
+	add_child(_commands, true)
 	_notifications = _make_notifications_mode()
-	add_child(_notifications)
+	_notifications.name = "Notifications"
+	add_child(_notifications, true)
 	_commands.set_multiplayer_authority(id)
 	_notifications.set_multiplayer_authority(1)
