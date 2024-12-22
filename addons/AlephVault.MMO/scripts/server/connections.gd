@@ -82,6 +82,7 @@ var connection_class: Script = AVMMOServerConnection:
 			connection_class = value
 
 func _add_special_scope(id: int) -> Dictionary:
+	id = make_fq_special_scope_id(id)
 	if _scopes.has(id):
 		return _scopes[id]
 	else:
@@ -122,7 +123,7 @@ func _unset_connection_from_scope(connection_id: int):
 			var scope = _scopes[scope_id]
 			if scope.has(connection_id):
 				scope.erase(connection_id)
-			if len(scope) == 0:
+			if len(scope) == 0 and ScopeType.get(scope_id >> 30) != ScopeType.SPECIAL:
 				_scopes.erase(scope_id)
 
 func _unset_connection_scope(connection_id: int):
