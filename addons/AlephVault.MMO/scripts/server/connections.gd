@@ -77,10 +77,6 @@ func _unset_connection_scope(connection_id: int):
 func _set_connection_scope(connection_id: int, scope_id: int):
 	_set_scope_for_connection(connection_id, scope_id)
 	_set_connection_into_scope(connection_id, scope_id)
-	var node: AVMMOServerConnection = _get_connection_node(connection_id)
-	if node:
-		node.scope_changed.emit(scope_id)
-		node.notifications.set_scope(scope_id)
 
 ## Gets the connections inside that scope.
 func get_connections_in_scope(scope_id: int) -> Array[int]:
@@ -107,6 +103,11 @@ func set_connection_scope(connection_id: int, scope_id: int):
 	if has_connection and has_scope:
 		_unset_connection_scope(connection_id)
 		_set_connection_scope(connection_id, scope_id)
+		var node: AVMMOServerConnection = _get_connection_node(connection_id)
+		if node:
+			node.scope_changed.emit(scope_id)
+			node.notifications.set_scope(scope_id)
+
 
 ## Tells whether the connection is registered here.
 func has_connection(connection_id: int) -> bool:
