@@ -94,10 +94,8 @@ func get_connection_scope(connection_id: int) -> int:
 
 ## Sets the scope for a connection.
 func set_connection_scope(connection_id: int, scope_id: int):
-	var has_connection = _connections.has(connection_id)
 	var has_scope = _scopes.has(scope_id)
 
-	assert(has_connection, "The connection does not exist")
 	assert(has_scope, "The scope does not exist")
 
 	if has_connection and has_scope:
@@ -129,7 +127,7 @@ func add_client(id: int) -> AVMMOServerConnection:
 	var node = connection_class.new()
 	node.name = "Connection.%s" % id
 	node.id = id
-	_set_connection_scope(id, AVMMOScopes.make_fq_special_scope_id(SCOPE_LIMBO))
+	set_connection_scope(id, AVMMOScopes.make_fq_special_scope_id(SCOPE_LIMBO))
 	add_child(node, true)
 	
 	# Return the node.
