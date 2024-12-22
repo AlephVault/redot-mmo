@@ -16,21 +16,11 @@ const SCOPE_LIMBO: int = 0
 ## in order to start playing.
 const SCOPE_ACCOUNT_DASHBOARD: int = 1
 
-func _inherits_native_class(script: Script, native_class_name: String) -> bool:
-	# If the script's top-level extends statement is "extends Node",
-	# script.native_class == "Node"
-	if script.native_class == native_class_name:
-		return true
-	var parent = script.get_base_script()
-	if parent:
-		return _inherits_native_class(parent, native_class_name)
-	return false
-
 ## The class of connections to instantiate when a connection is
 ## established.
 var connection_class: Script = AVMMOServerConnection:
 	set(value):
-		var inherits: bool = _inherits_native_class(value, "AVMMOServerConnection")
+		var inherits: bool = AVMMOClasses.inherits_native_class(value, "AVMMOServerConnection")
 		assert(inherits, "The assigned connection class must inherit AVMMOServerConnection")
 		if inherits:
 			connection_class = value
