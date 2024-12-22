@@ -2,6 +2,20 @@ extends Node
 
 class_name AVMMOServerConnections
 
+## The "LIMBO" special scope. Used for just-created
+## connections or when a connection is popped from
+## another scope with no explicit relocation.
+const SCOPE_LIMBO: int = 0
+
+## The "ACCOUNT_DASHBOARD" special scope. Suggested
+## for when a connection is established / logged in
+## but no playable state or profile was initialized.
+## An example is for games where accounts have more
+## than one profile (ej. multi-character accounts)
+## and players have to pick a profile or create one
+## in order to start playing.
+const SCOPE_ACCOUNT_DASHBOARD: int = 1
+
 ## Defines the macro-types for scopes. This is
 ## about structures and life-cycles of scopes,
 ## rather than their implementations.
@@ -41,6 +55,18 @@ static func make_fq_dynamic_scope_id(id: int) -> int:
 ## Computes a final scpecial scope id, given the partial id.
 static func make_fq_special_Scope_id(id: int) -> int:
 	return make_fq_scope_id(id, ScopeType.SPECIAL)
+
+func _add_special_scope(id: int) -> Dictionary:
+	if _scopes.has(id):
+		return _scopes[id]
+	else:
+		var scope: Dictionary = {}
+		_scopes[id] = scope
+		return scope
+
+func _init():
+	_add_special_scope(SCOPE_LIMBO)
+	_add_special_scope(SCOPE_ACCOUNT_DASHBOARD)
 
 # The connections will be kept here.
 var _connections: Dictionary = {
