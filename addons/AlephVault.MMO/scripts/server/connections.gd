@@ -53,7 +53,7 @@ static func make_fq_dynamic_scope_id(id: int) -> int:
 	return make_fq_scope_id(id, ScopeType.DYNAMIC)
 
 ## Computes a final scpecial scope id, given the partial id.
-static func make_fq_special_Scope_id(id: int) -> int:
+static func make_fq_special_scope_id(id: int) -> int:
 	return make_fq_scope_id(id, ScopeType.SPECIAL)
 
 func _inherits_native_class(script: Script, native_class_name: String) -> bool:
@@ -97,6 +97,64 @@ var _scopes: Dictionary = {
 	# scope_id: Dictionary[connection_id -> true].
 }
 
+func _set_scope_for_connection(connection_id: int, scope_id: int):
+	_connections[connection_id] = scope_id
+
+func _unset_scope_for_connection(connection_id: int):
+	if _connections.has(connection_id):
+		_connections.erase(connection_id)
+
+func _set_connection_into_scope(connection_id: int, scope_id: int):
+	if not _scopes.has(scope_id):
+		_scopes[scope_id] = {}
+	_scopes[scope_id][connection_id] = true
+
+func _unset_connection_from_scope(connection_id: int):
+	if _connections.has(connection_id):
+		var scope_id = _connections[connection_id]
+		if _scopes.has(scope_id):
+			var scope = _scopes[scope_id]
+			if scope.has(connection_id):
+				scope.erase(connection_id)
+
+func _unset_connection_scope(connection_id: int):
+	_unset_connection_from_scope(connection_id)
+	_unset_scope_for_connection(connection_id)
+
+func _set_connection_scope(connection_id: int, scope_id: int):
+	_set_scope_for_connection(connection_id, scope_id)
+	_set_connection_into_scope(connection_id, scope_id)
+
+## Gets the connections inside that scope.
+func get_connections_in_scope(scope_id: int) -> Array[int]:
+	if _scopes.has(scope_id):
+		return _scopes.keys()
+	else:
+		return []
+
+## Gets the scope for a connection.
+func get_connection_scope(connection_id: int) -> int:
+	if _connections.has(connection_id):
+		return _connections[connection_id]
+	else:
+		return -1
+
+## Sets the scope for a connection.
+func set_connection_scope(connection_id: int, scope_id: int):
+	var has_connection = _connections.has(connection_id)
+	var has_scope = _scopes.has(scope_id)
+
+	assert(has_connection, "The connection does not exist")
+	assert(has_scope, "The scope does not exist")
+
+	if has_connection and has_scope:
+		_unset_connection_scope(connection_id)
+		_set_connection_scope(connection_id, scope_id)
+
+## Tells whether the connection is registered here.
+func has_connection(connection_id: int) -> bool:
+	return _connections.has(connection_id)
+
 ## Adds a new connection object for the given
 ## connection id.
 func add_client(id: int) -> AVMMOServerConnection:
@@ -104,7 +162,16 @@ func add_client(id: int) -> AVMMOServerConnection:
 	var node = connection_class.new()
 	node.name = "Connection.%s" % id
 	node.id = id
+	_set_connection_scope(id, make_fq_special_scope_id(SCOPE_LIMBO))
 	add_child(node, true)
 	
 	# Return the node.
 	return node
+
+## Removes a client connection object for the
+## given connection id.
+func remove_client(id: int):
+	# Remove the node.
+	var node = get_node("Connection.%s" % id)
+	_unset_connection_scope(id)
+	remove_child(node)
