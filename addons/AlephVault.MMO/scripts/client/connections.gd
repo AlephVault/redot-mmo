@@ -6,6 +6,25 @@ class_name AVMMOClientConnections
 # one connection will belong here.
 var _connections: Dictionary = {}
 
+func _inherits_native_class(script: Script, native_class_name: String) -> bool:
+	# If the script's top-level extends statement is "extends Node",
+	# script.native_class == "Node"
+	if script.native_class == native_class_name:
+		return true
+	var parent = script.get_base_script()
+	if parent:
+		return _inherits_native_class(parent, native_class_name)
+	return false
+
+## The class of connections to instantiate when a connection is
+## established.
+var connection_class: Script = AVMMOClientConnection:
+	set(value):
+		var inherits: bool = _inherits_native_class(value, "AVMMOClientConnection")
+		assert(inherits, "The assigned connection class must inherit AVMMOClientConnection")
+		if inherits:
+			connection_class = value
+
 ## Adds a new connection object for the current
 ## connection id. It will be the only one here.
 func add_client() -> AVMMOClientConnection:
