@@ -56,6 +56,12 @@ static func make_fq_dynamic_scope_id(id: int) -> int:
 static func make_fq_special_scope_id(id: int) -> int:
 	return make_fq_scope_id(id, ScopeType.SPECIAL)
 
+## Unpacks a final scope id into its sub-id and type.
+static func unpack_scope_id(id: int) -> Dictionary:
+	if id < 0:
+		return {}
+	return {"id": id & ((1 << 30) - 1), "type": ScopeType.get(id >> 30)}
+
 func _inherits_native_class(script: Script, native_class_name: String) -> bool:
 	# If the script's top-level extends statement is "extends Node",
 	# script.native_class == "Node"
@@ -116,6 +122,8 @@ func _unset_connection_from_scope(connection_id: int):
 			var scope = _scopes[scope_id]
 			if scope.has(connection_id):
 				scope.erase(connection_id)
+			if len(scope) == 0:
+				_scopes.erase(scope_id)
 
 func _unset_connection_scope(connection_id: int):
 	_unset_connection_from_scope(connection_id)
@@ -154,6 +162,12 @@ func set_connection_scope(connection_id: int, scope_id: int):
 ## Tells whether the connection is registered here.
 func has_connection(connection_id: int) -> bool:
 	return _connections.has(connection_id)
+
+## Tells whether the scope is registered here. Actually,
+## it only tells whether the scope exists AND has any
+## connection on it.
+func has_scope(scope_id: int) -> bool:
+	return _scopes.has(scope_id)
 
 ## Adds a new connection object for the given
 ## connection id.
