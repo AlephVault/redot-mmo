@@ -13,7 +13,7 @@ var id: int = 0:
 			id = value
 
 # The current scope.
-var _scope: int
+var _scope: int = AVMMOScopes.make_fq_special_scope_id(AVMMOScopes.SCOPE_LIMBO)
 
 ## The current scope.
 var scope: int:

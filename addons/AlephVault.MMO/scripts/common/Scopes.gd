@@ -19,6 +19,20 @@ enum ScopeType {
 	SPECIAL=2
 }
 
+## The "LIMBO" special scope. Used for just-created
+## connections or when a connection is popped from
+## another scope with no explicit relocation.
+const SCOPE_LIMBO: int = 0
+
+## The "ACCOUNT_DASHBOARD" special scope. Suggested
+## for when a connection is established / logged in
+## but no playable state or profile was initialized.
+## An example is for games where accounts have more
+## than one profile (ej. multi-character accounts)
+## and players have to pick a profile or create one
+## in order to start playing.
+const SCOPE_ACCOUNT_DASHBOARD: int = 1
+
 ## Computes a final scope id, given the partial id and
 ## the scope type.
 static func make_fq_scope_id(id: int, scope_type: ScopeType) -> int:

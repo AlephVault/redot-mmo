@@ -2,20 +2,6 @@ extends Node
 
 class_name AVMMOServerConnections
 
-## The "LIMBO" special scope. Used for just-created
-## connections or when a connection is popped from
-## another scope with no explicit relocation.
-const SCOPE_LIMBO: int = 0
-
-## The "ACCOUNT_DASHBOARD" special scope. Suggested
-## for when a connection is established / logged in
-## but no playable state or profile was initialized.
-## An example is for games where accounts have more
-## than one profile (ej. multi-character accounts)
-## and players have to pick a profile or create one
-## in order to start playing.
-const SCOPE_ACCOUNT_DASHBOARD: int = 1
-
 ## The class of connections to instantiate when a connection is
 ## established.
 var connection_class: Script = AVMMOServerConnection:
@@ -34,9 +20,33 @@ func _add_special_scope(id: int) -> Dictionary:
 		_scopes[id] = scope
 		return scope
 
+func _enter_tree() -> void:
+	var parent = get_parent()
+	if parent is AVMMOServer:
+		var server = parent as AVMMOServer
+		if not server.client_entered.is_connected(_on_client_entered):
+			server.client_entered.connect(_on_client_entered)
+		if not server.client_left.is_connected(_on_client_left):
+			server.client_left.connect(_on_client_left)
+
+func _exit_tree() -> void:
+	var parent = get_parent()
+	if parent is AVMMOServer:
+		var server = parent as AVMMOServer
+		if server.client_entered.is_connected(_on_client_entered):
+			server.client_entered.disconnect(_on_client_entered)
+		if server.client_left.is_connected(_on_client_left):
+			server.client_left.disconnect(_on_client_left)
+
+func _on_client_entered(id: int) -> void:
+	_add_client(id)
+
+func _on_client_left(id: int) -> void:
+	_remove_client(id)
+
 func _init():
-	_add_special_scope(SCOPE_LIMBO)
-	_add_special_scope(SCOPE_ACCOUNT_DASHBOARD)
+	_add_special_scope(AVMMOScopes.SCOPE_LIMBO)
+	_add_special_scope(AVMMOScopes.SCOPE_ACCOUNT_DASHBOARD)
 
 # The connections will be kept here.
 var _connections: Dictionary = {
@@ -123,9 +133,9 @@ func get_connection_node(id: int) -> AVMMOServerConnection:
 func has_scope(scope_id: int) -> bool:
 	return _scopes.has(scope_id)
 
-## Adds a new connection object for the given
-## connection id.
-func add_client(id: int) -> AVMMOServerConnection:
+# Adds a new connection object for the given
+# connection id.
+func _add_client(id: int) -> AVMMOServerConnection:
 	assert(id > 1, "The id of the connection must be > 1")
 	if id <= 1:
 		return null
@@ -133,15 +143,15 @@ func add_client(id: int) -> AVMMOServerConnection:
 	var node = connection_class.new()
 	node.name = "Connection.%s" % id
 	node.id = id
-	set_connection_scope(id, AVMMOScopes.make_fq_special_scope_id(SCOPE_LIMBO))
+	set_connection_scope(id, AVMMOScopes.make_fq_special_scope_id(AVMMOScopes.SCOPE_LIMBO))
 	add_child(node, true)
 	
 	# Return the node.
 	return node
 
-## Removes a client connection object for the
-## given connection id.
-func remove_client(id: int):
+# Removes a client connection object for the
+# given connection id.
+func _remove_client(id: int):
 	# Remove the node.
 	var node = get_node("Connection.%s" % id)
 	if node:
