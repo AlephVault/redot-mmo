@@ -54,7 +54,9 @@ func _init():
 
 # The connections will be kept here.
 var _connections: Dictionary = {
-	# connection_id: scope_id; The id can be any default, dynamic or special scope id.
+	# connection_id: {
+	#     node, scope_id
+	# }; The id can be any default, dynamic or special scope id.
 }
 
 # The scopes and their connections will be kept here.
@@ -63,7 +65,10 @@ var _scopes: Dictionary = {
 }
 
 func _set_scope_for_connection(connection_id: int, scope_id: int):
-	_connections[connection_id] = scope_id
+	_connections[connection_id] = {
+		"scope_id": scope_id,
+		"node": get_node("Connection.%d" % connection_id)
+	}
 
 func _unset_scope_for_connection(connection_id: int):
 	if _connections.has(connection_id):
@@ -76,7 +81,7 @@ func _set_connection_into_scope(connection_id: int, scope_id: int):
 
 func _unset_connection_from_scope(connection_id: int):
 	if _connections.has(connection_id):
-		var scope_id = _connections[connection_id]
+		var scope_id = _connections[connection_id]["scope_id"]
 		if _scopes.has(scope_id):
 			var scope = _scopes[scope_id]
 			if scope.has(connection_id):
@@ -102,7 +107,7 @@ func get_connections_in_scope(scope_id: int) -> Array[int]:
 ## Gets the scope for a connection.
 func get_connection_scope(connection_id: int) -> int:
 	if _connections.has(connection_id):
-		return _connections[connection_id]
+		return _connections[connection_id]["scope_id"]
 	else:
 		return -1
 
@@ -131,7 +136,7 @@ func get_connections() -> Array[int]:
 
 ## Returns a given connection node.
 func get_connection_node(id: int) -> AVMMOServerConnection:
-	return get_node("Connection.%d" % id)
+	return _connections[id]["node"]
 
 ## Tells whether the scope is registered here. Actually,
 ## it only tells whether the scope exists AND has any
