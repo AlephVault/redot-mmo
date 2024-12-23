@@ -4,7 +4,7 @@ class_name AVMMOClientConnection
 
 ## Triggered when a scope is changed for a connection.
 ## With (-1) for the scope, it means complete removal.
-signal scope_changed(id: int)
+signal scope_changed(current_scope_id: int, scope_id: int)
 
 ## The is for this (client) connection.
 var id: int = 0:
@@ -25,8 +25,9 @@ var scope: int:
 		assert(false, "The scope cannot be set this way")
 
 func _set_scope(id: int):
+	var current_scope_id: int = _scope
 	_scope = id
-	scope_changed.emit(id)
+	scope_changed.emit(current_scope_id, id)
 
 func _make_commands_node() -> AVMMOClientConnectionCommands:
 	# Override this to instantiate the node serving the

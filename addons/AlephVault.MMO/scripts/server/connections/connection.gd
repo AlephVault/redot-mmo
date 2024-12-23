@@ -4,7 +4,7 @@ class_name AVMMOServerConnection
 
 ## Triggered when a scope is changed for a connection.
 ## With (-1) for the scope, it means complete removal.
-signal scope_changed(id: int)
+signal scope_changed(current_scope_id: int, id: int)
 
 ## The is for this (server) connection.
 var id: int = 0:

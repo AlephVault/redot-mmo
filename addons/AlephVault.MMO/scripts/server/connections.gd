@@ -4,7 +4,7 @@ class_name AVMMOServerConnections
 
 ## Triggered when a scope is changed for a connection.
 ## With (-1) for the scope, it means complete removal.
-signal scope_changed(connection_id: int, scope_id: int)
+signal scope_changed(connection_id: int, current_scope_id: int, scope_id: int)
 
 ## The class of connections to instantiate when a connection is
 ## established.
@@ -112,12 +112,13 @@ func set_connection_scope(connection_id: int, scope_id: int):
 	assert(scope_id >= 0, "The id of the scope to assign must be > 0")
 	if connection_id <= 1 or scope_id < 0:
 		return
+	var current_scope_id = get_connection_scope(connection_id)
 	_unset_connection_scope(connection_id)
 	_set_connection_scope(connection_id, scope_id)
 	var node: AVMMOServerConnection = get_connection_node(connection_id)
 	if node:
-		node.scope_changed.emit(scope_id)
-		scope_changed.emit(node.id, scope_id)
+		node.scope_changed.emit(current_scope_id, scope_id)
+		scope_changed.emit(node.id, current_scope_id, scope_id)
 		node.notifications.set_scope(scope_id)
 
 ## Tells whether the connection is registered here.
