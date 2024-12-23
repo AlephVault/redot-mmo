@@ -6,21 +6,11 @@ class_name AVMMOClientConnections
 # one connection will belong here.
 var _connections: Dictionary = {}
 
-func _inherits_native_class(script: Script, native_class_name: String) -> bool:
-	# If the script's top-level extends statement is "extends Node",
-	# script.native_class == "Node"
-	if script.native_class == native_class_name:
-		return true
-	var parent = script.get_base_script()
-	if parent:
-		return _inherits_native_class(parent, native_class_name)
-	return false
-
 ## The class of connections to instantiate when a connection is
 ## established.
 var connection_class: Script = AVMMOClientConnection:
 	set(value):
-		var inherits: bool = _inherits_native_class(value, "AVMMOClientConnection")
+		var inherits: bool = AVMMOClasses.inherits_native_class(value, "AVMMOClientConnection")
 		assert(inherits, "The assigned connection class must inherit AVMMOClientConnection")
 		if inherits:
 			connection_class = value
@@ -38,6 +28,10 @@ func add_client() -> AVMMOClientConnection:
 	# Return the node.
 	return node
 
+## Returns the only client connection object.
+func get_connection_node() -> AVMMOClientConnection:
+	return get_child(0)
+
 ## Removes a client connection object for the
 ## given connection id.
 func remove_client():
@@ -45,5 +39,6 @@ func remove_client():
 	# child, and the id might not be THAT retrievable
 	# because by this point the connection might be
 	# terminated.
-	var node = get_child(0)
-	remove_child(node)
+	var node = get_connection_node()
+	if node:
+		remove_child(node)

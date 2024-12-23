@@ -100,7 +100,7 @@ func set_connection_scope(connection_id: int, scope_id: int):
 		return
 	_unset_connection_scope(connection_id)
 	_set_connection_scope(connection_id, scope_id)
-	var node: AVMMOServerConnection = _get_connection_node(connection_id)
+	var node: AVMMOServerConnection = get_connection_node(connection_id)
 	if node:
 		node.scope_changed.emit(scope_id)
 		node.notifications.set_scope(scope_id)
@@ -109,7 +109,12 @@ func set_connection_scope(connection_id: int, scope_id: int):
 func has_connection(connection_id: int) -> bool:
 	return _connections.has(connection_id)
 
-func _get_connection_node(id: int) -> AVMMOServerConnection:
+## Returns all the connection ids.
+func get_connections() -> Array[int]:
+	return _connections.keys()
+
+## Returns a given connection node.
+func get_connection_node(id: int) -> AVMMOServerConnection:
 	return get_node("Connection.%d" % id)
 
 ## Tells whether the scope is registered here. Actually,
