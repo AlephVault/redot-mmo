@@ -141,7 +141,7 @@ func _add_client(id: int) -> AVMMOServerConnection:
 		return null
 	# Create the node.
 	var node = connection_class.new()
-	node.name = "Connection.%s" % id
+	node.name = "Connection.%s" % id 
 	node.id = id
 	set_connection_scope(id, AVMMOScopes.make_fq_special_scope_id(AVMMOScopes.SCOPE_LIMBO))
 	add_child(node, true)
