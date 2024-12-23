@@ -117,6 +117,7 @@ func set_connection_scope(connection_id: int, scope_id: int):
 	var node: AVMMOServerConnection = get_connection_node(connection_id)
 	if node:
 		node.scope_changed.emit(scope_id)
+		scope_changed.emit(node.id, scope_id)
 		node.notifications.set_scope(scope_id)
 
 ## Tells whether the connection is registered here.
@@ -161,4 +162,5 @@ func _remove_client(id: int):
 	if node:
 		_unset_connection_scope(id)
 		node.scope_changed.emit(-1)
+		scope_changed.emit(node.id, -1)
 		remove_child(node)
