@@ -121,6 +121,9 @@ func has_scope(scope_id: int) -> bool:
 ## Adds a new connection object for the given
 ## connection id.
 func add_client(id: int) -> AVMMOServerConnection:
+	assert(id > 1, "The id of the connection must be > 1")
+	if id <= 1:
+		return null
 	# Create the node.
 	var node = connection_class.new()
 	node.name = "Connection.%s" % id
@@ -136,5 +139,6 @@ func add_client(id: int) -> AVMMOServerConnection:
 func remove_client(id: int):
 	# Remove the node.
 	var node = get_node("Connection.%s" % id)
-	_unset_connection_scope(id)
-	remove_child(node)
+	if node:
+		_unset_connection_scope(id)
+		remove_child(node)
