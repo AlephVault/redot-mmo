@@ -156,4 +156,5 @@ func _remove_client(id: int):
 	var node = get_node("Connection.%s" % id)
 	if node:
 		_unset_connection_scope(id)
+		node.scope_changed.emit(-1)
 		remove_child(node)
