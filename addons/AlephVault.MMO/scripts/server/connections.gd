@@ -2,6 +2,10 @@ extends Node
 
 class_name AVMMOServerConnections
 
+## Triggered when a scope is changed for a connection.
+## With (-1) for the scope, it means complete removal.
+signal scope_changed(connection_id: int, scope_id: int)
+
 ## The class of connections to instantiate when a connection is
 ## established.
 var connection_class: Script = AVMMOServerConnection:

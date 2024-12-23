@@ -2,6 +2,8 @@ extends Node
 
 class_name AVMMOClientConnection
 
+## Triggered when a scope is changed for a connection.
+## With (-1) for the scope, it means complete removal.
 signal scope_changed(id: int)
 
 ## The is for this (client) connection.
