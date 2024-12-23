@@ -94,6 +94,10 @@ func get_connection_scope(connection_id: int) -> int:
 
 ## Sets the scope for a connection.
 func set_connection_scope(connection_id: int, scope_id: int):
+	assert(connection_id > 1, "The id of the connection must be > 1")
+	assert(scope_id >= 0, "The id of the scope to assign must be > 0")
+	if connection_id <= 1 or scope_id < 0:
+		return
 	_unset_connection_scope(connection_id)
 	_set_connection_scope(connection_id, scope_id)
 	var node: AVMMOServerConnection = _get_connection_node(connection_id)
