@@ -1,0 +1,75 @@
+[gd_scene load_steps=2 format=3 uid="uid://d4ko4s876tslo"]
+
+[ext_resource type="Script" path="res://addons/AlephVault.MMO/samples/scripts/sample-client-ui.gd" id="1_ylar5"]
+
+[node name="UI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 2
+size_flags_vertical = 2
+script = ExtResource("1_ylar5")
+
+[node name="SetNickname" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 755.0
+offset_top = 18.0
+offset_right = 870.0
+offset_bottom = 70.0
+text = "Change Nick"
+
+[node name="Messages" type="TextEdit" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 19.0
+offset_top = 78.0
+offset_right = 1131.0
+offset_bottom = 567.0
+editable = false
+wrap_mode = 1
+scroll_smooth = true
+
+[node name="NewNickname" type="LineEdit" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 884.0
+offset_top = 30.0
+offset_right = 1129.0
+offset_bottom = 61.0
+
+[node name="Command" type="LineEdit" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 20.0
+offset_top = 587.0
+offset_right = 1023.0
+offset_bottom = 618.0
+
+[node name="SendCommand" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1033.0
+offset_top = 585.0
+offset_right = 1124.0
+offset_bottom = 622.0
+text = "Send"
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 486.0
+offset_top = 30.0
+offset_right = 569.0
+offset_bottom = 53.0
+text = "Channel: #"
+
+[node name="Channel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 568.0
+offset_top = 30.0
+offset_right = 727.0
+offset_bottom = 53.0
