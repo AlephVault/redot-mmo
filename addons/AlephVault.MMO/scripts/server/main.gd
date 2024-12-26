@@ -63,6 +63,10 @@ signal client_entered(id: int)
 ## The signal triggered when a client left.
 signal client_left(id: int)
 
+## Triggered when a scope is changed for a connection.
+## With (-1) for the scope, it means complete removal.
+signal scope_changed(connection_id: int, current_scope_id: int, scope_id: int)
+
 # The current address from the current launch.
 var _address: String
 

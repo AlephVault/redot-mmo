@@ -2,10 +2,6 @@ extends Node
 
 class_name AVMMOServerConnections
 
-## Triggered when a scope is changed for a connection.
-## With (-1) for the scope, it means complete removal.
-signal scope_changed(connection_id: int, current_scope_id: int, scope_id: int)
-
 func _add_special_scope(id: int) -> Dictionary:
 	id = AVMMOScopes.make_fq_special_scope_id(id)
 	if _scopes.has(id):
@@ -114,7 +110,7 @@ func set_connection_scope(connection_id: int, scope_id: int):
 	var node: AVMMOServerConnection = get_connection_node(connection_id)
 	if node:
 		node.scope_changed.emit(current_scope_id, scope_id)
-		scope_changed.emit(node.id, current_scope_id, scope_id)
+		(get_parent() as AVMMOServer).scope_changed.emit(node.id, current_scope_id, scope_id)
 		node.notifications.set_scope(scope_id)
 
 ## Tells whether the connection is registered here.
@@ -174,5 +170,5 @@ func _remove_client(id: int):
 	if node:
 		_unset_connection_scope(id)
 		node.scope_changed.emit(-1)
-		scope_changed.emit(node.id, -1)
+		(get_parent() as AVMMOServer).scope_changed.emit(node.id, -1)
 		remove_child(node)
