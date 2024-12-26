@@ -1,6 +1,9 @@
 extends AVMMOClient
 
 
+var _connection_class = preload("./sample-client-connection.gd")
+
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	super()
@@ -16,6 +19,10 @@ func _process(delta: float) -> void:
 		print("join_server() result:", self.join_server("127.0.0.1", 6777))
 	if Input.is_action_just_pressed("client_leave"):
 		print("leave_server() result:", self.leave_server())
+
+
+func connection_class() -> Script:
+	return _connection_class
 
 
 func _client_started():
