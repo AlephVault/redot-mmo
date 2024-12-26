@@ -8,7 +8,14 @@ func set_nickname():
 	if nickname != "":
 		%NewNickname.text = ""
 		_message_local_nick(nickname, connection.nick(nickname))
-		
+
+func _input(event):
+	if Input.is_key_pressed(KEY_ENTER):
+		var node = get_viewport().gui_get_focus_owner()
+		if node == %NewNickname:
+			set_nickname()
+		elif node == %Command:
+			send_command()
 
 ## Sends the current command.
 func send_command():
