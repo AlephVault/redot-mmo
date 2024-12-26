@@ -2,6 +2,7 @@ extends AVMMOClient
 
 
 const _connection_class = preload("./sample-client-connection.gd")
+const _ui = preload("./sample-client-ui.gd")
 
 
 # Called when the node enters the scene tree for the first time.
@@ -10,6 +11,14 @@ func _ready() -> void:
 	self.client_started.connect(_client_started)
 	self.client_stopped.connect(_client_stopped)
 	self.client_failed.connect(_client_failed)
+
+	# Create the spawner (attach it with ownership).
+	var client = _ui.new()
+	client.name = "UI"
+	add_child(client, true)
+	client.owner = self
+	_client = client
+	
 	print("Started the MMO Client scene")
 
 
@@ -26,12 +35,15 @@ func connection_class() -> Script:
 
 
 func _client_started():
-	print("Client started")
+	_client.message_connection_started()
 
 
 func _client_stopped():
-	print("Client stopped")
+	_client.message_connection_closed()
 
 
 func _client_failed():
-	print("Client failed")
+	_client.message_connection_failed()
+
+
+var _client: _ui
