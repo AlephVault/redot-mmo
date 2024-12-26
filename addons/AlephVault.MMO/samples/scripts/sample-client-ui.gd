@@ -36,7 +36,7 @@ func _add_line(line: String):
 		new_text = text + "\n" + line
 	%Message.text = new_text
 
-func _clear():
+func clear_messages():
 	%Message.text = ""
 
 func message_connection_started():
