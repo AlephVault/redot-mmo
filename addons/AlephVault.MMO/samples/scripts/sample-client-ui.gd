@@ -71,3 +71,15 @@ func message_local_part(result: bool):
 		_add_line("** Parting current channel")
 	else:
 		_add_line("** ! Could not part current channel")
+
+func message_user_join(connection_id: int, nick: String):
+	_add_line(">| %s (%d) joined the channel" % [nick, connection_id])
+
+func message_user_part(connection_id: int, nick: String):
+	_add_line(">| %s (%d) left the channel" % [nick, connection_id])
+
+func message_user_sent(connection_id: int, nick: String, message: String):
+	_add_line(">> %s (%d) :- %s" % [nick, connection_id, message])
+
+func message_user_nick(connection_id: int, nick: String, new_nick: String):
+	_add_line(">| %s (%d) is now known as: %s" % [nick, connection_id, new_nick])
