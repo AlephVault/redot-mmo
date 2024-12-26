@@ -6,15 +6,6 @@ class_name AVMMOServerConnections
 ## With (-1) for the scope, it means complete removal.
 signal scope_changed(connection_id: int, current_scope_id: int, scope_id: int)
 
-## The class of connections to instantiate when a connection is
-## established.
-var connection_class: Script = AVMMOServerConnection:
-	set(value):
-		var inherits: bool = AVMMOClasses.inherits_native_class(value, "AVMMOServerConnection")
-		assert(inherits, "The assigned connection class must inherit AVMMOServerConnection")
-		if inherits:
-			connection_class = value
-
 func _add_special_scope(id: int) -> Dictionary:
 	id = AVMMOScopes.make_fq_special_scope_id(id)
 	if _scopes.has(id):
@@ -164,14 +155,16 @@ func _add_client(id: int) -> AVMMOServerConnection:
 	if id <= 1:
 		return null
 	# Create the node.
-	var node = connection_class.new()
-	node.name = "Connection.%s" % id 
-	node.id = id
-	set_connection_scope(id, AVMMOScopes.make_fq_special_scope_id(AVMMOScopes.SCOPE_LIMBO))
-	add_child(node, true)
-	
-	# Return the node.
-	return node
+	var node = (get_parent() as AVMMOServer).connection_class().new()
+	var inherits: bool = node is AVMMOServerConnection
+	assert(inherits, "The assigned connection class must inherit AVMMOServerConnection")
+	if inherits:
+		node.name = "Connection.%s" % id 
+		node.id = id
+		set_connection_scope(id, AVMMOScopes.make_fq_special_scope_id(AVMMOScopes.SCOPE_LIMBO))
+		add_child(node, true)
+		return node
+	return null
 
 # Removes a client connection object for the
 # given connection id.

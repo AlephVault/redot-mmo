@@ -6,15 +6,6 @@ class_name AVMMOClientConnections
 # one connection will belong here.
 var _connections: Dictionary = {}
 
-## The class of connections to instantiate when a connection is
-## established.
-var connection_class: Script = AVMMOClientConnection:
-	set(value):
-		var inherits: bool = AVMMOClasses.inherits_native_class(value, "AVMMOClientConnection")
-		assert(inherits, "The assigned connection class must inherit AVMMOClientConnection")
-		if inherits:
-			connection_class = value
-
 func _enter_tree() -> void:
 	var parent = get_parent()
 	if parent is AVMMOClient:
@@ -43,14 +34,16 @@ func _on_client_stopped() -> void:
 # connection id. It will be the only one here.
 func _add_client() -> AVMMOClientConnection:
 	# Create the node.
-	var node = connection_class.new()
-	var id = multiplayer.get_unique_id()
-	node.name = "Connection.%s" % id
-	node.id = id
-	add_child(node, true)
-	
-	# Return the node.
-	return node
+	var node = (get_parent() as AVMMOClient).connection_class().new()
+	var inherits: bool = node is AVMMOClientConnection
+	assert(inherits, "The assigned connection class must inherit AVMMOClientConnection")
+	if inherits:
+		var id = multiplayer.get_unique_id()
+		node.name = "Connection.%s" % id
+		node.id = id
+		add_child(node, true)
+		return node
+	return null
 
 ## Returns the only client connection object.
 func get_connection_node() -> AVMMOClientConnection:
