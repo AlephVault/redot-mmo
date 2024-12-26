@@ -15,3 +15,7 @@ func join(channel: String) -> bool:
 @rpc("authority", "call_remote", "reliable")
 func send(message: String):
 	pass
+
+@rpc("authority", "call_remote", "reliable")
+func nick(nickname: String) -> bool:
+	return false
