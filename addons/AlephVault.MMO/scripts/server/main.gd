@@ -80,6 +80,8 @@ var _world: AVMMOServerWorld
 var world: AVMMOServerWorld:
 	get:
 		return _world
+	set(value):
+		assert(false, "The server's world cannot be set this way")
 
 # The spawner.
 var _spawner: MultiplayerSpawner
@@ -88,6 +90,8 @@ var _spawner: MultiplayerSpawner
 var spawner: MultiplayerSpawner:
 	get:
 		return _spawner
+	set(value):
+		assert(false, "The server's spawner cannot be set this way")
 
 # The parent of the connections.
 var _connections: AVMMOServerConnections
@@ -96,16 +100,22 @@ var _connections: AVMMOServerConnections
 var connections: AVMMOServerConnections:
 	get:
 		return _connections
+	set(value):
+		assert(false, "The server's connections cannot be set this way")
 
 ## The current address from the current launch.
 var address: String:
 	get:
 		return _address
+	set(value):
+		assert(false, "The server's address cannot be set this way")
 
 ## The current port from the current launch.
 var port: int:
 	get:
 		return _port
+	set(value):
+		assert(false, "The server's port cannot be set this way")
 
 ## Launches a server.
 ##

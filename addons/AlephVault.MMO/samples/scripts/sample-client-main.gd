@@ -14,11 +14,11 @@ func _ready() -> void:
 	self.scope_changed.connect(_scope_changed)
 
 	# Create the spawner (attach it with ownership).
-	var client = _ui.new()
-	client.name = "UI"
-	add_child(client, true)
-	client.owner = self
-	_client = client
+	var client_ui = _ui.new()
+	client_ui.name = "UI"
+	add_child(client_ui, true)
+	client_ui.owner = self
+	_client_ui = client_ui
 	
 	print("Started the MMO Client scene")
 
@@ -36,19 +36,25 @@ func connection_class() -> Script:
 
 
 func _client_started():
-	_client.message_connection_started()
+	_client_ui.message_connection_started()
 
 
 func _client_stopped():
-	_client.message_connection_closed()
+	_client_ui.message_connection_closed()
 
 
 func _client_failed():
-	_client.message_connection_failed()
+	_client_ui.message_connection_failed()
 
 
 func _scope_changed(old_scope_id: int, new_scope_id: int):
-	_client.message_scope_changed(new_scope_id)
+	_client_ui.message_scope_changed(new_scope_id)
 
 
-var _client: _ui
+var _client_ui: _ui
+
+var client_ui: _ui:
+	get:
+		return _client_ui
+	set(value):
+		assert(false, "The client's UI cannot be set this way")

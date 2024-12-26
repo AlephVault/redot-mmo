@@ -75,6 +75,8 @@ var _world: AVMMOClientWorld
 var world: AVMMOClientWorld:
 	get:
 		return _world
+	set(value):
+		assert(false, "The client's world cannot be set this way")
 
 # The spawner.
 var _spawner: MultiplayerSpawner
@@ -83,6 +85,8 @@ var _spawner: MultiplayerSpawner
 var spawner: MultiplayerSpawner:
 	get:
 		return _spawner
+	set(value):
+		assert(false, "The client's spawner cannot be set this way")
 
 # The parent of the connections.
 var _connections: AVMMOClientConnections
@@ -91,16 +95,22 @@ var _connections: AVMMOClientConnections
 var connections: AVMMOClientConnections:
 	get:
 		return _connections
+	set(value):
+		assert(false, "The client's connections cannot be set this way")
 
 ## The current address from the current launch.
 var address: String:
 	get:
 		return _address
+	set(value):
+		assert(false, "The client's address cannot be set this way")
 
 ## The current port from the current launch.
 var port: int:
 	get:
 		return _port
+	set(value):
+		assert(false, "The client's port cannot be set this way")
 
 ## Joins a server.
 ##
