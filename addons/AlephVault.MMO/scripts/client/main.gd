@@ -58,6 +58,10 @@ signal client_stopped
 ## The signal triggered when the client failed to connect to a server.
 signal client_failed
 
+## Triggered when a scope is changed for a connection.
+## With (-1) for the scope, it means complete removal.
+signal scope_changed(current_scope_id: int, scope_id: int)
+
 # The current address from the current launch.
 var _address: String
 

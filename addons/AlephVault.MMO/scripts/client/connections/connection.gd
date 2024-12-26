@@ -28,6 +28,7 @@ func _set_scope(id: int):
 	var current_scope_id: int = _scope
 	_scope = id
 	scope_changed.emit(current_scope_id, id)
+	($"../.." as AVMMOClient).scope_changed.emit(current_scope_id, id)
 
 func _make_commands_node() -> AVMMOClientConnectionCommands:
 	# Override this to instantiate the node serving the
