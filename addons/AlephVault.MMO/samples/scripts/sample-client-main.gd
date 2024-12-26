@@ -11,6 +11,7 @@ func _ready() -> void:
 	self.client_started.connect(_client_started)
 	self.client_stopped.connect(_client_stopped)
 	self.client_failed.connect(_client_failed)
+	self.scope_changed.connect(_scope_changed)
 
 	# Create the spawner (attach it with ownership).
 	var client = _ui.new()
@@ -44,6 +45,10 @@ func _client_stopped():
 
 func _client_failed():
 	_client.message_connection_failed()
+
+
+func _scope_changed(old_scope_id: int, new_scope_id: int):
+	_client.message_scope_changed(new_scope_id)
 
 
 var _client: _ui
