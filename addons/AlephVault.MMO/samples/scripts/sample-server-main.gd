@@ -1,7 +1,7 @@
 extends AVMMOServer
 
 
-var _connection_class = preload("./sample-server-connection.gd")
+const _connection_class = preload("./sample-server-connection.gd")
 
 
 # Called when the node enters the scene tree for the first time.

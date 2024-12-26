@@ -1,7 +1,7 @@
 extends AVMMOClient
 
 
-var _connection_class = preload("./sample-client-connection.gd")
+const _connection_class = preload("./sample-client-connection.gd")
 
 
 # Called when the node enters the scene tree for the first time.
