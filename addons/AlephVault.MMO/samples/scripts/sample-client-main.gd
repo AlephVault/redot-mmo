@@ -2,6 +2,7 @@ extends AVMMOClient
 
 
 const _connection_class = preload("./sample-client-connection.gd")
+const _ui_scene = preload("../scenes/sample-client-ui.tscn")
 const _ui = preload("./sample-client-ui.gd")
 
 
@@ -14,7 +15,7 @@ func _ready() -> void:
 	self.scope_changed.connect(_scope_changed)
 
 	# Create the spawner (attach it with ownership).
-	var client_ui = _ui.new()
+	var client_ui = _ui_scene.instantiate()
 	client_ui.name = "UI"
 	add_child(client_ui, true)
 	client_ui.owner = self
