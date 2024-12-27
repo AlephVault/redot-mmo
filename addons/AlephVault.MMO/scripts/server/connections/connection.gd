@@ -59,3 +59,8 @@ func init_authority():
 	add_child(_notifications, true)
 	_commands.set_multiplayer_authority(id)
 	_notifications.set_multiplayer_authority(1)
+
+## Sends an RPC from the notifications object to the
+## owner of the connection.
+func notify_owner(method: String, args: Array):
+	notifications.rpc_id.callv([id, method] + args)
