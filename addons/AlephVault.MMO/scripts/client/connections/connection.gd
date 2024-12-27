@@ -6,6 +6,9 @@ class_name AVMMOClientConnection
 ## With (-1) for the scope, it means complete removal.
 signal scope_changed(current_scope_id: int, scope_id: int)
 
+func _enter_tree() -> void:
+	_connections = get_parent() as AVMMOClientConnections
+
 ## The is for this (client) connection.
 var id: int = 0:
 	set(value):
@@ -44,6 +47,7 @@ func _make_notifications_node() -> AVMMOClientConnectionNotifications:
 
 var _commands: AVMMOClientConnectionCommands
 var _notifications: AVMMOClientConnectionNotifications
+var _connections: AVMMOClientConnections
 
 ## Gets the commands node from the connection.
 var commands: AVMMOClientConnectionCommands:
@@ -58,6 +62,13 @@ var notifications: AVMMOClientConnectionNotifications:
 		return _notifications
 	set(value):
 		assert(false, "The notifications node cannot be set this way")
+
+## Gets the connections node.
+var connections: AVMMOClientConnections:
+	get:
+		return _connections
+	set(value):
+		assert(false, "The connections node cannot be set this way")
 
 func init_authority():
 	_commands = _make_commands_node()
