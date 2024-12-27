@@ -8,7 +8,9 @@ var _connections: Dictionary = {}
 
 func _enter_tree() -> void:
 	var parent = get_parent()
+	print("AVMMOClientConnections :: enter tree")
 	if parent is AVMMOClient:
+		print("AVMMOClientConnections :: parent is client")
 		var client = parent as AVMMOClient
 		if not client.client_started.is_connected(_on_client_started):
 			client.client_started.connect(_on_client_started)
@@ -25,6 +27,7 @@ func _exit_tree() -> void:
 			client.client_stopped.disconnect(_on_client_stopped)
 
 func _on_client_started() -> void:
+	print("AVMMOClientConnections :: _on_client_stated")
 	_add_client()
 
 func _on_client_stopped() -> void:
@@ -39,9 +42,11 @@ func _add_client() -> AVMMOClientConnection:
 	assert(inherits, "The assigned connection class must inherit AVMMOClientConnection")
 	if inherits:
 		var id = multiplayer.get_unique_id()
-		node.name = "Connection.%s" % id
+		node.name = "Connection_%s" % id
 		node.id = id
 		add_child(node, true)
+		print("AVMMOClientConnections :: adding child")
+		node.init_authority()
 		return node
 	return null
 

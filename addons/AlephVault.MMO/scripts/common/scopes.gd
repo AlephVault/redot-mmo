@@ -38,7 +38,7 @@ const SCOPE_ACCOUNT_DASHBOARD: int = 1
 static func make_fq_scope_id(id: int, scope_type: ScopeType) -> int:
 	if id < 0 || id >= (1 << 30):
 		return -1
-	if not ScopeType.has(scope_type):
+	if not ScopeType.values().has(scope_type):
 		return -1
 	return int(scope_type) << 30 || id
 

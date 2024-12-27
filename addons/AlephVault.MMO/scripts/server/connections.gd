@@ -54,7 +54,7 @@ var _scopes: Dictionary = {
 func _set_scope_for_connection(connection_id: int, scope_id: int):
 	_connections[connection_id] = {
 		"scope_id": scope_id,
-		"node": get_node("Connection.%d" % connection_id)
+		"node": get_node("Connection_%d" % connection_id)
 	}
 
 func _unset_scope_for_connection(connection_id: int):
@@ -153,10 +153,11 @@ func _add_client(id: int) -> AVMMOServerConnection:
 	var inherits: bool = node is AVMMOServerConnection
 	assert(inherits, "The assigned connection class must inherit AVMMOServerConnection")
 	if inherits:
-		node.name = "Connection.%s" % id 
+		node.name = "Connection_%s" % id 
 		node.id = id
 		set_connection_scope(id, AVMMOScopes.make_fq_special_scope_id(AVMMOScopes.SCOPE_LIMBO))
 		add_child(node, true)
+		node.init_authority()
 		return node
 	return null
 
@@ -164,7 +165,7 @@ func _add_client(id: int) -> AVMMOServerConnection:
 # given connection id.
 func _remove_client(id: int):
 	# Remove the node.
-	var node = get_node("Connection.%s" % id)
+	var node = get_node("Connection_%s" % id)
 	if node:
 		_unset_connection_scope(id)
 		node.scope_changed.emit(-1)

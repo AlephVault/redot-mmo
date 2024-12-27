@@ -19,6 +19,7 @@ func _ready() -> void:
 	client_ui.name = "UI"
 	add_child(client_ui, true)
 	client_ui.owner = self
+	client_ui.visible = false
 	_client_ui = client_ui
 	
 	print("Started the MMO Client scene")
@@ -37,14 +38,17 @@ func connection_class() -> Script:
 
 
 func _client_started():
+	client_ui.visible = true
 	_client_ui.message_connection_started()
 
 
 func _client_stopped():
+	client_ui.visible = false
 	_client_ui.message_connection_closed()
 
 
 func _client_failed():
+	client_ui.visible = false
 	_client_ui.message_connection_failed()
 
 

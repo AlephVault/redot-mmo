@@ -1,8 +1,14 @@
 extends Control
 
 
-func _enter_tree() -> void:
+func _enter_tree():
 	print("UI initialized")
+	%SetNickname.connect("pressed", set_nickname)
+	%SendCommand.connect("pressed", send_command)
+
+func _exit_tree():
+	%SetNickname.connect("pressed", set_nickname)
+	%SendCommand.disconnect("pressed", send_command)
 
 ## Sets the nickname via command.
 func set_nickname():
@@ -10,11 +16,11 @@ func set_nickname():
 	var nickname = $NewNickname.text.strip_edges()
 	if nickname != "":
 		$NewNickname.text = ""
-		_message_local_nick(nickname, connection.nick(nickname))
+		_message_local_nick(nickname, connection.commands.nick(nickname))
 
 func _input(event):
+	var node = get_viewport().gui_get_focus_owner()
 	if Input.is_key_pressed(KEY_ENTER):
-		var node = get_viewport().gui_get_focus_owner()
 		if node == $NewNickname:
 			set_nickname()
 		elif node == $Command:
@@ -32,29 +38,29 @@ func send_command():
 	var connection = ($".." as AVMMOClient).connections.get_connection_node()
 	if base_command == "/join":
 		# Change the current channel.
-		_message_local_join(argument, connection.join(argument))
+		_message_local_join(argument, connection.commands.join(argument))
 	elif base_command == "/part":
 		# Leaves the current channel, if any.
-		_message_local_part(connection.part())
+		_message_local_part(connection.commands.part())
 	elif base_command == "/nick":
 		# Changes the nick.
-		_message_local_nick(argument, connection.nick(argument))
+		_message_local_nick(argument, connection.commands.nick(argument))
 	elif base_command == "/list":
 		# Lists the channels.
-		_message_local_list(connection.list())
+		_message_local_list(connection.commands.list())
 	else:
 		# Sends a message.
-		connection.send(argument)
+		connection.commands.send(argument)
 
 func _add_line(line: String):
-	var text: String = $Message.text
+	var text: String = $Messages.text
 	var new_text: String = line
 	if text.strip_edges() != "":
 		new_text = text + "\n" + line
-	$Message.text = new_text
+	$Messages.text = new_text
 
 func clear_messages():
-	$Message.text = ""
+	$Messages.text = ""
 
 func message_connection_started():
 	_add_line("## Connection started")

@@ -9,7 +9,7 @@ func _make_commands_node() -> AVMMOServerConnectionCommands:
 	# that, the commands are implemented through RPC.
 	return _commands_class.new()
 
-func _make_notifications_mode() -> AVMMOServerConnectionNotifications:
+func _make_notifications_node() -> AVMMOServerConnectionNotifications:
 	# Override this to instantiate the node serving the
 	# notifications to the client. Other than that, the
 	# notifications are implemented through RPC.
