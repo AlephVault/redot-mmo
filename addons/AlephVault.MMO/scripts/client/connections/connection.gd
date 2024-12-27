@@ -36,7 +36,7 @@ func _make_commands_node() -> AVMMOClientConnectionCommands:
 	# that, the commands are implemented through RPC.
 	return AVMMOClientConnectionCommands.new()
 
-func _make_notifications_mode() -> AVMMOClientConnectionNotifications:
+func _make_notifications_node() -> AVMMOClientConnectionNotifications:
 	# Override this to instantiate the node serving the
 	# notifications to the client. Other than that, the
 	# notifications are implemented through RPC.
@@ -63,7 +63,7 @@ func init_authority():
 	_commands = _make_commands_node()
 	_commands.name = "Commands"
 	add_child(_commands, true)
-	_notifications = _make_notifications_mode()
+	_notifications = _make_notifications_node()
 	_notifications.name = "Notifications"
 	add_child(_notifications, true)
 	_commands.set_multiplayer_authority(id)
