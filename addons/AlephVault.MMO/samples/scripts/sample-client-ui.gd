@@ -1,28 +1,31 @@
 extends Control
 
 
+func _enter_tree() -> void:
+	print("UI initialized")
+
 ## Sets the nickname via command.
 func set_nickname():
 	var connection = ($".." as AVMMOClient).connections.get_connection_node()
-	var nickname = %NewNickname.text.strip_edges()
+	var nickname = $NewNickname.text.strip_edges()
 	if nickname != "":
-		%NewNickname.text = ""
+		$NewNickname.text = ""
 		_message_local_nick(nickname, connection.nick(nickname))
 
 func _input(event):
 	if Input.is_key_pressed(KEY_ENTER):
 		var node = get_viewport().gui_get_focus_owner()
-		if node == %NewNickname:
+		if node == $NewNickname:
 			set_nickname()
-		elif node == %Command:
+		elif node == $Command:
 			send_command()
 
 ## Sends the current command.
 func send_command():
-	var command: String = %Command.text.strip_edges()
+	var command: String = $Command.text.strip_edges()
 	if command == "":
 		return
-	%Command.text = ""
+	$Command.text = ""
 	var command_parts = command.split(" ", false, 1)
 	var base_command: String = command_parts[0].to_lower()
 	var argument = command_parts[1].strip_edges() if len(command_parts) > 1 else ""
@@ -44,14 +47,14 @@ func send_command():
 		connection.send(argument)
 
 func _add_line(line: String):
-	var text: String = %Message.text
+	var text: String = $Message.text
 	var new_text: String = line
 	if text.strip_edges() != "":
 		new_text = text + "\n" + line
-	%Message.text = new_text
+	$Message.text = new_text
 
 func clear_messages():
-	%Message.text = ""
+	$Message.text = ""
 
 func message_connection_started():
 	_add_line("## Connection started")
