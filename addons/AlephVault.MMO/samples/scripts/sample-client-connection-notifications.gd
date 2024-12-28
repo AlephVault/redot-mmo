@@ -1,4 +1,4 @@
-extends AVMMOClientConnectionNotifications
+extends AlephVault__MMO.Client.ConnectionNotifications
 
 @rpc("authority", "call_remote", "reliable")
 func user_join(connection_id: int, nick: String):

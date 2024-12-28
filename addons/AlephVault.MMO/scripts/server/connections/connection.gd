@@ -28,14 +28,14 @@ func _make_commands_node() -> AlephVault__MMO.Server.ConnectionCommands:
 	# that, the commands are implemented through RPC.
 	return AlephVault__MMO.Server.ConnectionCommands.new()
 
-func _make_notifications_node() -> AVMMOServerConnectionNotifications:
+func _make_notifications_node() -> AlephVault__MMO.Server.ConnectionNotifications:
 	# Override this to instantiate the node serving the
 	# notifications to the client. Other than that, the
 	# notifications are implemented through RPC.
-	return AVMMOServerConnectionNotifications.new()
+	return AlephVault__MMO.Server.ConnectionNotifications.new()
 
 var _commands: AlephVault__MMO.Server.ConnectionCommands
-var _notifications: AVMMOServerConnectionNotifications
+var _notifications: AlephVault__MMO.Server.ConnectionNotifications
 var _connections: AlephVault__MMO.Server.Connections
 
 ## Gets the commands node from the connection.
@@ -46,7 +46,7 @@ var commands: AlephVault__MMO.Server.ConnectionCommands:
 		assert(false, "The commands node cannot be set this way")
 
 ## Gets the notifications node from the connection.
-var notifications: AVMMOServerConnectionNotifications:
+var notifications: AlephVault__MMO.Server.ConnectionNotifications:
 	get:
 		return _notifications
 	set(value):
@@ -62,9 +62,11 @@ var connections: AlephVault__MMO.Server.Connections:
 func init_authority():
 	_commands = _make_commands_node()
 	_commands.name = "Commands"
+	print("[AlephVault.MMO:Server] Adding Commands to: " + String(get_path()) + ":", _commands)
 	add_child(_commands, true)
 	_notifications = _make_notifications_node()
 	_notifications.name = "Notifications"
+	print("[AlephVault.MMO:Server] Adding Notifications to: " + String(get_path()) + ":", _notifications)
 	add_child(_notifications, true)
 	_commands.set_multiplayer_authority(id)
 	_notifications.set_multiplayer_authority(1)

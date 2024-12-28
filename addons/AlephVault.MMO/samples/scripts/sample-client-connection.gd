@@ -9,7 +9,7 @@ func _make_commands_node() -> AlephVault__MMO.Client.ConnectionCommands:
 	# that, the commands are implemented through RPC.
 	return _commands_class.new()
 
-func _make_notifications_node() -> AVMMOClientConnectionNotifications:
+func _make_notifications_node() -> AlephVault__MMO.Client.ConnectionNotifications:
 	# Override this to instantiate the node serving the
 	# notifications to the client. Other than that, the
 	# notifications are implemented through RPC.

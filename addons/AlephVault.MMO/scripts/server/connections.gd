@@ -158,6 +158,7 @@ func _add_client(id: int) -> AlephVault__MMO.Server.Connection:
 		node.name = "Connection_%s" % id 
 		node.id = id
 		set_connection_scope(id, AlephVault__MMO.Common.Scopes.make_fq_special_scope_id(AlephVault__MMO.Common.Scopes.SCOPE_LIMBO))
+		print("[AlephVault.MMO:Server] Adding Connection to: " + String(get_path()) + ":", node)
 		add_child(node, true)
 		node.init_authority()
 		return node
