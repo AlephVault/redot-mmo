@@ -6,6 +6,7 @@ func _ready() -> void:
 	# Create the world (attach it with ownership).
 	var world = AlephVault__MMO.Server.World.new()
 	world.name = "World"
+	print("[AlephVault.MMO:Server] Adding World to: " + String(get_path()) + ":", world)
 	add_child(world, true)
 	world.owner = self
 	_world = world
@@ -13,6 +14,7 @@ func _ready() -> void:
 	# Create the spawner (attach it with ownership).
 	var spawner = MultiplayerSpawner.new()
 	spawner.name = "MultiplayerSpawner"
+	print("[AlephVault.MMO:Server] Adding MultiplayerSpawner to: " + String(get_path()) + ":", spawner)
 	add_child(spawner, true)
 	spawner.owner = self
 	_spawner = spawner
@@ -23,6 +25,7 @@ func _ready() -> void:
 	# Also, set a place for the child connections.
 	var connections = AlephVault__MMO.Server.Connections.new()
 	connections.name = "Connections"
+	print("[AlephVault.MMO:Server] Adding Connections to: " + String(get_path()) + ":", connections)
 	add_child(connections, true)
 	_connections = connections
 	
