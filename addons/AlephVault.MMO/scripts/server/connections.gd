@@ -87,7 +87,7 @@ func _set_connection_scope(connection_id: int, scope_id: int):
 ## Gets the connections inside that scope.
 func get_connections_in_scope(scope_id: int) -> Array[int]:
 	if _scopes.has(scope_id):
-		return _scopes[scope_id].keys()
+		return _scopes[scope_id].keys() as Array[int]
 	else:
 		return []
 

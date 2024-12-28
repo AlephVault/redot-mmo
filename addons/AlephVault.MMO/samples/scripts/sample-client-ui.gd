@@ -16,7 +16,7 @@ func set_nickname():
 	var nickname = $NewNickname.text.strip_edges()
 	if nickname != "":
 		$NewNickname.text = ""
-		_message_local_nick(nickname, connection.commands.nick(nickname))
+		connection.commands.nick.rpc(nickname)
 
 func _input(event):
 	var node = get_viewport().gui_get_focus_owner()
@@ -38,19 +38,19 @@ func send_command():
 	var connection = ($".." as AVMMOClient).connections.get_connection_node()
 	if base_command == "/join":
 		# Change the current channel.
-		_message_local_join(argument, connection.commands.join(argument))
+		connection.commands.join.rpc(argument)
 	elif base_command == "/part":
 		# Leaves the current channel, if any.
-		_message_local_part(connection.commands.part())
+		connection.commands.part.rpc()
 	elif base_command == "/nick":
 		# Changes the nick.
-		_message_local_nick(argument, connection.commands.nick(argument))
+		connection.commands.nick.rpc(argument)
 	elif base_command == "/list":
 		# Lists the channels.
-		_message_local_list(connection.commands.list())
+		connection.commands.list.rpc()
 	else:
 		# Sends a message.
-		connection.commands.send(argument)
+		connection.commands.send.rpc(argument)
 
 func _add_line(line: String):
 	var text: String = $Messages.text
@@ -74,22 +74,22 @@ func message_connection_closed():
 func message_scope_changed(id: int):
 	_add_line("## [DEBUG] Scope changed: %d" % id)
 
-func _message_local_nick(nick: String, result: bool):
+func message_nick_result(nick: String, result: bool):
 	if result:
 		_add_line("** Nick updated successfully: " + nick)
 	else:
 		_add_line("** ! Could not update nick: " + nick)
 
-func _message_local_list(result: Array[String]):
+func message_list_result(result: Array[String]):
 	_add_line("** Available channels: " + ", ".join(result))
 
-func _message_local_join(channel: String, result: bool):
+func message_join_result(channel: String, result: bool):
 	if result:
 		_add_line("** Joining channel: " + channel)
 	else:
 		_add_line("** ! Could not join channel: " + channel)
 
-func _message_local_part(result: bool):
+func message_part_result(result: bool):
 	if result:
 		_add_line("** Parting current channel")
 	else:
