@@ -1,4 +1,4 @@
-extends AVMMOClientConnectionCommands
+extends AlephVault__MMO.Client.ConnectionCommands
 
 func _enter_tree() -> void:
 	print("Client connection commands path:", get_path())

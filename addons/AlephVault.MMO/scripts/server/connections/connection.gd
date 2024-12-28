@@ -22,11 +22,11 @@ var scope: int:
 	set(value):
 		assert(false, "The scope cannot be set this way")
 
-func _make_commands_node() -> AVMMOServerConnectionCommands:
+func _make_commands_node() -> AlephVault__MMO.Server.ConnectionCommands:
 	# Override this to instantiate the node serving the
 	# commands that are issued to the server. Other than
 	# that, the commands are implemented through RPC.
-	return AVMMOServerConnectionCommands.new()
+	return AlephVault__MMO.Server.ConnectionCommands.new()
 
 func _make_notifications_node() -> AVMMOServerConnectionNotifications:
 	# Override this to instantiate the node serving the
@@ -34,12 +34,12 @@ func _make_notifications_node() -> AVMMOServerConnectionNotifications:
 	# notifications are implemented through RPC.
 	return AVMMOServerConnectionNotifications.new()
 
-var _commands: AVMMOServerConnectionCommands
+var _commands: AlephVault__MMO.Server.ConnectionCommands
 var _notifications: AVMMOServerConnectionNotifications
 var _connections: AlephVault__MMO.Server.Connections
 
 ## Gets the commands node from the connection.
-var commands: AVMMOServerConnectionCommands:
+var commands: AlephVault__MMO.Server.ConnectionCommands:
 	get:
 		return _commands
 	set(value):

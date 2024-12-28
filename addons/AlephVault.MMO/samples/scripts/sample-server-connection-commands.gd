@@ -1,4 +1,4 @@
-extends AVMMOServerConnectionCommands
+extends AlephVault__MMO.Server.ConnectionCommands
 
 static var _allowed_channels: Dictionary = {
 	"general": AlephVault__MMO.Common.Scopes.make_fq_default_scope_id(0),

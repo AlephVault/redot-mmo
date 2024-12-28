@@ -31,11 +31,11 @@ func _set_scope(id: int):
 	scope_changed.emit(current_scope_id, id)
 	($"../.." as AlephVault__MMO.Client.Main).scope_changed.emit(current_scope_id, id)
 
-func _make_commands_node() -> AVMMOClientConnectionCommands:
+func _make_commands_node() -> AlephVault__MMO.Client.ConnectionCommands:
 	# Override this to instantiate the node serving the
 	# commands that are issued to the server. Other than
 	# that, the commands are implemented through RPC.
-	return AVMMOClientConnectionCommands.new()
+	return AlephVault__MMO.Client.ConnectionCommands.new()
 
 func _make_notifications_node() -> AVMMOClientConnectionNotifications:
 	# Override this to instantiate the node serving the
@@ -43,12 +43,12 @@ func _make_notifications_node() -> AVMMOClientConnectionNotifications:
 	# notifications are implemented through RPC.
 	return AVMMOClientConnectionNotifications.new()
 
-var _commands: AVMMOClientConnectionCommands
+var _commands: AlephVault__MMO.Client.ConnectionCommands
 var _notifications: AVMMOClientConnectionNotifications
 var _connections: AlephVault__MMO.Client.Connections
 
 ## Gets the commands node from the connection.
-var commands: AVMMOClientConnectionCommands:
+var commands: AlephVault__MMO.Client.ConnectionCommands:
 	get:
 		return _commands
 	set(value):
