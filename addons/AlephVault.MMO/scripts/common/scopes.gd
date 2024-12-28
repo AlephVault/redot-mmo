@@ -1,5 +1,3 @@
-class_name AVMMOScopes
-
 ## Defines the macro-types for scopes. This is
 ## about structures and life-cycles of scopes,
 ## rather than their implementations.

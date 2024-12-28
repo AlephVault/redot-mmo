@@ -1,4 +1,4 @@
-extends AVMMOClientConnection
+extends AlephVault__MMO.Client.Connection
 
 var _commands_class = preload("./sample-client-connection-commands.gd")
 var _notifications_class = preload("./sample-client-connection-notifications.gd")

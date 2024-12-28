@@ -1,7 +1,7 @@
 extends Node
 
 func _add_special_scope(id: int) -> Dictionary:
-	id = AVMMOScopes.make_fq_special_scope_id(id)
+	id = AlephVault__MMO.Common.Scopes.make_fq_special_scope_id(id)
 	if _scopes.has(id):
 		return _scopes[id]
 	else:
@@ -34,8 +34,8 @@ func _on_client_left(id: int) -> void:
 	_remove_client(id)
 
 func _init():
-	_add_special_scope(AVMMOScopes.SCOPE_LIMBO)
-	_add_special_scope(AVMMOScopes.SCOPE_ACCOUNT_DASHBOARD)
+	_add_special_scope(AlephVault__MMO.Common.Scopes.SCOPE_LIMBO)
+	_add_special_scope(AlephVault__MMO.Common.Scopes.SCOPE_ACCOUNT_DASHBOARD)
 
 # The connections will be kept here.
 var _connections: Dictionary = {
@@ -71,7 +71,7 @@ func _unset_connection_from_scope(connection_id: int):
 			var scope = _scopes[scope_id]
 			if scope.has(connection_id):
 				scope.erase(connection_id)
-			if len(scope) == 0 and AVMMOScopes.ScopeType.get(scope_id >> 30) != AVMMOScopes.ScopeType.SPECIAL:
+			if len(scope) == 0 and AlephVault__MMO.Common.Scopes.ScopeType.get(scope_id >> 30) != AlephVault__MMO.Common.Scopes.ScopeType.SPECIAL:
 				_scopes.erase(scope_id)
 
 func _unset_connection_scope(connection_id: int):
@@ -107,7 +107,7 @@ func set_connection_scope(connection_id: int, scope_id: int):
 	var current_scope_id = get_connection_scope(connection_id)
 	_unset_connection_scope(connection_id)
 	_set_connection_scope(connection_id, scope_id)
-	var node: AVMMOServerConnection = get_connection_node(connection_id)
+	var node: AlephVault__MMO.Server.Connection = get_connection_node(connection_id)
 	if node:
 		node.scope_changed.emit(current_scope_id, scope_id)
 		(get_parent() as AlephVault__MMO.Server.Main).scope_changed.emit(node.id, current_scope_id, scope_id)
@@ -124,7 +124,7 @@ func get_connections() -> Array[int]:
 	return array
 
 ## Returns a given connection node.
-func get_connection_node(id: int) -> AVMMOServerConnection:
+func get_connection_node(id: int) -> AlephVault__MMO.Server.Connection:
 	return _connections[id]["node"]
 
 ## Iterates over all the nodes in a scope. For each
@@ -146,18 +146,18 @@ func has_scope(scope_id: int) -> bool:
 
 # Adds a new connection object for the given
 # connection id.
-func _add_client(id: int) -> AVMMOServerConnection:
+func _add_client(id: int) -> AlephVault__MMO.Server.Connection:
 	assert(id > 1, "The id of the connection must be > 1")
 	if id <= 1:
 		return null
 	# Create the node.
 	var node = (get_parent() as AlephVault__MMO.Server.Main).connection_class().new()
-	var inherits: bool = node is AVMMOServerConnection
-	assert(inherits, "The assigned connection class must inherit AVMMOServerConnection")
+	var inherits: bool = node is AlephVault__MMO.Server.Connection
+	assert(inherits, "The assigned connection class must inherit AlephVault__MMO.Server.Connection")
 	if inherits:
 		node.name = "Connection_%s" % id 
 		node.id = id
-		set_connection_scope(id, AVMMOScopes.make_fq_special_scope_id(AVMMOScopes.SCOPE_LIMBO))
+		set_connection_scope(id, AlephVault__MMO.Common.Scopes.make_fq_special_scope_id(AlephVault__MMO.Common.Scopes.SCOPE_LIMBO))
 		add_child(node, true)
 		node.init_authority()
 		return node

@@ -163,7 +163,7 @@ func leave_server() -> bool:
 ## The client connection class for this client.
 ## This method should be overridden.
 func connection_class() -> Script:
-	return AVMMOClientConnection
+	return AlephVault__MMO.Client.Connection
 
 func _on_connected_to_server():
 	client_started.emit()

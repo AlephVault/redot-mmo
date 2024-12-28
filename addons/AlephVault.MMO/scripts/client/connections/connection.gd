@@ -1,7 +1,5 @@
 extends Node
 
-class_name AVMMOClientConnection
-
 ## Triggered when a scope is changed for a connection.
 ## With (-1) for the scope, it means complete removal.
 signal scope_changed(current_scope_id: int, scope_id: int)
@@ -18,7 +16,7 @@ var id: int = 0:
 			id = value
 
 # The current scope.
-var _scope: int = AVMMOScopes.make_fq_special_scope_id(AVMMOScopes.SCOPE_LIMBO)
+var _scope: int = AlephVault__MMO.Common.Scopes.make_fq_special_scope_id(AlephVault__MMO.Common.Scopes.SCOPE_LIMBO)
 
 ## The current scope.
 var scope: int:

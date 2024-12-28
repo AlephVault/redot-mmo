@@ -1,7 +1,5 @@
 extends Node
 
-class_name AVMMOServerConnection
-
 ## Triggered when a scope is changed for a connection.
 ## With (-1) for the scope, it means complete removal.
 signal scope_changed(current_scope_id: int, id: int)

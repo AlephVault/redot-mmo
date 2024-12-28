@@ -15,3 +15,8 @@ class Server:
 	const Connection = preload("./server/connections/connection.gd")
 	const ConnectionCommands = preload("./server/connections/commands.gd")
 	const ConnectionNotifications = preload("./server/connections/notifications.gd")
+
+class Common:
+	const Scopes = preload("./common/scopes.gd")
+	const Classes = preload("./common/classes.gd")
+ 

@@ -3,12 +3,12 @@ extends Node
 class_name AVMMOServerConnectionCommands
 
 func _enter_tree() -> void:
-	_connection = get_parent() as AVMMOServerConnection
+	_connection = get_parent() as AlephVault__MMO.Server.Connection
 
-var _connection: AVMMOServerConnection
+var _connection: AlephVault__MMO.Server.Connection
 
 ## Gets the connection node.
-var connection: AVMMOServerConnection:
+var connection: AlephVault__MMO.Server.Connection:
 	get:
 		return _connection
 	set(value):

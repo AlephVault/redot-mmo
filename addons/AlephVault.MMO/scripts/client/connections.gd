@@ -30,11 +30,11 @@ func _on_client_stopped() -> void:
 
 # Adds a new connection object for the current
 # connection id. It will be the only one here.
-func _add_client() -> AVMMOClientConnection:
+func _add_client() -> AlephVault__MMO.Client.Connection:
 	# Create the node.
 	var node = (get_parent() as AlephVault__MMO.Client.Main).connection_class().new()
-	var inherits: bool = node is AVMMOClientConnection
-	assert(inherits, "The assigned connection class must inherit AVMMOClientConnection")
+	var inherits: bool = node is AlephVault__MMO.Client.Connection
+	assert(inherits, "The assigned connection class must inherit AlephVault__MMO.Client.Connection")
 	if inherits:
 		var id = multiplayer.get_unique_id()
 		node.name = "Connection_%s" % id
@@ -45,7 +45,7 @@ func _add_client() -> AVMMOClientConnection:
 	return null
 
 ## Returns the only client connection object.
-func get_connection_node() -> AVMMOClientConnection:
+func get_connection_node() -> AlephVault__MMO.Client.Connection:
 	return get_child(0)
 
 # Removes a client connection object for the

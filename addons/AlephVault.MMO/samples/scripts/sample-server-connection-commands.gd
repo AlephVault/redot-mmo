@@ -1,11 +1,11 @@
 extends AVMMOServerConnectionCommands
 
 static var _allowed_channels: Dictionary = {
-	"general": AVMMOScopes.make_fq_default_scope_id(0),
-	"gaming": AVMMOScopes.make_fq_default_scope_id(1),
-	"crypto": AVMMOScopes.make_fq_default_scope_id(2),
-	"hackers": AVMMOScopes.make_fq_default_scope_id(3),
-	"science": AVMMOScopes.make_fq_default_scope_id(4),
+	"general": AlephVault__MMO.Common.Scopes.make_fq_default_scope_id(0),
+	"gaming": AlephVault__MMO.Common.Scopes.make_fq_default_scope_id(1),
+	"crypto": AlephVault__MMO.Common.Scopes.make_fq_default_scope_id(2),
+	"hackers": AlephVault__MMO.Common.Scopes.make_fq_default_scope_id(3),
+	"science": AlephVault__MMO.Common.Scopes.make_fq_default_scope_id(4),
 }
 
 func _enter_tree() -> void:
@@ -40,9 +40,9 @@ func part():
 	var connections: AlephVault__MMO.Server.Connections = connection.connections
 	var id: int = connection.id
 	var scope_id: int = connections.get_connection_scope(id)
-	connections.set_connection_scope(id, AVMMOScopes.make_fq_special_scope_id(AVMMOScopes.SCOPE_LIMBO))
+	connections.set_connection_scope(id, AlephVault__MMO.Common.Scopes.make_fq_special_scope_id(AlephVault__MMO.Common.Scopes.SCOPE_LIMBO))
 	
-	var notify_part = func(node: AVMMOServerConnection):
+	var notify_part = func(node: AlephVault__MMO.Server.Connection):
 		node.notify_owner("user_part", [id, current_nick])
 	connections.scope_iterate(scope_id, notify_part)
 	_channel = "";
@@ -68,12 +68,12 @@ func join(channel: String):
 	connections.set_connection_scope(id, new_scope_id)
 
 	# Tell the members of the previous scope.
-	var notify_part = func(node: AVMMOServerConnection):
+	var notify_part = func(node: AlephVault__MMO.Server.Connection):
 		node.notify_owner("user_part", [id, current_nick])
 	connections.scope_iterate(old_scope_id, notify_part)
 	
 	# Tell the member of the new scope.
-	var notify_join = func(node: AVMMOServerConnection):
+	var notify_join = func(node: AlephVault__MMO.Server.Connection):
 		node.notify_owner("user_join", [id, current_nick])
 	connections.scope_iterate(new_scope_id, notify_join)
 
@@ -90,7 +90,7 @@ func send(message: String):
 	var id: int = connection.id
 	var scope_id: int = connections.get_connection_scope(id)
 
-	var notify_sent = func(node: AVMMOServerConnection):
+	var notify_sent = func(node: AlephVault__MMO.Server.Connection):
 		node.notify_owner("user_sent", [id, current_nick, message])
 	connections.scope_iterate(scope_id, notify_sent)
 
@@ -110,7 +110,7 @@ func nick(nickname: String):
 		var id: int = connection.id
 		var scope_id: int = connections.get_connection_scope(id)
 
-		var notify_nick = func(node: AVMMOServerConnection):
+		var notify_nick = func(node: AlephVault__MMO.Server.Connection):
 			node.notify_owner("user_nick", [id, old_nick, new_nick])
 		connections.scope_iterate(scope_id, notify_nick)
 	connection.notify_owner("nick_result", [nickname, true])
