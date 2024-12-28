@@ -2,7 +2,7 @@ extends Node
 
 func _ready() -> void:
 	# Create the world (attach it with ownership).
-	var world = AVMMOClientWorld.new()
+	var world = AlephVault__MMO.Client.World.new()
 	world.name = "World"
 	add_child(world, true)
 	world.owner = self
@@ -67,10 +67,10 @@ var _address: String
 var _port: int
 
 # The world.
-var _world: AVMMOClientWorld
+var _world: AlephVault__MMO.Client.World
 
 ## The world created for this client.
-var world: AVMMOClientWorld:
+var world: AlephVault__MMO.Client.World:
 	get:
 		return _world
 	set(value):

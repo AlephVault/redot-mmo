@@ -8,6 +8,7 @@ class Client:
 	const Connection = preload("./client/connections/connection.gd")
 	const ConnectionCommands = preload("./client/connections/commands.gd")
 	const ConnectionNotifications = preload("./client/connections/notifications.gd")
+	const World = preload("./client/world.gd")
 
 class Server:
 	const Main = preload("./server/main.gd")
@@ -15,6 +16,7 @@ class Server:
 	const Connection = preload("./server/connections/connection.gd")
 	const ConnectionCommands = preload("./server/connections/commands.gd")
 	const ConnectionNotifications = preload("./server/connections/notifications.gd")
+	const World = preload("./server/world.gd")
 
 class Common:
 	const Scopes = preload("./common/scopes.gd")

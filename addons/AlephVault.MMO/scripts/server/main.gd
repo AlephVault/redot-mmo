@@ -4,7 +4,7 @@ extends Node
 
 func _ready() -> void:
 	# Create the world (attach it with ownership).
-	var world = AVMMOServerWorld.new()
+	var world = AlephVault__MMO.Server.World.new()
 	world.name = "World"
 	add_child(world, true)
 	world.owner = self
@@ -72,10 +72,10 @@ var _address: String
 var _port: int
 
 # The world.
-var _world: AVMMOServerWorld
+var _world: AlephVault__MMO.Server.World
 
 ## The world created for this server.
-var world: AVMMOServerWorld:
+var world: AlephVault__MMO.Server.World:
 	get:
 		return _world
 	set(value):
