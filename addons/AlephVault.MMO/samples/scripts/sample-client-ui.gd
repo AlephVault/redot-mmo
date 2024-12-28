@@ -50,7 +50,7 @@ func send_command():
 		connection.commands.list.rpc()
 	else:
 		# Sends a message.
-		connection.commands.send.rpc(argument)
+		connection.commands.send.rpc(command)
 
 func _add_line(line: String):
 	var text: String = $Messages.text

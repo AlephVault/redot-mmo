@@ -87,7 +87,9 @@ func _set_connection_scope(connection_id: int, scope_id: int):
 ## Gets the connections inside that scope.
 func get_connections_in_scope(scope_id: int) -> Array[int]:
 	if _scopes.has(scope_id):
-		return _scopes[scope_id].keys() as Array[int]
+		var array: Array[int] = []
+		array.assign(_scopes[scope_id].keys())
+		return array
 	else:
 		return []
 
@@ -119,7 +121,9 @@ func has_connection(connection_id: int) -> bool:
 
 ## Returns all the connection ids.
 func get_connections() -> Array[int]:
-	return _connections.keys()
+	var array: Array[int] = []
+	array.assign(_connections.keys())
+	return array
 
 ## Returns a given connection node.
 func get_connection_node(id: int) -> AVMMOServerConnection:
@@ -134,7 +138,7 @@ func scope_iterate(scope_id: int, method: Callable):
 	var scope = _scopes[scope_id]
 
 	for id in connections:
-		method.call(scope[id]["node"])
+		method.call(_connections[id]["node"])
 
 ## Tells whether the scope is registered here. Actually,
 ## it only tells whether the scope exists AND has any

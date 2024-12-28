@@ -30,4 +30,4 @@ func join_result(channel: String, result: bool):
 
 @rpc("authority", "call_remote", "reliable")
 func part_result(result: bool):
-	$"../../..".client_ui.message_join_result(result)
+	$"../../..".client_ui.message_part_result(result)
