@@ -2,8 +2,6 @@ extends Node
 ## This is a base MMO Server node. Everything will occur
 ## right below this class related to MMO games.
 
-class_name AVMMOServer
-
 func _ready() -> void:
 	# Create the world (attach it with ownership).
 	var world = AVMMOServerWorld.new()

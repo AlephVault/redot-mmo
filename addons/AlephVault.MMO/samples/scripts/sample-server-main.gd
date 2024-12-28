@@ -1,4 +1,4 @@
-extends AVMMOServer
+extends AlephVault__MMO.Server.Main
 
 
 const _connection_class = preload("./sample-server-connection.gd")

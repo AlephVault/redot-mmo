@@ -8,8 +8,8 @@ var _connections: Dictionary = {}
 
 func _enter_tree() -> void:
 	var parent = get_parent()
-	if parent is AVMMOClient:
-		var client = parent as AVMMOClient
+	if parent is AlephVault__MMO.Client.Main:
+		var client = parent as AlephVault__MMO.Client.Main
 		if not client.client_started.is_connected(_on_client_started):
 			client.client_started.connect(_on_client_started)
 		if not client.client_stopped.is_connected(_on_client_stopped):
@@ -17,8 +17,8 @@ func _enter_tree() -> void:
 
 func _exit_tree() -> void:
 	var parent = get_parent()
-	if parent is AVMMOClient:
-		var client = parent as AVMMOClient
+	if parent is AlephVault__MMO.Client.Main:
+		var client = parent as AlephVault__MMO.Client.Main
 		if client.client_started.is_connected(_on_client_started):
 			client.client_started.disconnect(_on_client_started)
 		if client.client_stopped.is_connected(_on_client_stopped):
@@ -34,7 +34,7 @@ func _on_client_stopped() -> void:
 # connection id. It will be the only one here.
 func _add_client() -> AVMMOClientConnection:
 	# Create the node.
-	var node = (get_parent() as AVMMOClient).connection_class().new()
+	var node = (get_parent() as AlephVault__MMO.Client.Main).connection_class().new()
 	var inherits: bool = node is AVMMOClientConnection
 	assert(inherits, "The assigned connection class must inherit AVMMOClientConnection")
 	if inherits:

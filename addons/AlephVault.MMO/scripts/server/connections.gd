@@ -13,8 +13,8 @@ func _add_special_scope(id: int) -> Dictionary:
 
 func _enter_tree() -> void:
 	var parent = get_parent()
-	if parent is AVMMOServer:
-		var server = parent as AVMMOServer
+	if parent is AlephVault__MMO.Server.Main:
+		var server = parent as AlephVault__MMO.Server.Main
 		if not server.client_entered.is_connected(_on_client_entered):
 			server.client_entered.connect(_on_client_entered)
 		if not server.client_left.is_connected(_on_client_left):
@@ -22,8 +22,8 @@ func _enter_tree() -> void:
 
 func _exit_tree() -> void:
 	var parent = get_parent()
-	if parent is AVMMOServer:
-		var server = parent as AVMMOServer
+	if parent is AlephVault__MMO.Server.Main:
+		var server = parent as AlephVault__MMO.Server.Main
 		if server.client_entered.is_connected(_on_client_entered):
 			server.client_entered.disconnect(_on_client_entered)
 		if server.client_left.is_connected(_on_client_left):
@@ -112,7 +112,7 @@ func set_connection_scope(connection_id: int, scope_id: int):
 	var node: AVMMOServerConnection = get_connection_node(connection_id)
 	if node:
 		node.scope_changed.emit(current_scope_id, scope_id)
-		(get_parent() as AVMMOServer).scope_changed.emit(node.id, current_scope_id, scope_id)
+		(get_parent() as AlephVault__MMO.Server.Main).scope_changed.emit(node.id, current_scope_id, scope_id)
 		node.notifications.set_scope(scope_id)
 
 ## Tells whether the connection is registered here.
@@ -153,7 +153,7 @@ func _add_client(id: int) -> AVMMOServerConnection:
 	if id <= 1:
 		return null
 	# Create the node.
-	var node = (get_parent() as AVMMOServer).connection_class().new()
+	var node = (get_parent() as AlephVault__MMO.Server.Main).connection_class().new()
 	var inherits: bool = node is AVMMOServerConnection
 	assert(inherits, "The assigned connection class must inherit AVMMOServerConnection")
 	if inherits:
@@ -173,5 +173,5 @@ func _remove_client(id: int):
 	if node:
 		_unset_connection_scope(id)
 		node.scope_changed.emit(-1)
-		(get_parent() as AVMMOServer).scope_changed.emit(node.id, -1)
+		(get_parent() as AlephVault__MMO.Server.Main).scope_changed.emit(node.id, -1)
 		remove_child(node)

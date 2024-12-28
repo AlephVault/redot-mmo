@@ -1,7 +1,5 @@
 extends Node
 
-class_name AVMMOClient
-
 func _ready() -> void:
 	# Create the world (attach it with ownership).
 	var world = AVMMOClientWorld.new()

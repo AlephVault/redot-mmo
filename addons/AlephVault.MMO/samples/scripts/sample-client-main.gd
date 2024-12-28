@@ -1,4 +1,4 @@
-extends AVMMOClient
+extends AlephVault__MMO.Client.Main
 
 
 const _connection_class = preload("./sample-client-connection.gd")

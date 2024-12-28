@@ -12,7 +12,7 @@ func _exit_tree():
 
 ## Sets the nickname via command.
 func set_nickname():
-	var connection = ($".." as AVMMOClient).connections.get_connection_node()
+	var connection = ($".." as AlephVault__MMO.Client.Main).connections.get_connection_node()
 	var nickname = $NewNickname.text.strip_edges()
 	if nickname != "":
 		$NewNickname.text = ""
@@ -35,7 +35,7 @@ func send_command():
 	var command_parts = command.split(" ", false, 1)
 	var base_command: String = command_parts[0].to_lower()
 	var argument = command_parts[1].strip_edges() if len(command_parts) > 1 else ""
-	var connection = ($".." as AVMMOClient).connections.get_connection_node()
+	var connection = ($".." as AlephVault__MMO.Client.Main).connections.get_connection_node()
 	if base_command == "/join":
 		# Change the current channel.
 		connection.commands.join.rpc(argument)
