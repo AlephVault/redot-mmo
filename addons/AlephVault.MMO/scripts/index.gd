@@ -20,5 +20,4 @@ class Server:
 
 class Common:
 	const Scopes = preload("./common/scopes.gd")
-	const Classes = preload("./common/classes.gd")
  
