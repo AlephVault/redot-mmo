@@ -19,7 +19,7 @@ var _current_nick: String = ""
 var current_nick: String:
 	get:
 		if _current_nick == "":
-			return name
+			return "Anonymous"
 		else:
 			return _current_nick
 	set(value):
