@@ -1,7 +1,5 @@
 extends Node
 
-class_name AVMMOClientConnections
-
 # The connections will be kept here. Actually, only
 # one connection will belong here.
 var _connections: Dictionary = {}

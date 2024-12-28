@@ -7,7 +7,7 @@ class_name AVMMOServerConnection
 signal scope_changed(current_scope_id: int, id: int)
 
 func _enter_tree() -> void:
-	_connections = get_parent() as AVMMOServerConnections
+	_connections = get_parent() as AlephVault__MMO.Server.Connections
 
 ## The is for this (server) connection.
 var id: int = 0:
@@ -38,7 +38,7 @@ func _make_notifications_node() -> AVMMOServerConnectionNotifications:
 
 var _commands: AVMMOServerConnectionCommands
 var _notifications: AVMMOServerConnectionNotifications
-var _connections: AVMMOServerConnections
+var _connections: AlephVault__MMO.Server.Connections
 
 ## Gets the commands node from the connection.
 var commands: AVMMOServerConnectionCommands:
@@ -55,7 +55,7 @@ var notifications: AVMMOServerConnectionNotifications:
 		assert(false, "The notifications node cannot be set this way")
 
 ## Gets the connections node.
-var connections: AVMMOServerConnections:
+var connections: AlephVault__MMO.Server.Connections:
 	get:
 		return _connections
 	set(value):

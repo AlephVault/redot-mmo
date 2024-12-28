@@ -21,7 +21,7 @@ func _ready() -> void:
 	_spawner.spawn_path = _world.get_path()
 	
 	# Also, set a place for the child connections.
-	var connections = AVMMOServerConnections.new()
+	var connections = AlephVault__MMO.Server.Connections.new()
 	connections.name = "Connections"
 	add_child(connections, true)
 	_connections = connections
@@ -92,10 +92,10 @@ var spawner: MultiplayerSpawner:
 		assert(false, "The server's spawner cannot be set this way")
 
 # The parent of the connections.
-var _connections: AVMMOServerConnections
+var _connections: AlephVault__MMO.Server.Connections
 
 ## The parent of the connections.
-var connections: AVMMOServerConnections:
+var connections: AlephVault__MMO.Server.Connections:
 	get:
 		return _connections
 	set(value):

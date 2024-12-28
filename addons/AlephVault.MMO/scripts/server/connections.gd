@@ -1,7 +1,5 @@
 extends Node
 
-class_name AVMMOServerConnections
-
 func _add_special_scope(id: int) -> Dictionary:
 	id = AVMMOScopes.make_fq_special_scope_id(id)
 	if _scopes.has(id):

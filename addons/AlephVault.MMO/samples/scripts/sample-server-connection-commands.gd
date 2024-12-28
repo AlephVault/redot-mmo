@@ -37,7 +37,7 @@ func part():
 		connection.notify_owner("part_result", [false])
 		return
 
-	var connections: AVMMOServerConnections = connection.connections
+	var connections: AlephVault__MMO.Server.Connections = connection.connections
 	var id: int = connection.id
 	var scope_id: int = connections.get_connection_scope(id)
 	connections.set_connection_scope(id, AVMMOScopes.make_fq_special_scope_id(AVMMOScopes.SCOPE_LIMBO))
@@ -61,7 +61,7 @@ func join(channel: String):
 
 	# Remove from current scope, and add to the
 	# new scope.
-	var connections: AVMMOServerConnections = connection.connections
+	var connections: AlephVault__MMO.Server.Connections = connection.connections
 	var id: int = connection.id
 	var old_scope_id: int = connections.get_connection_scope(id)
 	var new_scope_id: int = _allowed_channels[channel]
@@ -86,7 +86,7 @@ func send(message: String):
 	if _channel == "":
 		return
 	
-	var connections: AVMMOServerConnections = connection.connections
+	var connections: AlephVault__MMO.Server.Connections = connection.connections
 	var id: int = connection.id
 	var scope_id: int = connections.get_connection_scope(id)
 
@@ -106,7 +106,7 @@ func nick(nickname: String):
 	current_nick = new_nick
 
 	if _channel != "":
-		var connections: AVMMOServerConnections = connection.connections
+		var connections: AlephVault__MMO.Server.Connections = connection.connections
 		var id: int = connection.id
 		var scope_id: int = connections.get_connection_scope(id)
 
