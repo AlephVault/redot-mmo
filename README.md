@@ -56,16 +56,16 @@ Server's main-scene.tscn:
 
 ```
 ◯ Foo (Whatever)
-	◯ Bar (Whatever)
-		◯ MyAwesomeGame (Node of type AlephVault_MMO.Server.Main, or a sub-type)
+    ◯ Bar (Whatever)
+        ◯ MyAwesomeGame (Node of type AlephVault_MMO.Server.Main, or a sub-type)
 ```
 
 Client's main-scene.tscn:
 
 ```
 ◯ Foo (Whatever)
-	◯ Bar (Whatever)
-		◯ MyAwesomeGame (Node of type AVAlephVault_MMO.Client.Main, or a sub-type)
+    ◯ Bar (Whatever)
+        ◯ MyAwesomeGame (Node of type AVAlephVault_MMO.Client.Main, or a sub-type)
 ```
 
 In this case, the structure is arbitrary. Still, **both the client and the server** will live under
@@ -87,9 +87,9 @@ Notes: This applies to the Example 1.
 
 ```
 ◯ MyGame (Node of type AlephVault_MMO.Server.Main, or a sub-type)
-	◯ World (Node of type AlephVault_MMO.Server.World, named "World")
-	◯ Connections (Node of type AlephVault_MMO.Server.Connections, named "Connections")
-	◯ MultiplayerSpawner (Node of type MultiplayerSpawner, named "MultiplayerSpawner")
+    ◯ World (Node of type AlephVault_MMO.Server.World, named "World")
+    ◯ Connections (Node of type AlephVault_MMO.Server.Connections, named "Connections")
+    ◯ MultiplayerSpawner (Node of type MultiplayerSpawner, named "MultiplayerSpawner")
 ```
 
 For the client, a `World`, a `Connections` and a `MultiplayerSpawner` will also exist, but they
@@ -107,12 +107,12 @@ For example let's say that, at a given moment, three connections are established
 
 ```
 ◯ MyGame (Node of type AlephVault_MMO.Server.Main, or a sub-type)
-	◯ World (Node of type AlephVault_MMO.Server.World, named "World")
-	◯ Connections (Node of type AlephVault_MMO.Server.Connections, named "Connections")
-		◯ Connection_37 (Node of type AlephVault_MMO.Server.Connection, or a sub-type).
-		◯ Connection_224 (Node of type AlephVault_MMO.Server.Connection, or a sub-type).
-		◯ Connection_1000 (Node of type AlephVault_MMO.Server.Connection, or a sub-type).
-	◯ MultiplayerSpawner (Node of type MultiplayerSpawner, named "MultiplayerSpawner")
+    ◯ World (Node of type AlephVault_MMO.Server.World, named "World")
+    ◯ Connections (Node of type AlephVault_MMO.Server.Connections, named "Connections")
+        ◯ Connection_37 (Node of type AlephVault_MMO.Server.Connection, or a sub-type).
+        ◯ Connection_224 (Node of type AlephVault_MMO.Server.Connection, or a sub-type).
+        ◯ Connection_1000 (Node of type AlephVault_MMO.Server.Connection, or a sub-type).
+    ◯ MultiplayerSpawner (Node of type MultiplayerSpawner, named "MultiplayerSpawner")
 ```
 
 Where the names of the Connection nodes are exactly of that pattern.
@@ -121,10 +121,10 @@ Now, for each client (e.g. 37), the structure will look like this:
 
 ```
 ◯ MyGame (Node of type AlephVault_MMO.Client.Main, or a sub-type)
-	◯ World (Node of type AlephVault_MMO.Client.World, named "World")
-	◯ Connections (Node of type AlephVault_MMO.Client.Connections, named "Connections")
-		◯ Connection_37 (Node of type AlephVault_MMO.Client.Connection, or a sub-type).
-	◯ MultiplayerSpawner (Node of type MultiplayerSpawner, named "MultiplayerSpawner")
+    ◯ World (Node of type AlephVault_MMO.Client.World, named "World")
+    ◯ Connections (Node of type AlephVault_MMO.Client.Connections, named "Connections")
+        ◯ Connection_37 (Node of type AlephVault_MMO.Client.Connection, or a sub-type).
+    ◯ MultiplayerSpawner (Node of type MultiplayerSpawner, named "MultiplayerSpawner")
 ```
 
 This means: each client will only have a mirror node _for its own connection_.
@@ -139,14 +139,81 @@ pair will be chosen. This will be explained in the next section.
 
 The first thing to do when interacting with this package is to actually create:
 	
-	1. A subclass of `AlephVault_MMO.Client.Connection`.
-		1. Proper Commands and Notifications sub-classes.
-	2. A subclass of `AlephVault_MMO.Client.Main`, specifying the new subclass for connections.
-	3. A subclass of `AlephVault_MMO.Server.Connection`.
-		1. Proper Commands and Notifications sub-classes.
-	4. A subclass of `AlephVault_MMO.Server.Main`, specifying the new subclass for connections.
+  1. A subclass of `AlephVault_MMO.Client.Connection`.
+     1. Proper Commands and Notifications sub-classes.
+  2. A subclass of `AlephVault_MMO.Client.Main`, specifying the new subclass for connections.
+  3. A subclass of `AlephVault_MMO.Server.Connection`.
+     1. Proper Commands and Notifications sub-classes.
+  4. A subclass of `AlephVault_MMO.Server.Main`, specifying the new subclass for connections.
 
-#### Defining the Client Connection sub-class.
-#### Defining the Client Main sub-class.
-#### Defining the Server Connection sub-class.
-#### Defining the Server Main sub-class.
+#### Defining the Client Connection sub-class
+
+A connection is an object that will have three types of features:
+
+  1. A server-authority "Notifications" sub-node object.
+  2. A client-authority "Commands" sub-node object.
+  3. Optionally, per-game data (in fact, there _is_ some default general data in the base
+     connection).
+
+When setting a connection up, the connection will internally create the two sub-nodes: one so that
+the client sends RPC calls to the server, and one so that the server sends RPC calls to that client
+(and only THAT client). RPC calls are fully described in the Multiplayer API documentation and the
+concept and all its variations will fully apply here.
+
+So let's consider a simple Connection example consisting of PING / PONG messages:
+
+File: `client/my-connection.gd`
+```
+extends AlephVault__MMO.Client.Connection
+
+const _commands_class = preload("./my-connection-commands.gd")
+const _notifications_class = preload("./my-connection-notifications.gd")
+
+func _make_commands_node() -> AlephVault__MMO.Client.ConnectionCommands:
+    return _commands_class.new()
+
+func _make_notifications_node() -> AlephVault__MMO.Client.ConnectionNotifications:
+    return _notifications_class.new()
+```
+
+File: `client/my-connection-commands.gd`
+```
+extends AlephVault__MMO.Client.ConnectionCommands
+
+@rpc("authority", "call_remote", "reliable")
+func ping(message: String):
+    # No implementation here.
+    pass
+```
+
+File: `client/my-connection-notifications.gd`
+```
+extends AlephVault__MMO.Client.ConnectionNotifications
+
+@rpc("authority", "call_remote", "reliable")
+func pong(message: String):
+    print("PONG: ", message)
+```
+
+Notice how the client will not implement the body of `ping`, since it's a command that the server
+must implement. Instead, it will implement the body of `pong`, since it's the client the one who
+implements behaviour to whatever the server sends as notification.
+
+#### Defining the Client Main sub-class
+
+The only thing the client needs to do a priori is to set the connection class. An example:
+
+File: `client/main.gd`
+```
+extends AlephVault__MMO.Client.Main
+
+const _cinnection_class = preload("./my-connection.gd")
+
+func connection_class() -> Script:
+	return _connection_class
+```
+
+This is the extremely basic needed contents for a client setup (more details will be given later).
+
+#### Defining the Server Connection sub-class
+#### Defining the Server Main sub-class
