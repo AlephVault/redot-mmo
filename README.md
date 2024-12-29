@@ -216,4 +216,90 @@ func connection_class() -> Script:
 This is the extremely basic needed contents for a client setup (more details will be given later).
 
 #### Defining the Server Connection sub-class
+
+The server specification is analogous to the client, but with inverted responsibilities. Notice
+how, however, the signatures for the RPC methods will be the same, but the responsibility for
+implementing them will be swapped. Let's follow the same example:
+
+File: `server/my-connection.gd`
+```
+extends AlephVault__MMO.Server.Connection
+
+const _commands_class = preload("./my-connection-commands.gd")
+const _notifications_class = preload("./my-connection-notifications.gd")
+
+func _make_commands_node() -> AlephVault__MMO.Server.ConnectionCommands:
+    return _commands_class.new()
+
+func _make_notifications_node() -> AlephVault__MMO.Server.ConnectionNotifications:
+    return _notifications_class.new()
+```
+
+File: `server/my-connection-commands.gd`
+```
+extends AlephVault__MMO.Client.ConnectionCommands
+
+@rpc("authority", "call_remote", "reliable")
+func ping(message: String):
+    connection.notify_owner("pong", [message])
+```
+
+File: `server/my-connection-notifications.gd`
+```
+extends AlephVault__MMO.Client.ConnectionNotifications
+
+@rpc("authority", "call_remote", "reliable")
+func pong(message: String):
+    # No implementation here.
+    pass
+```
+
+In this case, the only implementation for the `ping` command is to answer with a `pong` command,
+passing as an array the needed arguments for that command (in this case: the same single message
+value sent by the user).
+
 #### Defining the Server Main sub-class
+
+Analogous to the client, the server sub-class will be like this:
+
+File: `server/main.gd`
+```
+extends AlephVault__MMO.Server.Main
+
+const _cinnection_class = preload("./my-connection.gd")
+
+func connection_class() -> Script:
+	return _connection_class
+```
+
+### launching your newly created client and server
+
+Ideally, the new respective `Main` sub-classes will have their own `class_name`. It's time to
+use them in your scenes.
+
+Create the two relevant scenes and ensure the same top hierarchy is present in both scenes.
+
+Then, create the respective _main_ nodes under that hierarchy, each of the proper class that
+is needed (the server subclass in the server scene, and the client subclass in the client one)
+and also having the _same_ name each time.
+
+Then, provided proper access to those nodes is attempted, choose a port of your preference
+(e.g. 6776) and launch / stop a server doing this:
+
+```
+# Launch it with:
+Error r = my_server.launch(6776)
+
+# Stop it with:
+bool stopped = my_server.stop()
+```
+
+While the server is running, try making clients connect to it:
+
+```
+# Join a server with:
+Error r = my_client.join_server("127.0.0.1", 6776)
+
+# Leave a server with:
+bool stopped = my_client.leave_server()
+```
