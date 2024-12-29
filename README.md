@@ -146,8 +146,7 @@ The first thing to do when interacting with this package is to actually create:
 		1. Proper Commands and Notifications sub-classes.
 	4. A subclass of `AlephVault_MMO.Server.Main`, specifying the new subclass for connections.
 
-#### Per-client connections mirroring
-
-Still applying the mirroring of the whole structure for the RPC calls to work (again: this one is a
-requirement from the Multiplayer API itself, and not from this package), connections are organized
-in a particular way in the server.
+#### Defining the Client Connection sub-class.
+#### Defining the Client Main sub-class.
+#### Defining the Server Connection sub-class.
+#### Defining the Server Main sub-class.
