@@ -272,7 +272,7 @@ func connection_class() -> Script:
 	return _connection_class
 ```
 
-### launching your newly created client and server
+### Launching your newly created client and server
 
 Ideally, the new respective `Main` sub-classes will have their own `class_name`. It's time to
 use them in your scenes.
@@ -303,3 +303,11 @@ Error r = my_client.join_server("127.0.0.1", 6776)
 # Leave a server with:
 bool stopped = my_client.leave_server()
 ```
+
+### Understanding scopes
+
+`TODO`
+
+### Accessing connection objects in the client and the server
+
+`TODO`
