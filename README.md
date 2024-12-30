@@ -56,16 +56,16 @@ Server's main-scene.tscn:
 
 ```
 ◯ Foo (Whatever)
-    ◯ Bar (Whatever)
-        ◯ MyAwesomeGame (Node of type AlephVault_MMO.Server.Main, or a sub-type)
+	◯ Bar (Whatever)
+		◯ MyAwesomeGame (Node of type AlephVault_MMO.Server.Main, or a sub-type)
 ```
 
 Client's main-scene.tscn:
 
 ```
 ◯ Foo (Whatever)
-    ◯ Bar (Whatever)
-        ◯ MyAwesomeGame (Node of type AVAlephVault_MMO.Client.Main, or a sub-type)
+	◯ Bar (Whatever)
+		◯ MyAwesomeGame (Node of type AVAlephVault_MMO.Client.Main, or a sub-type)
 ```
 
 In this case, the structure is arbitrary. Still, **both the client and the server** will live under
@@ -110,9 +110,15 @@ For example let's say that, at a given moment, three connections are established
     ◯ World (Node of type AlephVault_MMO.Server.World, named "World")
     ◯ Connections (Node of type AlephVault_MMO.Server.Connections, named "Connections")
         ◯ Connection_37 (Node of type AlephVault_MMO.Server.Connection, or a sub-type).
+            ◯ Commands (This will be explained later)
+            ◯ Notifications (This will be explained later)        
         ◯ Connection_224 (Node of type AlephVault_MMO.Server.Connection, or a sub-type).
+            ◯ Commands (This will be explained later)
+            ◯ Notifications (This will be explained later)        
         ◯ Connection_1000 (Node of type AlephVault_MMO.Server.Connection, or a sub-type).
-    ◯ MultiplayerSpawner (Node of type MultiplayerSpawner, named "MultiplayerSpawner")
+            ◯ Commands (This will be explained later)
+            ◯ Notifications (This will be explained later)        
+	◯ MultiplayerSpawner (Node of type MultiplayerSpawner, named "MultiplayerSpawner")
 ```
 
 Where the names of the Connection nodes are exactly of that pattern.
@@ -124,6 +130,8 @@ Now, for each client (e.g. 37), the structure will look like this:
     ◯ World (Node of type AlephVault_MMO.Client.World, named "World")
     ◯ Connections (Node of type AlephVault_MMO.Client.Connections, named "Connections")
         ◯ Connection_37 (Node of type AlephVault_MMO.Client.Connection, or a sub-type).
+            ◯ Commands (This will be explained later)
+            ◯ Notifications (This will be explained later)        
     ◯ MultiplayerSpawner (Node of type MultiplayerSpawner, named "MultiplayerSpawner")
 ```
 
@@ -138,7 +146,7 @@ pair will be chosen. This will be explained in the next section.
 ### Creating your own server and client classes
 
 The first thing to do when interacting with this package is to actually create:
-	
+
   1. A subclass of `AlephVault_MMO.Client.Connection`.
      1. Proper Commands and Notifications sub-classes.
   2. A subclass of `AlephVault_MMO.Client.Main`, specifying the new subclass for connections.
@@ -170,10 +178,10 @@ const _commands_class = preload("./my-connection-commands.gd")
 const _notifications_class = preload("./my-connection-notifications.gd")
 
 func _make_commands_node() -> AlephVault__MMO.Client.ConnectionCommands:
-    return _commands_class.new()
+	return _commands_class.new()
 
 func _make_notifications_node() -> AlephVault__MMO.Client.ConnectionNotifications:
-    return _notifications_class.new()
+	return _notifications_class.new()
 ```
 
 File: `client/my-connection-commands.gd`
@@ -182,8 +190,8 @@ extends AlephVault__MMO.Client.ConnectionCommands
 
 @rpc("authority", "call_remote", "reliable")
 func ping(message: String):
-    # No implementation here.
-    pass
+	# No implementation here.
+	pass
 ```
 
 File: `client/my-connection-notifications.gd`
@@ -192,7 +200,7 @@ extends AlephVault__MMO.Client.ConnectionNotifications
 
 @rpc("authority", "call_remote", "reliable")
 func pong(message: String):
-    print("PONG: ", message)
+	print("PONG: ", message)
 ```
 
 Notice how the client will not implement the body of `ping`, since it's a command that the server
@@ -207,7 +215,7 @@ File: `client/main.gd`
 ```
 extends AlephVault__MMO.Client.Main
 
-const _cinnection_class = preload("./my-connection.gd")
+const _connection_class = preload("./my-connection.gd")
 
 func connection_class() -> Script:
 	return _connection_class
@@ -229,10 +237,10 @@ const _commands_class = preload("./my-connection-commands.gd")
 const _notifications_class = preload("./my-connection-notifications.gd")
 
 func _make_commands_node() -> AlephVault__MMO.Server.ConnectionCommands:
-    return _commands_class.new()
+	return _commands_class.new()
 
 func _make_notifications_node() -> AlephVault__MMO.Server.ConnectionNotifications:
-    return _notifications_class.new()
+	return _notifications_class.new()
 ```
 
 File: `server/my-connection-commands.gd`
@@ -241,7 +249,7 @@ extends AlephVault__MMO.Client.ConnectionCommands
 
 @rpc("authority", "call_remote", "reliable")
 func ping(message: String):
-    connection.notify_owner("pong", [message])
+	connection.notify_owner("pong", [message])
 ```
 
 File: `server/my-connection-notifications.gd`
@@ -250,8 +258,8 @@ extends AlephVault__MMO.Client.ConnectionNotifications
 
 @rpc("authority", "call_remote", "reliable")
 func pong(message: String):
-    # No implementation here.
-    pass
+	# No implementation here.
+	pass
 ```
 
 In this case, the only implementation for the `ping` command is to answer with a `pong` command,
@@ -266,7 +274,7 @@ File: `server/main.gd`
 ```
 extends AlephVault__MMO.Server.Main
 
-const _cinnection_class = preload("./my-connection.gd")
+const _connection_class = preload("./my-connection.gd")
 
 func connection_class() -> Script:
 	return _connection_class
@@ -306,8 +314,82 @@ bool stopped = my_client.leave_server()
 
 ### Understanding scopes
 
-`TODO`
+Scopes represent a way of grouping connections. Think of it as maps or rooms where other players
+are interacting: Depending on which room a player is in, they will be able to interact with players
+in that room and NOT players in another rooms (save for features like private messages, if that is
+ever implemented).
 
-### Accessing connection objects in the client and the server
+Just like public chat systems like IRC define channels, and MMORPGs define maps, scopes abstract
+those concepts. Here, scopes are categorized in three groups:
+
+  1. "Special" scopes are scopes that serve particular purposes, usually different to allowing
+	 contexts for users to communicate / interact through. Two of them are provided by default but
+	 new ones can be configured per-game. The default ones are "limbo" (which is used by default
+	 as a "currently, no scope" concept) and "account dashboard", intended for users creating games
+	 where an account can have more than one profile and there's a moment where the users must pick
+	 one of those profiles in the account before actually playing.
+  2. "Default" scopes are intended for levels and channels that will always exist (e.g. static maps
+	 in a game). Users can interact here.
+  3. "Dynamic" scopes are intended for levels and channels that will exist on demand (e.g. dynamic
+	 chat rooms) and can be freed also on demand. Users can interact here.
+
+When a connection is just established, it starts in the "LIMBO" special scope and must be moved, by
+purely server-side logic, to any other scope.
+
+#### Scope IDs
+
+The first thing to do is to get a scope id to move connections to.
+Special scope IDs are made like this:
+
+```
+# Special scopes
+const LIMBO = AlephVault__MMO.Common.Scopes.make_fq_special_scope_id(AlephVault__MMO.Common.Scopes.SCOPE_LIMBO)
+const ACCOUNT_DASHBOARD = AlephVault__MMO.Common.Scopes.make_fq_special_scope_id(AlephVault__MMO.Common.Scopes.SCOPE_ACCOUNT_DASHBOARD)
+const ANOTHER_SCOPE = AlephVault__MMO.Common.Scopes.make_fq_special_scope_id(FOO)
+```
+
+The argument for the `make_fq_special_scope_id` is a regular `int` value.
+For the default and dynamic scopes, the idea is similar:
+
+```
+# Default scope 1
+const some_default_scope = AlephVault__MMO.Common.Scopes.make_fq_default_scope_id(1)
+
+# Dynamic scope 1
+const some_dynamic_scope = AlephVault__MMO.Common.Scopes.make_fq_dynamic_scope_id(1)
+
+# The end values for both scopes will be DIFFERENT.
+```
+
+#### Managing connection in a scope by its id
+
+In server-side, given by the MultiplayerAPI's id of each connection, they can be
+put into, and taken from, specific scopes (being them special, default or
+dynamic). To achieve that, some sample code is:
+
+```
+var some_main: AlephVault__MMO.Server.Main = ...whatever...
+var connections: AlephVault__MMO.Server.Connections = some_main.connections
+
+# Move a connection from a current scope, if any, to one of our scopes.
+# In this case, our dynamic scope.
+connections.set_connection_scope(some_connection, some_dynamic_scope)
+
+# Tell the current scope of a connection.
+var scope_id: int = connections.get_connection_scope(some_connection)
+assert(scope_id == somy_dynamic_scope, "The scopes will match")
+
+# Get all the connections in the same scope.
+var all_connections: Array[int] = connections.get_connections_in_scope(scope_id)
+
+# Do something for each node in a connection. While a for loop over
+# the all_connections array is practically the same, this method avoids
+# creating that intermediate array in first place.
+var some_function: Callable = func(connection: AlephVault__MMO.Server.Connection):
+	# do_something_with connection
+connections.scope_iterate(scope_id, some_function)
+```
+
+### Managing scopes and connections: Full API reference
 
 `TODO`

@@ -1,6 +1,6 @@
 extends Node
 
-func _add_special_scope(id: int) -> Dictionary:
+func add_special_scope(id: int) -> Dictionary:
 	id = AlephVault__MMO.Common.Scopes.make_fq_special_scope_id(id)
 	if _scopes.has(id):
 		return _scopes[id]
@@ -34,8 +34,8 @@ func _on_client_left(id: int) -> void:
 	_remove_client(id)
 
 func _init():
-	_add_special_scope(AlephVault__MMO.Common.Scopes.SCOPE_LIMBO)
-	_add_special_scope(AlephVault__MMO.Common.Scopes.SCOPE_ACCOUNT_DASHBOARD)
+	add_special_scope(AlephVault__MMO.Common.Scopes.SCOPE_LIMBO)
+	add_special_scope(AlephVault__MMO.Common.Scopes.SCOPE_ACCOUNT_DASHBOARD)
 
 # The connections will be kept here.
 var _connections: Dictionary = {
