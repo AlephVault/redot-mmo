@@ -56,16 +56,16 @@ Server's main-scene.tscn:
 
 ```
 ◯ Foo (Whatever)
-	◯ Bar (Whatever)
-		◯ MyAwesomeGame (Node of type AlephVault_MMO.Server.Main, or a sub-type)
+    ◯ Bar (Whatever)
+        ◯ MyAwesomeGame (Node of type AlephVault_MMO.Server.Main, or a sub-type)
 ```
 
 Client's main-scene.tscn:
 
 ```
 ◯ Foo (Whatever)
-	◯ Bar (Whatever)
-		◯ MyAwesomeGame (Node of type AVAlephVault_MMO.Client.Main, or a sub-type)
+    ◯ Bar (Whatever)
+        ◯ MyAwesomeGame (Node of type AVAlephVault_MMO.Client.Main, or a sub-type)
 ```
 
 In this case, the structure is arbitrary. Still, **both the client and the server** will live under
@@ -118,7 +118,7 @@ For example let's say that, at a given moment, three connections are established
         ◯ Connection_1000 (Node of type AlephVault_MMO.Server.Connection, or a sub-type).
             ◯ Commands (This will be explained later)
             ◯ Notifications (This will be explained later)        
-	◯ MultiplayerSpawner (Node of type MultiplayerSpawner, named "MultiplayerSpawner")
+    ◯ MultiplayerSpawner (Node of type MultiplayerSpawner, named "MultiplayerSpawner")
 ```
 
 Where the names of the Connection nodes are exactly of that pattern.
@@ -178,10 +178,10 @@ const _commands_class = preload("./my-connection-commands.gd")
 const _notifications_class = preload("./my-connection-notifications.gd")
 
 func _make_commands_node() -> AlephVault__MMO.Client.ConnectionCommands:
-	return _commands_class.new()
+    return _commands_class.new()
 
 func _make_notifications_node() -> AlephVault__MMO.Client.ConnectionNotifications:
-	return _notifications_class.new()
+    return _notifications_class.new()
 ```
 
 File: `client/my-connection-commands.gd`
@@ -190,8 +190,8 @@ extends AlephVault__MMO.Client.ConnectionCommands
 
 @rpc("authority", "call_remote", "reliable")
 func ping(message: String):
-	# No implementation here.
-	pass
+    # No implementation here.
+    pass
 ```
 
 File: `client/my-connection-notifications.gd`
@@ -200,7 +200,7 @@ extends AlephVault__MMO.Client.ConnectionNotifications
 
 @rpc("authority", "call_remote", "reliable")
 func pong(message: String):
-	print("PONG: ", message)
+    print("PONG: ", message)
 ```
 
 Notice how the client will not implement the body of `ping`, since it's a command that the server
@@ -218,7 +218,7 @@ extends AlephVault__MMO.Client.Main
 const _connection_class = preload("./my-connection.gd")
 
 func connection_class() -> Script:
-	return _connection_class
+    return _connection_class
 ```
 
 This is the extremely basic needed contents for a client setup (more details will be given later).
@@ -237,10 +237,10 @@ const _commands_class = preload("./my-connection-commands.gd")
 const _notifications_class = preload("./my-connection-notifications.gd")
 
 func _make_commands_node() -> AlephVault__MMO.Server.ConnectionCommands:
-	return _commands_class.new()
+    return _commands_class.new()
 
 func _make_notifications_node() -> AlephVault__MMO.Server.ConnectionNotifications:
-	return _notifications_class.new()
+    return _notifications_class.new()
 ```
 
 File: `server/my-connection-commands.gd`
@@ -249,7 +249,7 @@ extends AlephVault__MMO.Client.ConnectionCommands
 
 @rpc("authority", "call_remote", "reliable")
 func ping(message: String):
-	connection.notify_owner("pong", [message])
+    connection.notify_owner("pong", [message])
 ```
 
 File: `server/my-connection-notifications.gd`
@@ -258,8 +258,8 @@ extends AlephVault__MMO.Client.ConnectionNotifications
 
 @rpc("authority", "call_remote", "reliable")
 func pong(message: String):
-	# No implementation here.
-	pass
+    # No implementation here.
+    pass
 ```
 
 In this case, the only implementation for the `ping` command is to answer with a `pong` command,
@@ -277,7 +277,7 @@ extends AlephVault__MMO.Server.Main
 const _connection_class = preload("./my-connection.gd")
 
 func connection_class() -> Script:
-	return _connection_class
+    return _connection_class
 ```
 
 ### Launching your newly created client and server
@@ -323,15 +323,15 @@ Just like public chat systems like IRC define channels, and MMORPGs define maps,
 those concepts. Here, scopes are categorized in three groups:
 
   1. "Special" scopes are scopes that serve particular purposes, usually different to allowing
-	 contexts for users to communicate / interact through. Two of them are provided by default but
-	 new ones can be configured per-game. The default ones are "limbo" (which is used by default
-	 as a "currently, no scope" concept) and "account dashboard", intended for users creating games
-	 where an account can have more than one profile and there's a moment where the users must pick
-	 one of those profiles in the account before actually playing.
+     contexts for users to communicate / interact through. Two of them are provided by default but
+     new ones can be configured per-game. The default ones are "limbo" (which is used by default
+     as a "currently, no scope" concept) and "account dashboard", intended for users creating games
+     where an account can have more than one profile and there's a moment where the users must pick
+     one of those profiles in the account before actually playing.
   2. "Default" scopes are intended for levels and channels that will always exist (e.g. static maps
-	 in a game). Users can interact here.
+     in a game). Users can interact here.
   3. "Dynamic" scopes are intended for levels and channels that will exist on demand (e.g. dynamic
-	 chat rooms) and can be freed also on demand. Users can interact here.
+     chat rooms) and can be freed also on demand. Users can interact here.
 
 When a connection is just established, it starts in the "LIMBO" special scope and must be moved, by
 purely server-side logic, to any other scope.
@@ -386,10 +386,229 @@ var all_connections: Array[int] = connections.get_connections_in_scope(scope_id)
 # the all_connections array is practically the same, this method avoids
 # creating that intermediate array in first place.
 var some_function: Callable = func(connection: AlephVault__MMO.Server.Connection):
-	# do_something_with connection
+    # do_something_with connection
 connections.scope_iterate(scope_id, some_function)
 ```
 
 ### Managing scopes and connections: Full API reference
 
-`TODO`
+It is better to understand the classes and objects in order. These are the full details for the
+involved classes and how to derive them properly.
+
+#### Client-side and server-side command classes
+
+The parent classes are:
+
+- For server: AlephVault__MMO.Server.ConnectionCommands
+- For client: AlephVault__MMO.Client.ConnectionCommands
+
+There is no particular members implementation on the client class. There, methods must be annotated
+as @rpc (any signature, but "authority" is recommended rather than "any_peer"), and methods should
+not have body (since it'll never be invoked).
+
+The server side has more magic here:
+
+1. It must use the same @rpc signature and same name / arguments than what is client-defined.
+2. It must implement the body of the method (otherwise the command will be useless).
+
+Also, there are some considerations:
+
+- `_enter_tree()` is implemented. Use `super()` if overriding.
+- `connection: AlephVault__MMO.Server.Connection` returns the current server-side connection
+  this commands object belongs to.
+
+Following all these guidelines, users can implement any @rpc method they please, always
+considering that the authority will be **for the client** in the commands.
+
+#### Client-side and server-side notification classes
+
+The parent classes are:
+
+- For server: AlephVault__MMO.Server.ConnectionNotifications
+- For client: AlephVault__MMO.Client.ConnectionNotifications
+
+The server-side has only one authority-related notification:
+
+```
+@rpc("authority", "call_remote", "reliable")
+func set_scope(id: int):
+    pass
+```
+
+The client-side implements the body of that command. Its implementation will tell the parent
+connection the current scope (which is assigned from the server; see the signals in the next
+section for more details).
+
+Following all these guidelines, users can implement any @rpc methods they please, always
+considering that the authority will be **for the server** in the notifications.
+
+#### Client-side and server-side connection classes
+
+The connection classes **must be overridden**, or at least _should_. Otherwise, no messages would
+be defined through any commands & notifications sub-classes.
+
+Users are free to add **any functionality they want** to the connection (e.g. per-connection logic,
+either in the client and/or the server sides). This said, there are some important details to
+account for. The connection classses are:
+
+- For server: AlephVault__MMO.Server.Connection
+- For client: AlephVault__MMO.Client.Connection
+
+For the server-side class, AlephVault__MMO.Server.Connection, there are some functions to override:
+
+```
+func _make_commands_node() -> AlephVault__MMO.Server.ConnectionCommands:
+    return YourServerConnectionCommandsClass.new()
+
+func _make_notifications_node() -> AlephVault__MMO.Server.ConnectionNotifications:
+    return YourServerConnectionNotificationsClass.new()
+```
+
+These methods will be used internally to properly setup everything.
+
+On top of this, this server-side class implements the following features:
+
+- `_enter_tree()` is implemented. Use `super()` if overriding.
+- `signal scope_changed(current_scope_id: int, id: int)`: Triggered when the signal is changed for
+  this connection. For each connection, the first scope id is -1, when the connection is doing an
+  initial setup, even prior to being added to `LIMBO`.
+- `id: int`: Returns the Peer ID corresponding to this connection object. This Peer ID is given by
+  the underlying Multiplayer API when the connection is established.
+- `scope: int`: Returns the current scope of the connection. When not set or invalid, this id is -1
+  meaning that there's no scope assigned -not even `LIMBO`- for this connection.
+- `commands: AlephVault__MMO.Server.ConnectionCommands`: Returns the commands node, returned by the
+  `_make_commands_node` method, when the Connection node is added to the scene.
+- `notifications: AlephVault__MMO.Server.ConnectionNotifications`: Returns the notifications node,
+  returned by the `_make_notifications_node`, when the Connection node is added to the scene.
+- `connections: AlephVault__MMO.Server.Connections`: Returns the parent Connections node. It will
+  be explained later.
+- `init_authority()`: An internal method. Not intended for end users.
+- `notify_owner(method: String, args: Array)`: A convenience method to invoke, from the connection,
+  a method in the corresponding notifications node. For example, `notify_owner("foo", [1, 2])`
+  can invoke, into the corresponding client, a method like `func foo(a, b)` wrapped as @rpc.
+
+Custom per-game logic can be freely added to this class. Typically, any required instance member is
+OK and, instead of standard static members, static per-`connections` functions, so instances can
+launch them by also considering the current `connections` parent.
+
+For the client class, the implementation is similar:
+
+```
+func _make_commands_node() -> AlephVault__MMO.Client.ConnectionCommands:
+    return YourClientConnectionCommandsClass.new()
+
+func _make_notifications_node() -> AlephVault__MMO.Client.ConnectionNotifications:
+    return YourClientConnectionNotificationsClass.new()
+```
+
+These methods will be used internally to properly setup everything.
+
+On top of this, this client-side class implements the following features:
+
+- `_enter_tree()` is implemented. Use `super()` if overriding.
+- `signal scope_changed(current_scope_id: int, id: int)`: Triggered when the signal is changed for
+  this connection. For each connection, the first scope id is -1, when the connection is doing an
+  initial setup, even prior to being added to `LIMBO`.
+- `id: int`: Returns the Peer ID corresponding to this connection object. This Peer ID is given by
+  the underlying Multiplayer API when the connection is established.
+- `scope: int`: Returns the current scope of the connection. When not set or invalid, this id is -1
+  meaning that there's no scope assigned -not even `LIMBO`- for this connection.
+- `commands: AlephVault__MMO.Client.ConnectionCommands`: Returns the commands node, returned by the
+  `_make_commands_node` method, when the Connection node is added to the scene.
+- `notifications: AlephVault__MMO.Client.ConnectionNotifications`: Returns the notifications node,
+  returned by the `_make_notifications_node`, when the Connection node is added to the scene.
+- `connections: AlephVault__MMO.Client.Connections`: Returns the parent Connections node. It will
+  be explained later.
+- `init_authority()`: An internal method. Not intended for end users.
+
+They typically mirror what was explained in the server-side, completely. However, the logic that a
+user should add here is only UX-related, not "source-truth" logic in any way.
+
+There's also an important thing to remark here: In the client-side, only the object that
+corresponds to the established connection is mirrored, and not _all_ the connection objects. It
+would also not make sense to do so, since no properties are mirrored in that case and typically
+all the methods will be either client-to-server or server-to-client, and never peer-to-peer.
+
+#### Client-side and server-side main object classes
+
+Once having the client-side and server-side components properly defined, it's time to create the
+client and server sub-classes themselves. The idea is always to override the parent Main classes:
+
+- For server: AlephVault__MMO.Server.Main
+- For client: AlephVault__MMO.Client.Main
+
+Overriding them involves defining the proper client-side and server-side Connection classes and
+then referencing them in the client-side and server-side Main objects respectively.
+
+When deriving the server-side Main component, override this method like this:
+
+```
+func connection_class() -> Script:
+    return MyServerConnection
+```
+
+Users can add any custom logic needed in the server side, if they want.
+
+When deriving the client-side Main component, override this method like this:
+
+```
+func connection_class() -> Script:
+    return MyClientConnection
+```
+
+Users can add any custom logic needed in the client side, if they want.
+
+Still, however, there are features that must be known in server-side and client-side.
+
+In server-side Main component:
+
+- `launch(port: int, max_clients: int = 4095, max_channels: int = 0, in_bandwidth: int = 0, out_bandwidth: int = 0) -> Error`: Start the server.
+- `stop() -> bool`: Stops a launched server.
+- `port: int`: For a launched server, the port it's listening on.
+- `address: String`: For a launched server, the address it's listening on.
+- `connections: AlephVault__MMO.Server.Connections`: The Connections node.
+  This one will be explained later.
+- `spawner: MultiplayerSpawner`: The spawner node. It's used in a standard way. Its node path is
+  set to the `world` of this server.
+- `world: AlephVault__MMO.Server.World`: Stands for the root node of replicable / spawnable
+  objects, following the standard `MultiplayerSpawner` features.
+- `signal scope_changed(connection_id: int, current_scope_id: int, scope_id: int)`: Triggered when
+  a connection has its scope changed.
+- `signal server_started` and `signal server_stopped`: Triggered when the server starts and stops,
+  respectively. Everything ought to be considered _relevant_ occurs in-between.
+- `signal client_entered(id: int)` and `signal client_left(id: int)`: Triggered when a connection
+  is established and terminated, respectively. Everything ought to be considered _relevant_ for
+  that connection will occur in-between.
+- `_ready()` is implemented. Use `super()` if overriding.
+- `_exit_tree()` is implemented. Use `super()` if overriding.
+
+**NOTES**: The `connections`, `spawner` and `world` nodes are added when this Main node is properly
+added to the scene tree, and removed when it's removed from the scene tree. They will not exist in
+other moments.
+
+For the client Main component, many of these features work similarly or mirrored:
+
+- `join_server(address: String, port: int, channel_count: int = 0, in_bandwidth: int = 0, out_bandwidth: int = 0, local_port: int = 0) -> Error`: Attempts to join a server.
+- `leave_server() -> bool`: Leaves a server, if one is joined.
+- `port: int`: When joined to a server, the server's port.
+- `address: String`: When joined to a server, the server's address.
+- `connections: AlephVault__MMO.Client.Connections`: The Connections node.
+  Mirrored from the server side, but will only contain a node for the _current_ connection.
+- `spawner: MultiplayerSpawner`: The spawner node. It's used in a standard way. Its node path is
+  set to the `world` of the server, and mirrored in the same path for the client.
+- `world: AlephVault__MMO.Client.World`: Stands for the root node of replicable / spawnable
+  objects, following the standard `MultiplayerSpawner` features. Mirrores from the server.
+- `signal scope_changed(current_scope_id: int, scope_id: int)`: Triggered when this connection has
+  its scope changed from the server side. This signal is bubbled from the only connection node that
+  exists in this client hierarchy.
+- `signal client_started` and `signal client_stopped`: Triggered when the client joined a server
+  and when the client terminated that connection, respectivaly. Everything ought to be considered
+  relevant occurs in-between.
+- `signal client_failed`: Triggered when a client fails to connect to a server.
+- `_ready()` is implemented. Use `super()` if overriding.
+- `_exit_tree()` is implemented. Use `super()` if overriding.
+
+**NOTES** just like in the server side, the `connections`, `spawner` and `world` nodes are managed
+in the same way and for analogous reasons.
+
+#### Client-side and server-side connections object
