@@ -612,3 +612,58 @@ For the client Main component, many of these features work similarly or mirrored
 in the same way and for analogous reasons.
 
 #### Client-side and server-side connections object
+
+The Connections object is a very special object due to the internal features and how they
+interact with the connection nodes and the scopes they belong do.
+
+Just to start, there are some concepts to clarify:
+
+1. There are many potential scopes that can be defined. Some of them are deemed _special_, while
+   others are deemed _default_ or _dynamic_, having few differences other than their life-cycle.
+2. At least one special scope named `LIMBO` exists, and newly created connections (when a client
+   successfully joins the server) with immediately move to that scope.
+3. Users can define new default, dynamic or even special scopes. Typically, special scopes are not
+   meant to allow users to interact but represent certain states in the game where the connection
+   needs further setup prior to interacting with anyone (e.g. login, create account, select a
+   character, ...).
+
+So, in the server side, the Connections node keeps the different connections that exist in a given
+moment while, in the client side, only one corresponding connection is mirrored. Also, the server
+side decides (via custom user logic) which scopes the connections will go to, while the client side
+just reflects whatever scope is updated from the server (in both sides a `scope_changed` signal
+exists to keep track, in a node, of the scope for a connection).
+
+The life-cycle goes like this:
+
+1. When a client successfully joins a server, the server instantiates a connection node (of the
+   appropriate class from the `connection_class()` method), asigning the just-fetched connection id
+   from it, adding the node under the `Connections` node (with a unique name involving also the id)
+   and finally initializing its authority.
+2. The authority initialization of a node involves creating its `Commands` and `Notification` nodes
+   directly under the connection node itself. Those nodes are granted authorities: the first goes
+   for the client connection, while the second goes for the server (since it's up to the client to
+   send the commands, and up to the server to send the notifications).
+3. In the meantime, the client does the exact same/analogous process (also ensuring the same name
+   is given to the nodes) and assigning the same authorities to the same objects in their side.
+4. The client sends commands to the server, directly invoking `.rpc()` on the properly defined and
+   annotated methods. Commands will have the "authority" modifier in the `@rpc` decorator.
+5. The server sends notifications to the client, directly invoking `.rpc_id()` on the properly
+   defined and annotated methods, or perhaps using `notify_owner` for the same purpose.
+6. The server can also set the scope for a connection. At init time, the scope is not set (it will
+   be -1) and, as immediate as possible, the connection will be moved to `LIMBO` when added to the
+   Connections object. `scope_changed` is a signal triggered in both client and server side of a
+   Connection node when this happens.
+7. The server can also iterate over the objects of a given scope. This can be done for any reason,
+   but typically intended to send a notification to many clients in the same loop.
+8. The server can know the scope of a given connection.
+9. When the client connection is terminated, the client destroys the connection node and children,
+   while the server destroys in particular also that corresponding node and children.
+
+Is is always worth clarifying: All the in-hierarchy names match between nodes, thus keeping the
+proper RPC synchronization mechanism working.
+
+The full features supporting the described life-cycle come as follows:
+    
+```
+TODO
+```    
