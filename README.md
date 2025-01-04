@@ -719,3 +719,8 @@ the AlephVault__MMO.Common.Scopes class:
   ScopeType.DYNAMIC type.
 - `static make_fq_special_scope_id(id: int) -> int`: Invokes `make_fq_scope_id` specifying the
   ScopeType.SPECIAL type.
+
+### Scope and Connection examples: Chat Application
+
+In the `addone/AlephVault.MMO/samples` a chat application is defined and fully working. You are
+free to explore it and get a good example on how this architecture works.
