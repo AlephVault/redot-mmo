@@ -662,8 +662,60 @@ The life-cycle goes like this:
 Is is always worth clarifying: All the in-hierarchy names match between nodes, thus keeping the
 proper RPC synchronization mechanism working.
 
-The full features supporting the described life-cycle come as follows:
+Both the server-side and the client-side Main components have a `connections` property to get the
+Connections object. The full features in the Connection supporting the described life-cycle in the
+points 6, 7 and 8 come as follows:
     
-```
-TODO
-```    
+In the server side:
+
+- `get_connections_in_scope(scope_id: int) -> Array[int]`: Given a scope_id, retrieves all the ids
+  of the connections added to that scope.
+- `get_connection_scope(connection_id: int) -> int`: Given the id of a connection, returns which
+  scope is it added to. It returns -1 if the connection is not valid or not set up by that point.
+- `set_connection_scope(connection_id: int, scope_id: int)`: Sets the scope_id for a connection.
+  The scope must be a valid assembled id (see in the explanation about assembling one), but it is
+  not required for the ID to exist or be validated in any way.
+- `has_connection(connection_id: int) -> bool`: Tells whether the connection exists as a node or
+  not (this validates the connection in the life-cycle). If this method returns false, it also
+  means that the connection_id is not a valid MultiplayerAPI peer id, or ceased to be valid.
+- `get_connections() -> Array[int]`: Gets all the connection ids. This array may be big (e.g. up
+  to 4095 elements or whatever maximum is configured). All the ids will be valid peer ids by that
+  point.
+- `get_connection_node(id: int) -> AlephVault__MMO.Server.Connection`: Given a peer id, returns
+  the corresponding connection node for it. This means: given a peer id, returns the connection
+  object for that peer. This one will be highly used to interact with most of the relevant logic,
+  save for scope-iterating (described next).
+- `scope_iterate(scope_id: int, method: Callable)`: Iterates a scope. This means: iterates over
+  the connections inside that scope and executes a particular method for that node. The passed
+  method (second argument) receives the corresponding server-side Connection object for the peer
+  id being iterated. It is intended for scope-wide actions rather then user-wide actions as in the
+  `get_connection_node` method. Anything can be used as logic in the `method`. However, if the idea
+  is to notify something, the method's code block can be a one-liner like
+  `node.notify_owner("foo", [1, 2])` or any notification as described in the `notify_owner` in the
+  server-side Connection object.
+- `has_scope(scope_id: int) -> bool`: Tells whether the scope is in use or not.
+
+In the client side:
+
+- `get_connection_node() -> AlephVault__MMO.Client.Connection`: Gets the only available connection
+  node in the Connections (it will correspond to the current connection).
+
+The involved `scope_id` is a number that can be assembled and disassembled with the features of
+the AlephVault__MMO.Common.Scopes class:
+    
+- `SCOPE_LIMBO: int = 0`: A constant for the LIMBO special scope.
+- `SCOPE_ACCOUNT_DASHBOARD: int = 1`: A constant for the ACCOUNT DASHBOARD special scope.
+- `ScopeType.DEFAULT = 0`: The type for "default" (always loaded) scopes.
+- `ScopeType.DYNAMIC = 1`: The type for "dynamic" (on-demand loaded) scopes.
+- `ScopeType.SPECIAL = 2`: The type for "special" scopes (not intended for user interaction).
+- `static make_fq_scope_id(id: int, scope_type: ScopeType) -> int`: Assembles a scope_id from the
+  chosen type id and the (relative) id.
+- `static unpack_scope_id(id: int) -> Dictionary`: Disassembles a scope_id into the values that
+  made them. The result is a dictionary whose keys are: "id" -> The relative id, "type": one of the
+  three types (0/DEFAULT, 1/DYNAMIC, 2/SPECIAL).
+- `static make_fq_default_scope_id(id: int) -> int`: Invokes `make_fq_scope_id` specifying the
+  ScopeType.DEFAULT type.
+- `static make_fq_dynamic_scope_id(id: int) -> int`: Invokes `make_fq_scope_id` specifying the
+  ScopeType.DYNAMIC type.
+- `static make_fq_special_scope_id(id: int) -> int`: Invokes `make_fq_scope_id` specifying the
+  ScopeType.SPECIAL type.
