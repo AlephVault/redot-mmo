@@ -1,5 +1,9 @@
 extends Object
 
+# Result codes used by all storage operations.
+#
+# The constants below mirror the Unity remote-storage package names, while
+# the enum provides the actual integer values used by Result.code.
 enum Code {
 	UNAUTHORIZED,
 	FORBIDDEN,
@@ -47,4 +51,3 @@ const Updated = Code.UPDATED
 const Replaced = Code.REPLACED
 const Deleted = Code.DELETED
 const Ok = Code.OK
-
