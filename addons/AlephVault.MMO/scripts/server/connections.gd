@@ -171,6 +171,6 @@ func _remove_client(id: int):
 	var node = get_node("Connection_%s" % id)
 	if node:
 		_unset_connection_scope(id)
-		node.scope_changed.emit(-1)
-		(get_parent() as AlephVault__MMO.Server.Main).scope_changed.emit(node.id, -1)
+		node.scope_changed.emit(-1, -1)
+		(get_parent() as AlephVault__MMO.Server.Main).scope_changed.emit(node.id, -1, -1)
 		remove_child(node)
