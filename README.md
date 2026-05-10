@@ -1,5 +1,13 @@
 # redot-mmo
-A Redot/Godot add-on to make multiplayer massive online games.
+
+A Redot/Godot add-on collection for MMO-style games.
+
+This repository currently contains:
+
+- `AlephVault.MMO`: multiplayer node structure, client/server connection
+  helpers, scopes, commands, and notifications.
+- `AlephVault.MMO.Storage`: a standard HTTP remote-storage client for account,
+  profile, inventory, character, or game-state data.
 
 ## Installation
 
@@ -10,3 +18,4 @@ project's `addons/` directory.
 ## Documentation
 
 - [AlephVault.MMO](addons/AlephVault.MMO/README.md)
+- [AlephVault.MMO.Storage](addons/AlephVault.MMO.Storage/README.md)
