@@ -8,7 +8,7 @@ const Authorization = AlephVault__MMO__Storage.StandardHttp.Authorization
 #
 # This class stores the resource name, base endpoint, and authorization shared
 # by simple and list resources. It also contains the recursive JSON-to-script
-# mapper used by typed methods such as read_as() and operation_to().
+# mapper used by typed methods such as read() and operation_to().
 var name: String
 var base_endpoint: String
 var authorization: Authorization

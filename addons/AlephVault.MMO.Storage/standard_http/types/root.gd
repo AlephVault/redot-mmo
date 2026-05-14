@@ -22,15 +22,15 @@ func _init(
 	base_endpoint = base_endpoint_.trim_suffix("/")
 	authorization = authorization_
 
-## Returns a handle to a simple resource at "<base_endpoint>/<name>".
+## Returns a typed handle to a simple resource at "<base_endpoint>/<name>".
 ##
 ## Simple resources represent a single object that can be created, read,
 ## patched, replaced, deleted, and queried through custom methods.
-func get_simple(name: String) -> SimpleResource:
-	return SimpleResource.new(name, base_endpoint, authorization)
+func get_simple(name: String, response_class: Script) -> SimpleResource:
+	return SimpleResource.new(name, base_endpoint, authorization, response_class)
 
-## Returns a handle to a list resource at "<base_endpoint>/<name>".
+## Returns a typed handle to a list resource at "<base_endpoint>/<name>".
 ##
 ## List resources represent collections where each item has a string id.
-func get_list(name: String) -> ListResource:
-	return ListResource.new(name, base_endpoint, authorization)
+func get_list(name: String, element_class: Script) -> ListResource:
+	return ListResource.new(name, base_endpoint, authorization, element_class)

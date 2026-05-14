@@ -60,13 +60,16 @@ Prefer the shorter direct names unless you need the folder-shaped namespace.
 
 ## Quick Start
 
+This example assumes `Account` is a GDScript class that can be instantiated
+with `Account.new()`.
+
 ```gdscript
 const Storage = AlephVault__MMO__Storage
 
 func load_account(token: String) -> void:
 	var auth = Storage.StandardHttp.Authorization.new("Bearer", token)
 	var root = Storage.StandardHttp.Root.new("https://storage.example.test", auth)
-	var account = root.get_simple("account")
+	var account = root.get_simple("account", Account)
 
 	var result = await account.read()
 	if result.code == Storage.Types.ResultCode.Ok:
@@ -112,8 +115,8 @@ Storage.StandardHttp.Root.new("https://storage.example.test/", auth)
 From the root, create resource handles:
 
 ```gdscript
-var account = root.get_simple("account")
-var characters = root.get_list("characters")
+var account = root.get_simple("account", Account)
+var characters = root.get_list("characters", CharacterSummary)
 ```
 
 ### Results
@@ -483,9 +486,9 @@ func _ready() -> void:
 	await equip_weapon("char_001", "iron_sword")
 
 func load_account() -> void:
-	var account_resource = root.get_simple("account")
+	var account_resource = root.get_simple("account", Account)
 
-	var result = await account_resource.read_as(Account)
+	var result = await account_resource.read()
 	if result.code != Storage.Types.ResultCode.Ok:
 		_log_storage_error("load account", result)
 		return
@@ -494,10 +497,10 @@ func load_account() -> void:
 	print("Account: %s, gold: %s" % [account.display_name, account.wallet.gold])
 
 func load_characters() -> void:
-	var characters = root.get_list("characters")
+	var characters = root.get_list("characters", CharacterSummary)
 	var cursor = Storage.StandardHttp.Cursor.new(0, 10)
 
-	var result = await characters.list_as(cursor, CharacterSummary)
+	var result = await characters.list(cursor)
 	if result.code != Storage.Types.ResultCode.Ok:
 		_log_storage_error("load characters", result)
 		return
@@ -508,7 +511,7 @@ func load_characters() -> void:
 			print("  %s x%s" % [item.item_id, item.amount])
 
 func create_character() -> void:
-	var characters = root.get_list("characters")
+	var characters = root.get_list("characters", CharacterSummary)
 	var body = {
 		"name": "Lio",
 		"class": "mage",
@@ -522,7 +525,7 @@ func create_character() -> void:
 	print("Created character id: %s" % result.created_id)
 
 func equip_weapon(character_id: String, item_id: String) -> void:
-	var characters = root.get_list("characters")
+	var characters = root.get_list("characters", CharacterSummary)
 	var args = {"slot": "weapon"}
 	var body = {"item_id": item_id}
 
@@ -581,7 +584,7 @@ Use typed methods when you want JSON objects converted into GDScript instances.
 Simple resource:
 
 ```gdscript
-await account.read_as(Account)
+await account.read()
 await account.view_to("summary", {}, AccountSummary)
 await account.operation_to("rename", {}, Account, {"display_name": "Ana"})
 ```
@@ -589,8 +592,8 @@ await account.operation_to("rename", {}, Account, {"display_name": "Ana"})
 List resource:
 
 ```gdscript
-await characters.list_as(Storage.StandardHttp.Cursor.new(0, 50), CharacterSummary)
-await characters.read_as("char_001", CharacterSummary)
+await characters.list(Storage.StandardHttp.Cursor.new(0, 50))
+await characters.read("char_001")
 await characters.view_to("search", {"q": "ma"}, SearchResult)
 await characters.operation_to("bulk_grant", {}, BulkGrantResult, {"gold": 10})
 await characters.item_view_to("char_001", "stats", {}, CharacterStats)
@@ -600,9 +603,9 @@ await characters.item_operation_to("char_001", "equip", {"slot": "weapon"}, Equi
 Typed deserialization rules:
 
 - The target script must be instantiable with `.new()`.
-- The response must be a JSON object for `read_as`, `view_to`,
+- The response must be a JSON object for `read`, `view_to`,
   `operation_to`, `item_view_to`, and `item_operation_to`.
-- The response must be a JSON array of objects for `list_as`.
+- The response must be a JSON array of objects for `list`.
 - JSON keys are matched to stored properties with the same name.
 - Missing JSON keys leave the property's default value unchanged.
 - Unknown JSON keys are ignored.
@@ -620,12 +623,21 @@ Typed deserialization rules:
 
 ## CRUD Reference
 
+### Root
+
+```gdscript
+new(base_endpoint: String, authorization: Authorization)
+get_simple(name: String, response_class: Script) -> SimpleResource
+get_list(name: String, element_class: Script) -> ListResource
+```
+
 ### SimpleResource
 
 ```gdscript
+new(name: String, base_endpoint: String, authorization: Authorization, response_class: Script)
 create(body: Variant) -> Result
 read() -> Result
-read_as(response_class: Script) -> Result
+read_json() -> Result
 update(changes: Dictionary) -> Result
 replace(replacement: Variant) -> Result
 delete() -> Result
@@ -640,11 +652,12 @@ operation_to(method: String, args: Dictionary, response_class: Script, body: Var
 ### ListResource
 
 ```gdscript
+new(name: String, base_endpoint: String, authorization: Authorization, element_class: Script)
 list(cursor: Cursor) -> Result
-list_as(cursor: Cursor, element_class: Script) -> Result
+list_json(cursor: Cursor) -> Result
 create(body: Variant) -> Result
 read(id: String) -> Result
-read_as(id: String, response_class: Script) -> Result
+read_json(id: String) -> Result
 update(id: String, changes: Dictionary) -> Result
 replace(id: String, replacement: Variant) -> Result
 delete(id: String) -> Result

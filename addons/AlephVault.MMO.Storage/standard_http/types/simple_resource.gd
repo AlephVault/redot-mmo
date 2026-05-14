@@ -3,11 +3,23 @@ extends "res://addons/AlephVault.MMO.Storage/standard_http/types/resource.gd"
 const EngineImpl = AlephVault__MMO__Storage.StandardHttp.Engine
 const Result = AlephVault__MMO__Storage.Types.Result
 const ResultCode = AlephVault__MMO__Storage.Types.ResultCode
+const Authorization = AlephVault__MMO__Storage.StandardHttp.Authorization
 
 # Handle for a standard HTTP simple resource.
 #
 # A simple resource represents one object at "<base_endpoint>/<name>".
 # Operations return Result instances instead of throwing storage errors.
+var response_class: Script
+
+func _init(
+	name_: String = "",
+	base_endpoint_: String = "",
+	authorization_: Authorization = null,
+	response_class_: Script = null
+) -> void:
+	super(name_, base_endpoint_, authorization_)
+	assert(response_class_ != null, "A response class is required")
+	response_class = response_class_
 
 ## Creates the simple resource by POSTing [body].
 ##
@@ -17,20 +29,20 @@ func create(body: Variant) -> Result:
 	var response = await EngineImpl.create(_endpoint(), authorization, body)
 	return _wrap_response(response, Result.created(response.created_id))
 
+## Reads the simple resource and maps the JSON object into the bound type.
+##
+## Returns FormatError when the response is not a JSON object or cannot be
+## mapped into an instance of the configured script.
+func read() -> Result:
+	var response = await EngineImpl.one(_endpoint(), authorization)
+	return _wrap_deserialized_response(response, response_class)
+
 ## Reads the simple resource as raw JSON-compatible data.
 ##
 ## On success, [Result.element] contains the decoded response.
-func read() -> Result:
+func read_json() -> Result:
 	var response = await EngineImpl.one(_endpoint(), authorization)
 	return _wrap_response(response, Result.ok(response.data))
-
-## Reads the simple resource and maps the JSON object into [response_class].
-##
-## Returns FormatError when the response is not a JSON object or cannot be
-## mapped into an instance of the provided script.
-func read_as(response_class: Script) -> Result:
-	var response = await EngineImpl.one(_endpoint(), authorization)
-	return _wrap_deserialized_response(response, response_class)
 
 ## Applies a MongoDB-style patch to the simple resource.
 ##

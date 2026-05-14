@@ -4,29 +4,41 @@ const EngineImpl = AlephVault__MMO__Storage.StandardHttp.Engine
 const Result = AlephVault__MMO__Storage.Types.Result
 const ResultCode = AlephVault__MMO__Storage.Types.ResultCode
 const Cursor = AlephVault__MMO__Storage.StandardHttp.Cursor
+const Authorization = AlephVault__MMO__Storage.StandardHttp.Authorization
 
 # Handle for a standard HTTP list resource.
 #
 # A list resource represents a collection at "<base_endpoint>/<name>".
 # Item-level operations address "<resource>/<id>" where ids are strings.
+var element_class: Script
+
+func _init(
+	name_: String = "",
+	base_endpoint_: String = "",
+	authorization_: Authorization = null,
+	element_class_: Script = null
+) -> void:
+	super(name_, base_endpoint_, authorization_)
+	assert(element_class_ != null, "An element class is required")
+	element_class = element_class_
+
+## Lists resources and maps each JSON object into the bound element type.
+##
+## Returns FormatError if the response is not an array of objects.
+func list(cursor: Cursor) -> Result:
+	var response = await EngineImpl.list(_endpoint(), authorization, cursor)
+	return _wrap_deserialized_array_response(response, element_class)
 
 ## Lists resources using [cursor] and returns raw JSON-compatible elements.
 ##
 ## On success, [Result.elements] contains the decoded array.
-func list(cursor: Cursor) -> Result:
+func list_json(cursor: Cursor) -> Result:
 	var response = await EngineImpl.list(_endpoint(), authorization, cursor)
 	if not response.ok:
 		return _wrap_response(response, Result.ok_many([]))
 	if typeof(response.data) != TYPE_ARRAY:
 		return Result.failed(ResultCode.FormatError)
 	return Result.ok_many(response.data)
-
-## Lists resources and maps each JSON object into [element_class].
-##
-## Returns FormatError if the response is not an array of objects.
-func list_as(cursor: Cursor, element_class: Script) -> Result:
-	var response = await EngineImpl.list(_endpoint(), authorization, cursor)
-	return _wrap_deserialized_array_response(response, element_class)
 
 ## Creates a new list item by POSTing [body].
 ##
@@ -36,18 +48,20 @@ func create(body: Variant) -> Result:
 	var response = await EngineImpl.create(_endpoint(), authorization, body)
 	return _wrap_response(response, Result.created(response.created_id))
 
-## Reads a list item as raw JSON-compatible data.
-func read(id: String) -> Result:
-	var response = await EngineImpl.one(_item_endpoint(id), authorization)
-	return _wrap_response(response, Result.ok(response.data))
-
-## Reads a list item and maps the JSON object into [response_class].
+## Reads a list item and maps the JSON object into the bound element type.
 ##
 ## Returns FormatError when the response is not a JSON object or cannot be
-## mapped into an instance of the provided script.
-func read_as(id: String, response_class: Script) -> Result:
+## mapped into an instance of the configured script.
+func read(id: String) -> Result:
 	var response = await EngineImpl.one(_item_endpoint(id), authorization)
-	return _wrap_deserialized_response(response, response_class)
+	return _wrap_deserialized_response(response, element_class)
+
+## Reads a list item as raw JSON-compatible data.
+##
+## On success, [Result.element] contains the decoded response.
+func read_json(id: String) -> Result:
+	var response = await EngineImpl.one(_item_endpoint(id), authorization)
+	return _wrap_response(response, Result.ok(response.data))
 
 ## Applies a MongoDB-style patch to a list item.
 ##
