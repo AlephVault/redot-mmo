@@ -38,7 +38,7 @@ static func make_fq_scope_id(id: int, scope_type: ScopeType) -> int:
 		return -1
 	if not ScopeType.values().has(scope_type):
 		return -1
-	return int(scope_type) << 30 || id
+	return (int(scope_type) << 30) | id
 
 ## Computes a final default scope id, given the partial id.
 static func make_fq_default_scope_id(id: int) -> int:
