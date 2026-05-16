@@ -7,7 +7,7 @@ func _enter_tree():
 	%SendCommand.connect("pressed", send_command)
 
 func _exit_tree():
-	%SetNickname.connect("pressed", set_nickname)
+	%SetNickname.disconnect("pressed", set_nickname)
 	%SendCommand.disconnect("pressed", send_command)
 
 ## Sets the nickname via command.
