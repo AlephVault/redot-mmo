@@ -28,7 +28,9 @@ var current_nick: String:
 @rpc("authority", "call_remote", "reliable")
 func list():
 	print("Listing channels")
-	connection.notify_owner("list_result", [_allowed_channels.keys()])
+	var channels: Array[String] = []
+	channels.assign(_allowed_channels.keys())
+	connection.notify_owner("list_result", [channels])
 
 @rpc("authority", "call_remote", "reliable")
 func part():

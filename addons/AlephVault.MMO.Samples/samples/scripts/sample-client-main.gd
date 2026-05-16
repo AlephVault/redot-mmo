@@ -38,16 +38,19 @@ func connection_class() -> Script:
 
 
 func _client_started():
+	print("Client started.")
 	client_ui.visible = true
 	_client_ui.message_connection_started()
 
 
 func _client_stopped():
+	print("Client stopped.")
 	client_ui.visible = false
 	_client_ui.message_connection_closed()
 
 
 func _client_failed():
+	print("Client failed.")
 	client_ui.visible = false
 	_client_ui.message_connection_failed()
 
