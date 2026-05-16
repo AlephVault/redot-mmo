@@ -135,4 +135,4 @@ connections.scope_iterate(scope_id, func(connection: AlephVault__MMO__Server.Con
 - `scope_iterate(scope_id: int, method: Callable)`
 - `has_scope(scope_id: int) -> bool`
 
-The chat sample is in `addons/AlephVault.MMO.Samples/samples`.
+The chat sample is in `addons/AlephVault.MMO.Samples`.

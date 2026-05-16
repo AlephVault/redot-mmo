@@ -2,11 +2,11 @@ extends Object
 
 class_name AlephVault__MMO__Server
 
-const Main = preload("./server/main.gd")
-const Connections = preload("./server/connections.gd")
-const Connection = preload("./server/connections/connection.gd")
-const ConnectionCommands = preload("./server/connections/commands.gd")
-const ConnectionNotifications = preload("./server/connections/notifications.gd")
-const World = preload("./server/world.gd")
-const Scope = preload("./server/scope.gd")
-const DefaultScope = preload("./server/resources/default_scope.gd")
+const Main = preload("./main.gd")
+const Connections = preload("./connections.gd")
+const Connection = preload("./connections/connection.gd")
+const ConnectionCommands = preload("./connections/commands.gd")
+const ConnectionNotifications = preload("./connections/notifications.gd")
+const World = preload("./world.gd")
+const Scope = preload("./scope.gd")
+const DefaultScope = preload("./resources/default_scope.gd")
