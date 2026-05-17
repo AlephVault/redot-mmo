@@ -7,6 +7,7 @@ This package exposes the global namespace `AlephVault__MMO__Common`.
 ## Public API
 
 - `AlephVault__MMO__Common.Scopes`: helpers and constants for scope ids.
+- `AlephVault__MMO__Common.ProtocolUtils`: helpers for protocols.
 
 ## Scopes
 
@@ -37,6 +38,16 @@ const ROOM = Scopes.make_fq_dynamic_scope_id(15)
 ```
 
 Use `unpack_scope_id(scope_id)` to recover the relative id and scope type.
+
+## Protocol Utils
+
+This class has many utilities related to protocols management.
+
+- `ProtocolUtils.sort_by_dependencies(dependencies, parent_type)` returns a new
+  array sorted from the least dependent protocol class to the most dependent one.
+  Each script in `dependencies` must extend `parent_type`, and `parent_type` must
+  define a static `dependencies: Array[Script]` property. Invalid inputs, missing
+  dependencies, and circular dependencies emit an error and return an empty array.
 
 ## Related Packages
 
