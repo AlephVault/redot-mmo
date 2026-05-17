@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cyiciou8jxc1d"]
 
-[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/samples/scripts/sample-client-main.gd" id="1_lc12v"]
+[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/sample-client-main.gd" id="1_lc12v"]
 
 [node name="Main" type="CanvasLayer"]
 script = ExtResource("1_lc12v")
