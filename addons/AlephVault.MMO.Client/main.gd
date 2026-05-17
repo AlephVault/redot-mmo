@@ -20,6 +20,13 @@ func _ready() -> void:
 	# Set, in the spawner, the spawn path to the world.
 	_spawner.spawn_path = _world.get_path()
 
+	# Also, set a place for the protocols.
+	var protocols = AlephVault__MMO__Client.Protocols.new()
+	protocols.name = "Protocols"
+	print("[AlephVault.MMO:Client] Adding Protocols to: " + String(get_path()) + ":", protocols)
+	add_child(protocols, true)
+	_protocols = protocols
+
 	# Also, set a place for the child connections.
 	var connections = AlephVault__MMO__Client.Connections.new()
 	connections.name = "Connections"
@@ -43,7 +50,13 @@ func _exit_tree() -> void:
 		remove_child(_spawner)
 		_spawner.queue_free()
 		_spawner = null
-	
+
+	# Remove the protocols.
+	if _protocols != null:
+		remove_child(_protocols)
+		_protocols.queue_free()
+		_protocols = null
+
 	# Remove the connections.
 	if _connections != null:
 		remove_child(_connections)
@@ -88,6 +101,16 @@ var spawner: MultiplayerSpawner:
 		return _spawner
 	set(value):
 		assert(false, "The client's spawner cannot be set this way")
+
+# The parent of the protocols.
+var _protocols: AlephVault__MMO__Client.Protocols
+
+## The parent of the protocols.
+var protocols: AlephVault__MMO__Client.Protocols:
+	get:
+		return _protocols
+	set(value):
+		assert(false, "The client's protocols cannot be set this way")
 
 # The parent of the connections.
 var _connections: AlephVault__MMO__Client.Connections

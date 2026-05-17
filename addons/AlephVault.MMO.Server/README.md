@@ -28,6 +28,7 @@ When a server `Main` enters the tree, it creates:
 ```text
 MyGame
   World
+  Protocols
   Connections
     Connection_<peer_id>
       Commands
@@ -99,6 +100,7 @@ Useful members:
 
 - `connections: AlephVault__MMO__Server.Connections`
 - `world: AlephVault__MMO__Server.World`
+- `protocols: AlephVault__MMO__Server.Protocols`
 - `spawner: MultiplayerSpawner`
 - `address: String`
 - `port: int`

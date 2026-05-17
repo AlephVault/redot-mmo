@@ -34,6 +34,7 @@ When a client `Main` enters the tree, it creates:
 ```text
 MyGame
   World
+  Protocols
   Connections
     Connection_<peer_id>
       Commands
@@ -106,6 +107,7 @@ Useful members:
 
 - `connections: AlephVault__MMO__Client.Connections`
 - `world: AlephVault__MMO__Client.World`
+- `protocols: AlephVault__MMO__Client.Protocols`
 - `spawner: MultiplayerSpawner`
 - `address: String`
 - `port: int`
