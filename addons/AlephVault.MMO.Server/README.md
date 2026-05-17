@@ -21,19 +21,34 @@ Client scene:
 MyGame (extends AlephVault__MMO__Client.Main)
 ```
 
+In the editor, a server `Main` may also have direct child nodes whose scripts
+extend `AlephVault__MMO__Server.Protocol`:
+
+```text
+MyGame (extends AlephVault__MMO__Server.Main)
+  InventoryProtocol
+  CombatProtocol
+```
+
+Protocols are a mirrored MMO concept that will be explained later. When the
+server enters the tree, those direct protocol children are collected, sorted by
+their static dependencies, and moved under the generated `Protocols` node.
+
 ## Runtime Structure
 
 When a server `Main` enters the tree, it creates:
 
 ```text
 MyGame
-  World
   Protocols
+    InventoryProtocol
+    CombatProtocol
+  World
+  MultiplayerSpawner
   Connections
     Connection_<peer_id>
       Commands
       Notifications
-  MultiplayerSpawner
 ```
 
 The server creates one connection node per connected peer. `Commands` receives
@@ -138,3 +153,10 @@ connections.scope_iterate(scope_id, func(connection: AlephVault__MMO__Server.Con
 - `has_scope(scope_id: int) -> bool`
 
 The chat sample is in `addons/AlephVault.MMO.Samples`.
+
+## Protocols
+
+Protocols are bundles of logic and their related messages. They provide pre-implemented
+behavior to be used later and are the actual, essential, part of the MMO. The logic is
+typically implemented on the server, and a custom local tracking might be implemented
+on the client. However, both parts (client and server) are mandatory.

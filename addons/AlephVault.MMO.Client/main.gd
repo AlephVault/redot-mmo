@@ -1,6 +1,9 @@
 extends Node
 
 func _ready() -> void:
+	# First, take all the nodes that are Protocol instances.
+	var protocol_nodes := _take_protocol_nodes()
+
 	# Create the world (attach it with ownership).
 	var world = AlephVault__MMO__Client.World.new()
 	world.name = "World"
@@ -33,6 +36,9 @@ func _ready() -> void:
 	print("[AlephVault.MMO:Client] Adding Connections to: " + String(get_path()) + ":", connections)
 	add_child(connections, true)
 	_connections = connections
+
+    # Finally, add all those Protocol nodes into the Protocols node.
+	_add_sorted_protocol_nodes(protocol_nodes)
 
 	request_ready()
 
@@ -135,6 +141,42 @@ var port: int:
 		return _port
 	set(value):
 		assert(false, "The client's port cannot be set this way")
+
+func _take_protocol_nodes() -> Array[Node]:
+	var protocol_nodes: Array[Node] = []
+	for child in get_children():
+		if _node_extends_protocol(child):
+			remove_child(child)
+			protocol_nodes.append(child)
+	return protocol_nodes
+
+func _add_sorted_protocol_nodes(protocol_nodes: Array[Node]) -> void:
+	var protocol_classes: Array[Script] = []
+	for protocol_node in protocol_nodes:
+		var protocol_class = protocol_node.get_script() as Script
+		if protocol_class != null:
+			protocol_classes.append(protocol_class)
+
+	var sorted_protocol_classes = AlephVault__MMO__Common.ProtocolUtils.sort_by_dependencies(
+		protocol_classes, AlephVault__MMO__Client.Protocol
+	)
+	for protocol_class in sorted_protocol_classes:
+		for protocol_node in protocol_nodes:
+			if protocol_node.get_parent() == null and protocol_node.get_script() == protocol_class:
+				_protocols.add_child(protocol_node, true)
+				break
+
+	for protocol_node in protocol_nodes:
+		if protocol_node.get_parent() == null:
+			protocol_node.queue_free()
+
+func _node_extends_protocol(node: Node) -> bool:
+	var script = node.get_script() as Script
+	while script != null:
+		if script == AlephVault__MMO__Client.Protocol:
+			return true
+		script = script.get_base_script()
+	return false
 
 ## Joins a server.
 ##

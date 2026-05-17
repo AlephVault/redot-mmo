@@ -27,19 +27,34 @@ MyGame (extends AlephVault__MMO__Server.Main)
 Both peers then address the main node as `/root/MyGame`. User subclasses are
 expected, but the matching client/server nodes must keep matching paths.
 
+In the editor, a client `Main` may also have direct child nodes whose scripts
+extend `AlephVault__MMO__Client.Protocol`:
+
+```text
+MyGame (extends AlephVault__MMO__Client.Main)
+  InventoryProtocol
+  CombatProtocol
+```
+
+Protocols are a mirrored MMO concept that will be explained later. When the
+client enters the tree, those direct protocol children are collected, sorted by
+their static dependencies, and moved under the generated `Protocols` node.
+
 ## Runtime Structure
 
 When a client `Main` enters the tree, it creates:
 
 ```text
 MyGame
-  World
   Protocols
+    InventoryProtocol
+    CombatProtocol
+  World
+  MultiplayerSpawner
   Connections
     Connection_<peer_id>
       Commands
       Notifications
-  MultiplayerSpawner
 ```
 
 The client only mirrors its own connection node. `Commands` is owned by the
@@ -117,3 +132,10 @@ Useful members:
 - `signal scope_changed(current_scope_id: int, scope_id: int)`
 
 Use `connections.get_connection_node()` to access the current client connection.
+
+## Protocols
+
+Protocols are bundles of logic and their related messages. They provide pre-implemented
+behavior to be used later and are the actual, essential, part of the MMO. The logic is
+typically implemented on the server, and a custom local tracking might be implemented
+on the client. However, both parts (client and server) are mandatory.
