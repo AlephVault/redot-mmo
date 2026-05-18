@@ -39,7 +39,7 @@ func _add_client() -> AlephVault__MMO__Client.Connection:
 		var id = multiplayer.get_unique_id()
 		node.name = "Connection_%s" % id
 		node.id = id
-		print("[AlephVault.MMO:Client] Adding Connection to: " + String(get_path()) + ":", node)
+		print("[AlephVault.MMO:Client] Adding Connection to: " + String(get_path()) + "/", node)
 		add_child(node, true)
 		(get_parent() as AlephVault__MMO__Client.Main).protocols.install(node)
 		return node
