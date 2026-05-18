@@ -2,7 +2,11 @@ extends Node
 
 ## Installs all registered protocols under the given connection.
 func install(connection: AlephVault__MMO__Server.Connection) -> void:
+	print("[AlephVault.MMO:Server] Installing protocol nodes below " + connection.name)
+
 	for child in get_children():
+		print("[AlephVault.MMO:Server] Installing protocol by name: " + child.name)
+
 		var protocol = child as AlephVault__MMO__Server.Protocol
 		if protocol == null:
 			continue

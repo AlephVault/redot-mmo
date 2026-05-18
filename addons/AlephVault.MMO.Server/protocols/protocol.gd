@@ -3,7 +3,7 @@ extends Node
 ## Implement this method to define the dependencies
 ## of the current protocol. Do it in terms of classes
 ## extending AlephVault__MMO__Server.Protocol.
-static func _get_dependencies(): Array[Script]:
+static func _get_dependencies() -> Array[Script]:
 	return []
 
 ## The protocol classes this protocol depends on.
@@ -14,19 +14,19 @@ static var dependencies: Array[Script]:
 		assert(false, "The server's protocol dependencies cannot be set this way")
 
 ## Hook invoked after the server is launched successfully.
-async func server_started() -> void:
+func server_started() -> void:
 	pass
 
 ## Hook invoked after the server is stopped successfully.
-async func server_stopped() -> void:
+func server_stopped() -> void:
 	pass
 
 ## Hook invoked after a client connection is established.
-async func client_entered(id: int) -> void:
+func client_entered(id: int) -> void:
 	pass
 
 ## Hook invoked before a client connection is removed.
-async func client_left(id: int) -> void:
+func client_left(id: int) -> void:
 	pass
 
 ## Override this to instantiate the node serving the
