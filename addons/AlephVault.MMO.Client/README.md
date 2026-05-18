@@ -52,6 +52,7 @@ MyGame
   World
   MultiplayerSpawner
   Connections
+    # Then, these appear for each connection:
     Connection_<peer_id>
       <ProtocolName>
         Commands

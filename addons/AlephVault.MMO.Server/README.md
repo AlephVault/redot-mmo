@@ -47,6 +47,7 @@ MyGame
   MultiplayerSpawner
   Connections
     Connection_<peer_id>
+      # Then, these appear for each connection:
       <ProtocolName>
         Commands
         Notifications
