@@ -21,6 +21,14 @@ async func server_started() -> void:
 async func server_stopped() -> void:
 	pass
 
+## Hook invoked after a client connection is established.
+async func client_entered(id: int) -> void:
+	pass
+
+## Hook invoked before a client connection is removed.
+async func client_left(id: int) -> void:
+	pass
+
 ## Override this to instantiate the node serving the
 ## protocol commands issued to the server.
 func _create_commands_node() -> AlephVault__MMO__Server.ProtocolCommands:

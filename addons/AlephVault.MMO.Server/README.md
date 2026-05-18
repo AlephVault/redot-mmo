@@ -202,6 +202,11 @@ After a server is launched successfully, each protocol receives a
 `server_started()` hook in dependency order. After a server is stopped
 successfully, each protocol receives `server_stopped()` in the same order.
 
+When a client connection is established, each protocol receives
+`client_entered(id)` in dependency order after the connection node exists. When
+a client connection is closed, each protocol receives `client_left(id)` in the
+same order before the connection node is removed.
+
 They're defined like:
 
 ```gdscript
@@ -209,5 +214,11 @@ async server_started():
     ...
 
 async server_stopped():
+    ...
+
+async client_entered(id: int):
+    ...
+
+async client_left(id: int):
     ...
 ```

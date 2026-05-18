@@ -204,6 +204,16 @@ func _disconnect_protocol_hooks() -> void:
 			if server_stopped.is_connected(server_stopped_hook):
 				server_stopped.disconnect(server_stopped_hook)
 
+func _protocols_client_entered(id: int) -> void:
+	for child in _protocols.get_children():
+		if _node_extends_protocol(child):
+			child.client_entered(id)
+
+func _protocols_client_left(id: int) -> void:
+	for child in _protocols.get_children():
+		if _node_extends_protocol(child):
+			child.client_left(id)
+
 func _node_extends_protocol(node: Node) -> bool:
 	var script = node.get_script() as Script
 	while script != null:
@@ -268,8 +278,10 @@ func connection_class() -> Script:
 
 func _on_peer_connected(id: int):
 	if id != 1:
+		_protocols_client_entered(id)
 		client_entered.emit(id)
 
 func _on_peer_disconnected(id: int):
 	if id != 1:
+		_protocols_client_left(id)
 		client_left.emit(id)
