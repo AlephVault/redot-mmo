@@ -1,7 +1,7 @@
-extends AlephVault__MMO__Client.ConnectionCommands
+extends AlephVault__MMO__Client.ProtocolCommands
 
 func _enter_tree() -> void:
-	print("Client connection commands path:", get_path())
+	print("Client protocol commands path:", get_path())
 
 @rpc("authority", "call_remote", "reliable")
 func list():

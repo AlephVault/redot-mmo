@@ -1,4 +1,4 @@
-extends AlephVault__MMO__Server.ConnectionCommands
+extends AlephVault__MMO__Server.ProtocolCommands
 
 static var _allowed_channels: Dictionary = {
 	"general": AlephVault__MMO__Common.Scopes.make_fq_default_scope_id(0),
@@ -9,8 +9,13 @@ static var _allowed_channels: Dictionary = {
 }
 
 func _enter_tree() -> void:
-	super()
-	print("Server connection commands path:", get_path())
+	print("Server protocol commands path:", get_path())
+
+func _connection() -> AlephVault__MMO__Server.Connection:
+	return $"../.." as AlephVault__MMO__Server.Connection
+
+func _notify_owner(connection: AlephVault__MMO__Server.Connection, method: String, args: Array) -> void:
+	connection.get_node("Chat/Notifications").rpc_id.callv([connection.id, method] + args)
 
 var _channel: String = ""
 var _current_nick: String = ""
@@ -30,13 +35,14 @@ func list():
 	print("Listing channels")
 	var channels: Array[String] = []
 	channels.assign(_allowed_channels.keys())
-	connection.notify_owner("list_result", [channels])
+	_notify_owner(_connection(), "list_result", [channels])
 
 @rpc("authority", "call_remote", "reliable")
 func part():
 	print("Leaving current channel")
+	var connection = _connection()
 	if _channel == "":
-		connection.notify_owner("part_result", [false])
+		_notify_owner(connection, "part_result", [false])
 		return
 
 	var connections: AlephVault__MMO__Server.Connections = connection.connections
@@ -45,20 +51,21 @@ func part():
 	connections.set_connection_scope(id, AlephVault__MMO__Common.Scopes.make_fq_special_scope_id(AlephVault__MMO__Common.Scopes.SCOPE_LIMBO))
 	
 	var notify_part = func(node: AlephVault__MMO__Server.Connection):
-		node.notify_owner("user_part", [id, current_nick])
+		_notify_owner(node, "user_part", [id, current_nick])
 	connections.scope_iterate(scope_id, notify_part)
 	_channel = "";
-	connection.notify_owner("part_result", [true])
+	_notify_owner(connection, "part_result", [true])
 
 @rpc("authority", "call_remote", "reliable")
 func join(channel: String):
 	print("Joining channel:", channel)
+	var connection = _connection()
 	if not _allowed_channels.has(channel):
-		connection.notify_owner("join_result", [channel, false])
+		_notify_owner(connection, "join_result", [channel, false])
 		return
 	
 	if channel == _channel:
-		connection.notify_owner("join_result", [channel, true])
+		_notify_owner(connection, "join_result", [channel, true])
 		return
 
 	# Remove from current scope, and add to the
@@ -71,16 +78,16 @@ func join(channel: String):
 
 	# Tell the members of the previous scope.
 	var notify_part = func(node: AlephVault__MMO__Server.Connection):
-		node.notify_owner("user_part", [id, current_nick])
+		_notify_owner(node, "user_part", [id, current_nick])
 	connections.scope_iterate(old_scope_id, notify_part)
 	
 	# Tell the member of the new scope.
 	var notify_join = func(node: AlephVault__MMO__Server.Connection):
-		node.notify_owner("user_join", [id, current_nick])
+		_notify_owner(node, "user_join", [id, current_nick])
 	connections.scope_iterate(new_scope_id, notify_join)
 
 	_channel = channel
-	connection.notify_owner("join_result", [channel, true])
+	_notify_owner(connection, "join_result", [channel, true])
 
 @rpc("authority", "call_remote", "reliable")
 func send(message: String):
@@ -88,22 +95,24 @@ func send(message: String):
 	if _channel == "":
 		return
 	
+	var connection = _connection()
 	var connections: AlephVault__MMO__Server.Connections = connection.connections
 	var id: int = connection.id
 	var scope_id: int = connections.get_connection_scope(id)
 
 	var notify_sent = func(node: AlephVault__MMO__Server.Connection):
-		node.notify_owner("user_sent", [id, current_nick, message])
+		_notify_owner(node, "user_sent", [id, current_nick, message])
 	connections.scope_iterate(scope_id, notify_sent)
 
 @rpc("authority", "call_remote", "reliable")
 func nick(nickname: String):
 	print("Setting nick to:", nickname)
+	var connection = _connection()
 	var old_nick = current_nick
 	var new_nick = nickname.strip_edges()
 	
 	if nickname == "":
-		connection.notify_owner("nick_result", [nickname, false])
+		_notify_owner(connection, "nick_result", [nickname, false])
 		return
 	current_nick = new_nick
 
@@ -113,6 +122,6 @@ func nick(nickname: String):
 		var scope_id: int = connections.get_connection_scope(id)
 
 		var notify_nick = func(node: AlephVault__MMO__Server.Connection):
-			node.notify_owner("user_nick", [id, old_nick, new_nick])
+			_notify_owner(node, "user_nick", [id, old_nick, new_nick])
 		connections.scope_iterate(scope_id, notify_nick)
-	connection.notify_owner("nick_result", [nickname, true])
+	_notify_owner(connection, "nick_result", [nickname, true])

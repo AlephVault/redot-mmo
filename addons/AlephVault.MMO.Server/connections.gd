@@ -111,7 +111,6 @@ func set_connection_scope(connection_id: int, scope_id: int):
 	if node:
 		node.scope_changed.emit(current_scope_id, scope_id)
 		(get_parent() as AlephVault__MMO__Server.Main).scope_changed.emit(node.id, current_scope_id, scope_id)
-		node.notifications.set_scope(scope_id)
 
 ## Tells whether the connection is registered here.
 func has_connection(connection_id: int) -> bool:
@@ -160,7 +159,7 @@ func _add_client(id: int) -> AlephVault__MMO__Server.Connection:
 		set_connection_scope(id, AlephVault__MMO__Common.Scopes.make_fq_special_scope_id(AlephVault__MMO__Common.Scopes.SCOPE_LIMBO))
 		print("[AlephVault.MMO:Server] Adding Connection to: " + String(get_path()) + ":", node)
 		add_child(node, true)
-		node.init_authority()
+		(get_parent() as AlephVault__MMO__Server.Main).protocols.install(node)
 		return node
 	return null
 

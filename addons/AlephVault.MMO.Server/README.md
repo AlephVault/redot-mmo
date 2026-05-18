@@ -47,48 +47,21 @@ MyGame
   MultiplayerSpawner
   Connections
     Connection_<peer_id>
-      Commands
-      Notifications
+      <ProtocolName>
+        Commands
+        Notifications
 ```
 
-The server creates one connection node per connected peer. `Commands` receives
-client RPCs. `Notifications` sends server RPCs to the owning client.
+The server creates one connection node per connected peer. Protocol `Commands`
+receive client RPCs. Protocol `Notifications` send server RPCs to the owning
+client.
 
 ## Defining Server Classes
 
-Create a connection subclass and return command and notification nodes:
+Create a connection subclass when the server needs custom connection state:
 
 ```gdscript
 extends AlephVault__MMO__Server.Connection
-
-const Commands = preload("./my-connection-commands.gd")
-const Notifications = preload("./my-connection-notifications.gd")
-
-func _make_commands_node() -> AlephVault__MMO__Server.ConnectionCommands:
-	return Commands.new()
-
-func _make_notifications_node() -> AlephVault__MMO__Server.ConnectionNotifications:
-	return Notifications.new()
-```
-
-Commands implement the RPC methods sent by the client:
-
-```gdscript
-extends AlephVault__MMO__Server.ConnectionCommands
-
-@rpc("authority", "call_remote", "reliable")
-func ping(message: String):
-	connection.notify_owner("pong", [message])
-```
-
-Notifications declare the RPC methods sent by the server:
-
-```gdscript
-extends AlephVault__MMO__Server.ConnectionNotifications
-
-@rpc("authority", "call_remote", "reliable")
-func pong(message: String):
-	pass
 ```
 
 Then define a server main subclass:
@@ -137,7 +110,7 @@ var connections: AlephVault__MMO__Server.Connections = my_server.connections
 
 connections.set_connection_scope(peer_id, scope_id)
 connections.scope_iterate(scope_id, func(connection: AlephVault__MMO__Server.Connection):
-	connection.notify_owner("user_sent", [peer_id, "hello"])
+	print("Connection in scope: ", connection.id)
 )
 ```
 
@@ -194,7 +167,9 @@ Connection_<peer_id>
 
 `Commands` is created by `_create_commands_node()` and `Notifications` is
 created by `_create_notifications_node()`. The installer renames those nodes to
-the stable RPC path names shown above.
+the stable RPC path names shown above. The `Protocols` node installs every
+protocol under each connection and assigns authorities: `Commands` to the
+connection peer id and `Notifications` to peer `1`.
 
 ### Server Hooks
 

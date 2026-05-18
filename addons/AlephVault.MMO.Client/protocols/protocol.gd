@@ -36,7 +36,7 @@ func _create_notifications_node() -> AlephVault__MMO__Client.ProtocolNotificatio
 ## <protocol-name>
 ##   Commands
 ##   Notifications
-func _install(connection: AlephVault__MMO__Client.Connection) -> void:
+func install(connection: AlephVault__MMO__Client.Connection) -> void:
 	var protocol = Node.new()
 	protocol.name = name
 	print("[AlephVault.MMO:Client] Adding Protocol to: " + String(connection.get_path()) + ":", protocol)

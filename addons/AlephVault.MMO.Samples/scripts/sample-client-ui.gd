@@ -13,10 +13,11 @@ func _exit_tree():
 ## Sets the nickname via command.
 func set_nickname():
 	var connection = ($".." as AlephVault__MMO__Client.Main).connections.get_connection_node()
+	var commands = connection.get_node("Chat/Commands")
 	var nickname = $NewNickname.text.strip_edges()
 	if nickname != "":
 		$NewNickname.text = ""
-		connection.commands.nick.rpc(nickname)
+		commands.nick.rpc(nickname)
 
 func _input(event):
 	var node = get_viewport().gui_get_focus_owner()
@@ -36,21 +37,22 @@ func send_command():
 	var base_command: String = command_parts[0].to_lower()
 	var argument = command_parts[1].strip_edges() if len(command_parts) > 1 else ""
 	var connection = ($".." as AlephVault__MMO__Client.Main).connections.get_connection_node()
+	var commands = connection.get_node("Chat/Commands")
 	if base_command == "/join":
 		# Change the current channel.
-		connection.commands.join.rpc(argument)
+		commands.join.rpc(argument)
 	elif base_command == "/part":
 		# Leaves the current channel, if any.
-		connection.commands.part.rpc()
+		commands.part.rpc()
 	elif base_command == "/nick":
 		# Changes the nick.
-		connection.commands.nick.rpc(argument)
+		commands.nick.rpc(argument)
 	elif base_command == "/list":
 		# Lists the channels.
-		connection.commands.list.rpc()
+		commands.list.rpc()
 	else:
 		# Sends a message.
-		connection.commands.send.rpc(command)
+		commands.send.rpc(command)
 
 func _add_line(line: String):
 	var text: String = $Messages.text

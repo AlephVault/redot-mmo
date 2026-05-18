@@ -53,49 +53,21 @@ MyGame
   MultiplayerSpawner
   Connections
     Connection_<peer_id>
-      Commands
-      Notifications
+      <ProtocolName>
+        Commands
+        Notifications
 ```
 
-The client only mirrors its own connection node. `Commands` is owned by the
-client and is used to call server RPCs. `Notifications` is owned by the server
-and receives server RPCs.
+The client only mirrors its own connection node. Protocol `Commands` are owned
+by the client and are used to call server RPCs. Protocol `Notifications` are
+owned by the server and receive server RPCs.
 
 ## Defining Client Classes
 
-Create a connection subclass and return command and notification nodes:
+Create a connection subclass when the client needs custom connection state:
 
 ```gdscript
 extends AlephVault__MMO__Client.Connection
-
-const Commands = preload("./my-connection-commands.gd")
-const Notifications = preload("./my-connection-notifications.gd")
-
-func _make_commands_node() -> AlephVault__MMO__Client.ConnectionCommands:
-	return Commands.new()
-
-func _make_notifications_node() -> AlephVault__MMO__Client.ConnectionNotifications:
-	return Notifications.new()
-```
-
-Commands declare the RPC methods the client may send:
-
-```gdscript
-extends AlephVault__MMO__Client.ConnectionCommands
-
-@rpc("authority", "call_remote", "reliable")
-func ping(message: String):
-	pass
-```
-
-Notifications implement the RPC methods the server may send:
-
-```gdscript
-extends AlephVault__MMO__Client.ConnectionNotifications
-
-@rpc("authority", "call_remote", "reliable")
-func pong(message: String):
-	print("PONG: ", message)
 ```
 
 Then define a client main subclass:
@@ -173,7 +145,9 @@ Connection_<peer_id>
 
 `Commands` is created by `_create_commands_node()` and `Notifications` is
 created by `_create_notifications_node()`. The installer renames those nodes to
-the stable RPC path names shown above.
+the stable RPC path names shown above. The `Protocols` node installs every
+protocol under each connection and assigns authorities: `Commands` to the
+connection peer id and `Notifications` to peer `1`.
 
 ### Client Hooks
 
