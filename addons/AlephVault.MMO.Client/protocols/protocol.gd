@@ -13,6 +13,14 @@ static var dependencies: Array[Script]:
 	set(value):
 		assert(false, "The client's protocol dependencies cannot be set this way")
 
+## Hook invoked after the client connects to a server successfully.
+async func client_started() -> void:
+	pass
+
+## Hook invoked after the client disconnects from the server.
+async func client_stopped() -> void:
+	pass
+
 ## Override this to instantiate the node serving the
 ## protocol commands issued to the server.
 func _create_commands_node() -> AlephVault__MMO__Client.ProtocolCommands:

@@ -150,6 +150,8 @@ Protocol support currently exposes three client-side base classes:
 - `AlephVault__MMO__Client.ProtocolNotifications`: routes protocol
   notifications and responses sent from the server to the client.
 
+### Commands and Notifications
+
 For `ProtocolCommands` and `ProtocolNotifications` subclasses, it is highly
 recommended that all RPC methods are declared as:
 
@@ -172,3 +174,9 @@ Connection_<peer_id>
 `Commands` is created by `_create_commands_node()` and `Notifications` is
 created by `_create_notifications_node()`. The installer renames those nodes to
 the stable RPC path names shown above.
+
+### Client Hooks
+
+After the client connects to a server successfully, each protocol receives a
+`client_started()` hook in dependency order. After the client disconnects from
+the server, each protocol receives `client_stopped()` in the same order.

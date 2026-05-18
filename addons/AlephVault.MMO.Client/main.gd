@@ -39,6 +39,7 @@ func _ready() -> void:
 
 	# Finally, add all those Protocol nodes into the Protocols node.
 	_add_sorted_protocol_nodes(protocol_nodes)
+	_connect_protocol_hooks()
 
 	request_ready()
 
@@ -59,6 +60,7 @@ func _exit_tree() -> void:
 
 	# Remove the protocols.
 	if _protocols != null:
+		_disconnect_protocol_hooks()
 		_restore_protocol_nodes()
 		remove_child(_protocols)
 		_protocols.queue_free()
@@ -176,6 +178,26 @@ func _restore_protocol_nodes() -> void:
 		if _node_extends_protocol(child):
 			_protocols.remove_child(child)
 			add_child(child, true)
+
+func _connect_protocol_hooks() -> void:
+	for child in _protocols.get_children():
+		if _node_extends_protocol(child):
+			var client_started_hook := Callable(child, "client_started")
+			if not client_started.is_connected(client_started_hook):
+				client_started.connect(client_started_hook)
+			var client_stopped_hook := Callable(child, "client_stopped")
+			if not client_stopped.is_connected(client_stopped_hook):
+				client_stopped.connect(client_stopped_hook)
+
+func _disconnect_protocol_hooks() -> void:
+	for child in _protocols.get_children():
+		if _node_extends_protocol(child):
+			var client_started_hook := Callable(child, "client_started")
+			if client_started.is_connected(client_started_hook):
+				client_started.disconnect(client_started_hook)
+			var client_stopped_hook := Callable(child, "client_stopped")
+			if client_stopped.is_connected(client_stopped_hook):
+				client_stopped.disconnect(client_stopped_hook)
 
 func _node_extends_protocol(node: Node) -> bool:
 	var script = node.get_script() as Script
