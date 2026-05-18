@@ -177,3 +177,19 @@ recommended that all RPC methods are declared as:
 ```gdscript
 @rpc("authority", "call_remote", "reliable")
 ```
+
+Server protocols can override `_create_commands_node()` and
+`_create_notifications_node()` to provide protocol-specific RPC nodes. When a
+protocol is installed on a connection, it creates this hierarchy under that
+connection:
+
+```text
+Connection_<peer_id>
+  <ProtocolName>
+    Commands
+    Notifications
+```
+
+`Commands` is created by `_create_commands_node()` and `Notifications` is
+created by `_create_notifications_node()`. The installer renames those nodes to
+the stable RPC path names shown above.
