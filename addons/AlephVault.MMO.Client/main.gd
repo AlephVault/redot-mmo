@@ -37,7 +37,7 @@ func _ready() -> void:
 	add_child(connections, true)
 	_connections = connections
 
-    # Finally, add all those Protocol nodes into the Protocols node.
+	# Finally, add all those Protocol nodes into the Protocols node.
 	_add_sorted_protocol_nodes(protocol_nodes)
 
 	request_ready()
@@ -59,6 +59,7 @@ func _exit_tree() -> void:
 
 	# Remove the protocols.
 	if _protocols != null:
+		_restore_protocol_nodes()
 		remove_child(_protocols)
 		_protocols.queue_free()
 		_protocols = null
@@ -169,6 +170,12 @@ func _add_sorted_protocol_nodes(protocol_nodes: Array[Node]) -> void:
 	for protocol_node in protocol_nodes:
 		if protocol_node.get_parent() == null:
 			protocol_node.queue_free()
+
+func _restore_protocol_nodes() -> void:
+	for child in _protocols.get_children():
+		if _node_extends_protocol(child):
+			_protocols.remove_child(child)
+			add_child(child, true)
 
 func _node_extends_protocol(node: Node) -> bool:
 	var script = node.get_script() as Script
