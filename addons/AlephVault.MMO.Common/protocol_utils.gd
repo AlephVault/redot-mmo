@@ -69,10 +69,7 @@ static func sort_by_dependencies(dependencies: Array[Script], parent_type: Scrip
 	return result
 
 static func _has_dependencies_property(script: Script) -> bool:
-	for property in script.get_script_property_list():
-		if str(property.get("name", "")) == "dependencies":
-			return true
-	return false
+	return typeof(script.get("dependencies")) == TYPE_ARRAY
 
 static func _extends_script(script: Script, parent_type: Script) -> bool:
 	var current := script.get_base_script()
