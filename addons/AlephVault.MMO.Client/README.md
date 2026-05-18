@@ -139,3 +139,20 @@ Protocols are bundles of logic and their related messages. They provide pre-impl
 behavior to be used later and are the actual, essential, part of the MMO. The logic is
 typically implemented on the server, and a custom local tracking might be implemented
 on the client. However, both parts (client and server) are mandatory.
+
+Protocol support currently exposes three client-side base classes:
+
+- `AlephVault__MMO__Client.Protocol`: a protocol node placed directly under
+  `Main` in the editor. Its static `dependencies` property controls protocol
+  ordering.
+- `AlephVault__MMO__Client.ProtocolCommands`: routes protocol commands sent
+  from the client to the server.
+- `AlephVault__MMO__Client.ProtocolNotifications`: routes protocol
+  notifications and responses sent from the server to the client.
+
+For `ProtocolCommands` and `ProtocolNotifications` subclasses, it is highly
+recommended that all RPC methods are declared as:
+
+```gdscript
+@rpc("authority", "call_remote", "reliable")
+```
