@@ -180,3 +180,13 @@ the stable RPC path names shown above.
 After the client connects to a server successfully, each protocol receives a
 `client_started()` hook in dependency order. After the client disconnects from
 the server, each protocol receives `client_stopped()` in the same order.
+
+They're defined like:
+
+```gdscript
+async client_started():
+    ...
+
+async client_stopped():
+    ...
+```

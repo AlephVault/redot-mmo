@@ -201,3 +201,13 @@ the stable RPC path names shown above.
 After a server is launched successfully, each protocol receives a
 `server_started()` hook in dependency order. After a server is stopped
 successfully, each protocol receives `server_stopped()` in the same order.
+
+They're defined like:
+
+```gdscript
+async server_started():
+    ...
+
+async server_stopped():
+    ...
+```
