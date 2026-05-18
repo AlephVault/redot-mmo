@@ -1,6 +1,5 @@
 extends Control
 
-
 func _enter_tree():
 	print("UI initialized")
 	%SetNickname.connect("pressed", set_nickname)

@@ -32,6 +32,9 @@ func _ready() -> void:
 	add_child(protocols, true)
 	_protocols = protocols
 
+	# Add all Protocol nodes before Connections can react to connection signals.
+	_add_sorted_protocol_nodes(protocol_nodes)
+
 	# Also, set a place for the child connections.
 	var connections = AlephVault__MMO__Server.Connections.new()
 	connections.name = "Connections"
@@ -39,8 +42,6 @@ func _ready() -> void:
 	add_child(connections, true)
 	_connections = connections
 
-	# Finally, add all those Protocol nodes into the Protocols node.
-	_add_sorted_protocol_nodes(protocol_nodes)
 	_connect_protocol_hooks()
 
 	request_ready()
@@ -278,8 +279,8 @@ func connection_class() -> Script:
 
 func _on_peer_connected(id: int):
 	if id != 1:
-		_protocols_client_entered(id)
 		client_entered.emit(id)
+		_protocols_client_entered(id)
 
 func _on_peer_disconnected(id: int):
 	if id != 1:
