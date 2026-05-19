@@ -172,6 +172,25 @@ the stable RPC path names shown above. The `Protocols` node installs every
 protocol under each connection and assigns authorities: `Commands` to the
 connection peer id and `Notifications` to peer `1`.
 
+### Separation of Concerns
+
+Ideally, the Protocol should implement the logic through regular method calls,
+and a single object should handle the core logic.
+
+The flow would typically be:
+
+```
+# To act on a specific client.
+server code -> protocol method -> get client connection -> protocol notification
+
+# To react on a client command.
+protocol command -> protocol method for that client -> server code
+```
+
+With this in mind, the implementation of a ProtocolCommands class should only
+invoke protocol methods (a minimalistic implementation), and the implementation
+of a ProtocolNotifications class should be also minimalistic (just the stub).
+
 ### Server Hooks
 
 After a server is launched successfully, each protocol receives a
