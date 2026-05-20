@@ -1,7 +1,6 @@
 extends AlephVault__MMO__Client.Main
 
 
-const _connection_class = preload("./sample-client-connection.gd")
 const _ui_scene = preload("../scenes/sample-client-ui.tscn")
 const _ui = preload("./sample-client-ui.gd")
 
@@ -31,10 +30,6 @@ func _process(delta: float) -> void:
 		print("join_server() result:", self.join_server("127.0.0.1", 6777))
 	if Input.is_action_just_pressed("client_leave"):
 		print("leave_server() result:", self.leave_server())
-
-
-func connection_class() -> Script:
-	return _connection_class
 
 
 func _client_started():

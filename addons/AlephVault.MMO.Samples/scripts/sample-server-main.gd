@@ -1,9 +1,6 @@
 extends AlephVault__MMO__Server.Main
 
 
-const _connection_class = preload("./sample-server-connection.gd")
-
-
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	super()
@@ -20,10 +17,6 @@ func _process(delta: float) -> void:
 		print("launch() result:", self.launch(6777, 32, 0, 0, 0))
 	if Input.is_action_just_pressed("server_stop"):
 		print("stop() result:", self.stop())
-
-
-func connection_class() -> Script:
-	return _connection_class
 
 
 func _server_started():
