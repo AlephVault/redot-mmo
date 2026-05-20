@@ -1,1 +1,0 @@
-extends AlephVault__MMO__Client.Connection
