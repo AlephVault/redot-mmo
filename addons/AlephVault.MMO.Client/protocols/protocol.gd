@@ -32,6 +32,16 @@ func get_protocol(protocol_class: Script) -> AlephVault__MMO__Client.Protocols.P
 		return null
 	return manager.get_protocol(protocol_class)
 
+## Gets the current client connection.
+func get_connection() -> AlephVault__MMO__Client.Connection:
+	var manager = get_parent() as AlephVault__MMO__Client.Protocols.Manager
+	if manager == null:
+		return null
+	var main = manager.get_parent() as AlephVault__MMO__Client.Main
+	if main == null or main.connections == null or main.connections.get_child_count() == 0:
+		return null
+	return main.connections.get_connection_node()
+
 ## Gets the commands node for this protocol in the current connection.
 ##
 ## The returned node is the Commands child installed below this protocol's
@@ -39,13 +49,7 @@ func get_protocol(protocol_class: Script) -> AlephVault__MMO__Client.Protocols.P
 ## protocol is not installed under a Protocols node, or the Commands node does
 ## not exist for the current connection.
 func get_commands() -> AlephVault__MMO__Client.Protocols.Commands:
-	var manager = get_parent() as AlephVault__MMO__Client.Protocols.Manager
-	if manager == null:
-		return null
-	var main = manager.get_parent() as AlephVault__MMO__Client.Main
-	if main == null or main.connections == null or main.connections.get_child_count() == 0:
-		return null
-	var connection = main.connections.get_connection_node()
+	var connection = get_connection()
 	if connection == null:
 		return null
 	var protocol = connection.get_node_or_null(str(name))

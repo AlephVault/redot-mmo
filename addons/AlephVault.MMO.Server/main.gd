@@ -272,11 +272,6 @@ func stop() -> bool:
 		return true
 	return false
 
-## The server connection class for this server.
-## This method should be overridden.
-func connection_class() -> Script:
-	return AlephVault__MMO__Server.Connection
-
 func _on_peer_connected(id: int):
 	if id != 1:
 		client_entered.emit(id)
