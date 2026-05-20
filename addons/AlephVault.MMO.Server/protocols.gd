@@ -1,5 +1,32 @@
 extends Node
 
+var _protocols_by_class: Dictionary = {}
+var _protocols_by_class_dirty: bool = true
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_CHILD_ORDER_CHANGED:
+		_protocols_by_class_dirty = true
+
+func _rebuild_protocols_by_class() -> void:
+	_protocols_by_class.clear()
+	for child in get_children():
+		var protocol = child as AlephVault__MMO__Server.Protocol
+		if protocol == null:
+			continue
+		var protocol_class = protocol.get_script() as Script
+		if protocol_class != null:
+			_protocols_by_class[protocol_class] = protocol
+	_protocols_by_class_dirty = false
+
+## Gets a protocol by its script class.
+##
+## Returns the protocol node registered under this Protocols node whose script
+## is exactly protocol_class, or null if no such protocol was registered.
+func get_protocol(protocol_class: Script) -> AlephVault__MMO__Server.Protocol:
+	if _protocols_by_class_dirty:
+		_rebuild_protocols_by_class()
+	return _protocols_by_class.get(protocol_class, null) as AlephVault__MMO__Server.Protocol
+
 ## Installs all registered protocols under the given connection.
 func install(connection: AlephVault__MMO__Server.Connection) -> void:
 	print("[AlephVault.MMO:Server] Installing protocol nodes below " + connection.name)
