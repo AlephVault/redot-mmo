@@ -149,6 +149,19 @@ the stable RPC path names shown above. The `Protocols` node installs every
 protocol under each connection and assigns authorities: `Commands` to the
 connection peer id and `Notifications` to peer `1`.
 
+Client protocol nodes provide helpers for common lookups:
+
+- `get_protocol(protocol_class: Script)`: gets another installed protocol.
+- `get_connection()`: gets the current client connection, if connected.
+- `get_commands()`: gets this protocol's `Commands` node for the current
+  connection.
+
+Client notification nodes provide:
+
+- `connection_node()`: gets the current client connection.
+- `protocol_node()`: gets the central protocol instance that owns the
+  notification node.
+
 ### Separation of Concerns
 
 Ideally, the Protocol should implement the logic through regular method calls,
