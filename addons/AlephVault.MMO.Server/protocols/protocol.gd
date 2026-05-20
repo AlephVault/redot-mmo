@@ -40,6 +40,16 @@ func get_protocol(protocol_class: Script) -> AlephVault__MMO__Server.Protocols.P
 		return null
 	return manager.get_protocol(protocol_class)
 
+## Gets the server connection by id.
+func get_connection(id: int) -> AlephVault__MMO__Server.Connection:
+	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager
+	if manager == null:
+		return null
+	var main = manager.get_parent() as AlephVault__MMO__Server.Main
+	if main == null or main.connections == null or not main.connections.has_connection(id):
+		return null
+	return main.connections.get_connection_node(id)
+
 ## Gets the notifications node for this protocol in a connection.
 ##
 ## The returned node is the Notifications child installed below this protocol's
@@ -47,13 +57,7 @@ func get_protocol(protocol_class: Script) -> AlephVault__MMO__Server.Protocols.P
 ## connection does not exist, this protocol is not installed under a Protocols
 ## node, or the Notifications node does not exist for that connection.
 func get_notifications(id: int) -> AlephVault__MMO__Server.Protocols.Notifications:
-	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager
-	if manager == null:
-		return null
-	var main = manager.get_parent() as AlephVault__MMO__Server.Main
-	if main == null or main.connections == null or not main.connections.has_connection(id):
-		return null
-	var connection = main.connections.get_connection_node(id)
+	var connection = get_connection(id)
 	if connection == null:
 		return null
 	var protocol = connection.get_node_or_null(str(name))
