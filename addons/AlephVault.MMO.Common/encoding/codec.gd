@@ -564,8 +564,8 @@ func _array_element_type(property: Dictionary) -> int:
 	return int(token)
 
 func _script_from_property(property: Dictionary) -> Script:
-	var class_name = str(property.get("class_name", ""))
-	var script = _script_from_class_name(class_name)
+	var classname = str(property.get("class_name", ""))
+	var script = _script_from_class_name(classname)
 	if script != null:
 		return script
 	return _script_from_hint_string(str(property.get("hint_string", "")))
@@ -578,16 +578,16 @@ func _script_from_hint_string(hint_string: String) -> Script:
 			return loaded
 
 	for global_class in ProjectSettings.get_global_class_list():
-		var class_name = str(global_class.get("class", ""))
-		if class_name != "" and hint_string.find(class_name) != -1:
-			return _script_from_class_name(class_name)
+		var classname = str(global_class.get("class", ""))
+		if classname != "" and hint_string.find(classname) != -1:
+			return _script_from_class_name(classname)
 	return null
 
-func _script_from_class_name(class_name: String) -> Script:
-	if class_name == "":
+func _script_from_class_name(classname: String) -> Script:
+	if classname == "":
 		return null
 	for global_class in ProjectSettings.get_global_class_list():
-		if str(global_class.get("class", "")) == class_name:
+		if str(global_class.get("class", "")) == classname:
 			var loaded = load(str(global_class.get("path", "")))
 			if loaded is Script:
 				return loaded
