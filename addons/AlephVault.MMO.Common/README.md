@@ -8,6 +8,8 @@ This package exposes the global namespace `AlephVault__MMO__Common`.
 
 - `AlephVault__MMO__Common.Scopes`: helpers and constants for scope ids.
 - `AlephVault__MMO__Common.ProtocolUtils`: helpers for protocols.
+- `AlephVault__MMO__Common.Protocols.Authentication`: shared authentication
+  protocol constants and result helpers.
 - `AlephVault__MMO__Common.Encoding`: MessagePack encoding helpers and
   higher-level Godot Variant codec support.
 
@@ -144,6 +146,22 @@ This class has many utilities related to protocols management.
   Each script in `dependencies` must extend `parent_type`, and `parent_type` must
   define a static `dependencies: Array[Script]` property. Invalid inputs, missing
   dependencies, and circular dependencies emit an error and return an empty array.
+
+## Authentication Protocol Helpers
+
+`AlephVault__MMO__Common.Protocols.Authentication` contains framework-level
+types used by the client and server authentication protocols:
+
+- `AccountAlreadyLoggedManagementMode`: `GHOST`, `REJECT`, and `ALLOW_ALL`
+  duplicate-session policies.
+- `KickReasons`: helpers that create generic kick reason dictionaries.
+- `LoginResult`: `accept(ok, account_id)` and `reject(failed)` helpers returned
+  by server authentication implementations.
+- `SessionStage`: names for account loading, initialization, permission checks,
+  and termination errors.
+
+Concrete credential shapes, such as username/password payloads, do not belong in
+this package. They should be implemented by application or sample protocols.
 
 ## Related Packages
 
