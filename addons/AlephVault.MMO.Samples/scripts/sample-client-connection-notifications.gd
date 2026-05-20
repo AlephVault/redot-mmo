@@ -1,4 +1,4 @@
-extends AlephVault__MMO__Client.ProtocolNotifications
+extends AlephVault__MMO__Client.Protocols.Notifications
 
 @rpc("authority", "call_remote", "reliable")
 func user_join(connection_id: int, nick: String):

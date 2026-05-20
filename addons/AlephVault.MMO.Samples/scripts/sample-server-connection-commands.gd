@@ -1,4 +1,4 @@
-extends AlephVault__MMO__Server.ProtocolCommands
+extends AlephVault__MMO__Server.Protocols.Commands
 
 static var _allowed_channels: Dictionary = {
 	"general": AlephVault__MMO__Common.Scopes.make_fq_default_scope_id(0),

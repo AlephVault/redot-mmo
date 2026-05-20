@@ -34,11 +34,11 @@ func client_left(id: int) -> void:
 ## This delegates the lookup to the parent Protocols node. protocol_class must
 ## be the script used by the target protocol node. Returns null if this protocol
 ## is not installed under a Protocols node, or if no matching protocol exists.
-func get_protocol(protocol_class: Script) -> AlephVault__MMO__Server.Protocol:
-	var protocols = get_parent() as AlephVault__MMO__Server.Protocols
-	if protocols == null:
+func get_protocol(protocol_class: Script) -> AlephVault__MMO__Server.Protocols.Protocol:
+	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager
+	if manager == null:
 		return null
-	return protocols.get_protocol(protocol_class)
+	return manager.get_protocol(protocol_class)
 
 ## Gets the notifications node for this protocol in a connection.
 ##
@@ -46,11 +46,11 @@ func get_protocol(protocol_class: Script) -> AlephVault__MMO__Server.Protocol:
 ## per-connection node for the given connection id. Returns null when the
 ## connection does not exist, this protocol is not installed under a Protocols
 ## node, or the Notifications node does not exist for that connection.
-func get_notifications(id: int) -> AlephVault__MMO__Server.ProtocolNotifications:
-	var protocols = get_parent() as AlephVault__MMO__Server.Protocols
-	if protocols == null:
+func get_notifications(id: int) -> AlephVault__MMO__Server.Protocols.Notifications:
+	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager
+	if manager == null:
 		return null
-	var main = protocols.get_parent() as AlephVault__MMO__Server.Main
+	var main = manager.get_parent() as AlephVault__MMO__Server.Main
 	if main == null or main.connections == null or not main.connections.has_connection(id):
 		return null
 	var connection = main.connections.get_connection_node(id)
@@ -59,17 +59,17 @@ func get_notifications(id: int) -> AlephVault__MMO__Server.ProtocolNotifications
 	var protocol = connection.get_node_or_null(str(name))
 	if protocol == null:
 		return null
-	return protocol.get_node_or_null("Notifications") as AlephVault__MMO__Server.ProtocolNotifications
+	return protocol.get_node_or_null("Notifications") as AlephVault__MMO__Server.Protocols.Notifications
 
 ## Override this to instantiate the node serving the
 ## protocol commands issued to the server.
-func _create_commands_node() -> AlephVault__MMO__Server.ProtocolCommands:
-	return AlephVault__MMO__Server.ProtocolCommands.new()
+func _create_commands_node() -> AlephVault__MMO__Server.Protocols.Commands:
+	return AlephVault__MMO__Server.Protocols.Commands.new()
 
 ## Override this to instantiate the node serving the
 ## protocol notifications sent to the client.
-func _create_notifications_node() -> AlephVault__MMO__Server.ProtocolNotifications:
-	return AlephVault__MMO__Server.ProtocolNotifications.new()
+func _create_notifications_node() -> AlephVault__MMO__Server.Protocols.Notifications:
+	return AlephVault__MMO__Server.Protocols.Notifications.new()
 
 ## Installs this protocol under a connection as:
 ##

@@ -24,11 +24,11 @@ func _ready() -> void:
 	_spawner.spawn_path = _world.get_path()
 
 	# Also, set a place for the protocols.
-	var protocols = AlephVault__MMO__Client.Protocols.new()
-	protocols.name = "Protocols"
-	print("[AlephVault.MMO:Client] Adding Protocols to: " + String(get_path()) + ":", protocols)
-	add_child(protocols, true)
-	_protocols = protocols
+	var manager = AlephVault__MMO__Client.Protocols.Manager.new()
+	manager.name = "Protocols"
+	print("[AlephVault.MMO:Client] Adding Protocols to: " + String(get_path()) + ":", manager)
+	add_child(manager, true)
+	_protocols = manager
 
 	# Add all Protocol nodes before Connections can react to connection signals.
 	_add_sorted_protocol_nodes(protocol_nodes)
@@ -113,10 +113,10 @@ var spawner: MultiplayerSpawner:
 		assert(false, "The client's spawner cannot be set this way")
 
 # The parent of the protocols.
-var _protocols: AlephVault__MMO__Client.Protocols
+var _protocols: AlephVault__MMO__Client.Protocols.Manager
 
 ## The parent of the protocols.
-var protocols: AlephVault__MMO__Client.Protocols:
+var protocols: AlephVault__MMO__Client.Protocols.Manager:
 	get:
 		return _protocols
 	set(value):
@@ -162,7 +162,7 @@ func _add_sorted_protocol_nodes(protocol_nodes: Array[Node]) -> void:
 			protocol_classes.append(protocol_class)
 
 	var sorted_protocol_classes = AlephVault__MMO__Common.ProtocolUtils.sort_by_dependencies(
-		protocol_classes, AlephVault__MMO__Client.Protocol
+		protocol_classes, AlephVault__MMO__Client.Protocols.Protocol
 	)
 	for protocol_class in sorted_protocol_classes:
 		for protocol_node in protocol_nodes:
@@ -203,7 +203,7 @@ func _disconnect_protocol_hooks() -> void:
 func _node_extends_protocol(node: Node) -> bool:
 	var script = node.get_script() as Script
 	while script != null:
-		if script == AlephVault__MMO__Client.Protocol:
+		if script == AlephVault__MMO__Client.Protocols.Protocol:
 			return true
 		script = script.get_base_script()
 	return false

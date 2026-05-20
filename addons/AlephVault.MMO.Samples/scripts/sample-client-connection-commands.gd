@@ -1,4 +1,4 @@
-extends AlephVault__MMO__Client.ProtocolCommands
+extends AlephVault__MMO__Client.Protocols.Commands
 
 func _enter_tree() -> void:
 	print("Client protocol commands path:", get_path())

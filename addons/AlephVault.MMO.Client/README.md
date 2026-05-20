@@ -95,7 +95,7 @@ Useful members:
 
 - `connections: AlephVault__MMO__Client.Connections`
 - `world: AlephVault__MMO__Client.World`
-- `protocols: AlephVault__MMO__Client.Protocols`
+- `protocols: AlephVault__MMO__Client.Protocols.Manager`
 - `spawner: MultiplayerSpawner`
 - `address: String`
 - `port: int`
@@ -118,14 +118,14 @@ Protocol support currently exposes three client-side base classes:
 - `AlephVault__MMO__Client.Protocol`: a protocol node placed directly under
   `Main` in the editor. Its static `dependencies` property controls protocol
   ordering.
-- `AlephVault__MMO__Client.ProtocolCommands`: routes protocol commands sent
+- `AlephVault__MMO__Client.Protocols.Commands`: routes protocol commands sent
   from the client to the server.
-- `AlephVault__MMO__Client.ProtocolNotifications`: routes protocol
+- `AlephVault__MMO__Client.Protocols.Notifications`: routes protocol
   notifications and responses sent from the server to the client.
 
 ### Commands and Notifications
 
-For `ProtocolCommands` and `ProtocolNotifications` subclasses, it is highly
+For `Protocols.Commands` and `Protocols.Notifications` subclasses, it is highly
 recommended that all RPC methods are declared as:
 
 ```gdscript
@@ -165,8 +165,8 @@ user code -> protocol method -> get client connection -> protocol command
 protocol notification -> protocol method -> user code
 ```
 
-With this in mind, the implementation of a ProtocolCommands class should be
-minimalistic, and the implementation of a ProtocolNotifications class should
+With this in mind, the implementation of a Protocols.Commands class should be
+minimalistic, and the implementation of a Protocols.Notifications class should
 only invoke protocol methods (also a minimalistic implementation).
 
 ### Client Hooks

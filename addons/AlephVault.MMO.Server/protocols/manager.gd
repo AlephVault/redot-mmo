@@ -10,7 +10,7 @@ func _notification(what: int) -> void:
 func _rebuild_protocols_by_class() -> void:
 	_protocols_by_class.clear()
 	for child in get_children():
-		var protocol = child as AlephVault__MMO__Client.Protocol
+		var protocol = child as AlephVault__MMO__Server.Protocols.Protocol
 		if protocol == null:
 			continue
 		var protocol_class = protocol.get_script() as Script
@@ -22,18 +22,19 @@ func _rebuild_protocols_by_class() -> void:
 ##
 ## Returns the protocol node registered under this Protocols node whose script
 ## is exactly protocol_class, or null if no such protocol was registered.
-func get_protocol(protocol_class: Script) -> AlephVault__MMO__Client.Protocol:
+func get_protocol(protocol_class: Script) -> AlephVault__MMO__Server.Protocols.Protocol:
 	if _protocols_by_class_dirty:
 		_rebuild_protocols_by_class()
-	return _protocols_by_class.get(protocol_class, null) as AlephVault__MMO__Client.Protocol
+	return _protocols_by_class.get(protocol_class, null) as AlephVault__MMO__Server.Protocols.Protocol
 
 ## Installs all registered protocols under the given connection.
-func install(connection: AlephVault__MMO__Client.Connection) -> void:
-	print("[AlephVault.MMO:Client] Installing protocol nodes below " + connection.name)
+func install(connection: AlephVault__MMO__Server.Connection) -> void:
+	print("[AlephVault.MMO:Server] Installing protocol nodes below " + connection.name)
 
 	for child in get_children():
-		print("[AlephVault.MMO:Client] Installing protocol by name: " + child.name)
-		var protocol = child as AlephVault__MMO__Client.Protocol
+		print("[AlephVault.MMO:Server] Installing protocol by name: " + child.name)
+
+		var protocol = child as AlephVault__MMO__Server.Protocols.Protocol
 		if protocol == null:
 			continue
 		protocol.install(connection)
