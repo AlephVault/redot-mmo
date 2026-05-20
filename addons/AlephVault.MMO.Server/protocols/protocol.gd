@@ -2,7 +2,7 @@ extends Node
 
 ## Implement this method to define the dependencies
 ## of the current protocol. Do it in terms of classes
-## extending AlephVault__MMO__Server.Protocol.
+## extending AlephVault__MMO__Server.Protocols.Protocol.
 static func _get_dependencies() -> Array[Script]:
 	return []
 
