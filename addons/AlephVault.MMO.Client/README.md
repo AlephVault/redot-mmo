@@ -24,11 +24,12 @@ Server scene:
 MyGame (extends AlephVault__MMO__Server.Main)
 ```
 
-Both peers then address the main node as `/root/MyGame`. User subclasses are
-expected, but the matching client/server nodes must keep matching paths.
+Both peers then address the main node as `/root/MyGame`. You can use
+`AlephVault__MMO__Client.Main` directly or use a subclass, but the matching
+client/server nodes must keep matching paths.
 
 In the editor, a client `Main` may also have direct child nodes whose scripts
-extend `AlephVault__MMO__Client.Protocol`:
+extend `AlephVault__MMO__Client.Protocols.Protocol`:
 
 ```text
 MyGame (extends AlephVault__MMO__Client.Main)
@@ -63,28 +64,23 @@ The client only mirrors its own connection node. Protocol `Commands` are owned
 by the client and are used to call server RPCs. Protocol `Notifications` are
 owned by the server and receive server RPCs.
 
-## Defining Client Classes
+## Client Classes
 
-Create a connection subclass when the client needs custom connection state:
-
-```gdscript
-extends AlephVault__MMO__Client.Connection
-```
-
-Then define a client main subclass:
+A client `Main` subclass is optional. It is typically useful when you want to
+hook signals such as `client_started`, `client_stopped`, `client_failed`, or
+`scope_changed`, or when you need custom `_process` input/UI orchestration:
 
 ```gdscript
 extends AlephVault__MMO__Client.Main
-
-const Connection = preload("./my-connection.gd")
-
-func connection_class() -> Script:
-	return Connection
 ```
+
+Connections use the built-in `AlephVault__MMO__Client.Connection` class.
+
+Protocols are explained later.
 
 ## Connecting
 
-Use the `Main` subclass in the client scene:
+Use the `Main` node in the client scene:
 
 ```gdscript
 var err := my_client.join_server("127.0.0.1", 6777)
@@ -113,9 +109,12 @@ behavior to be used later and are the actual, essential, part of the MMO. The lo
 typically implemented on the server, and a custom local tracking might be implemented
 on the client. However, both parts (client and server) are mandatory.
 
-Protocol support currently exposes three client-side base classes:
+Protocol support is exposed through the `AlephVault__MMO__Client.Protocols`
+namespace:
 
-- `AlephVault__MMO__Client.Protocol`: a protocol node placed directly under
+- `AlephVault__MMO__Client.Protocols.Manager`: the generated runtime container
+  node under `Main`.
+- `AlephVault__MMO__Client.Protocols.Protocol`: a protocol node placed directly under
   `Main` in the editor. Its static `dependencies` property controls protocol
   ordering.
 - `AlephVault__MMO__Client.Protocols.Commands`: routes protocol commands sent

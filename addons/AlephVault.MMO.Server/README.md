@@ -22,7 +22,7 @@ MyGame (extends AlephVault__MMO__Client.Main)
 ```
 
 In the editor, a server `Main` may also have direct child nodes whose scripts
-extend `AlephVault__MMO__Server.Protocol`:
+extend `AlephVault__MMO__Server.Protocols.Protocol`:
 
 ```text
 MyGame (extends AlephVault__MMO__Server.Main)
@@ -57,28 +57,24 @@ The server creates one connection node per connected peer. Protocol `Commands`
 receive client RPCs. Protocol `Notifications` send server RPCs to the owning
 client.
 
-## Defining Server Classes
+## Server Classes
 
-Create a connection subclass when the server needs custom connection state:
-
-```gdscript
-extends AlephVault__MMO__Server.Connection
-```
-
-Then define a server main subclass:
+A server `Main` subclass is optional. It is typically useful when you want to
+hook signals such as `server_started`, `server_stopped`, `client_entered`,
+`client_left`, or `scope_changed`, or when you need custom `_process`
+input/orchestration:
 
 ```gdscript
 extends AlephVault__MMO__Server.Main
-
-const Connection = preload("./my-connection.gd")
-
-func connection_class() -> Script:
-	return Connection
 ```
+
+Connections use the built-in `AlephVault__MMO__Server.Connection` class.
+
+Protocols are explained later.
 
 ## Launching
 
-Use the `Main` subclass in the server scene:
+Use the `Main` node in the server scene:
 
 ```gdscript
 var err := my_server.launch(6777, 32)
@@ -135,9 +131,12 @@ behavior to be used later and are the actual, essential, part of the MMO. The lo
 typically implemented on the server, and a custom local tracking might be implemented
 on the client. However, both parts (client and server) are mandatory.
 
-Protocol support currently exposes three server-side base classes:
+Protocol support is exposed through the `AlephVault__MMO__Server.Protocols`
+namespace:
 
-- `AlephVault__MMO__Server.Protocol`: a protocol node placed directly under
+- `AlephVault__MMO__Server.Protocols.Manager`: the generated runtime container
+  node under `Main`.
+- `AlephVault__MMO__Server.Protocols.Protocol`: a protocol node placed directly under
   `Main` in the editor. Its static `dependencies` property controls protocol
   ordering.
 - `AlephVault__MMO__Server.Protocols.Commands`: routes protocol commands sent
