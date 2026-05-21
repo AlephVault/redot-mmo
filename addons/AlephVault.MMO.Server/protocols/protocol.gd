@@ -68,15 +68,15 @@ func get_notifications(id: int) -> AlephVault__MMO__Server.Protocols.Notificatio
 ## Sends a notification RPC to a client through this protocol's Notifications node.
 ##
 ## method is the RPC method name to invoke on the client-side Notifications
-## node. payload contains the method arguments in order.
+## node. The arguments contains the method arguments in order.
 ##
 ## Returns true when the Notifications node exists and the RPC was attempted.
 ## Returns false when the connection or Notifications node cannot be found.
-func notify(connection_id: int, method: String, payload: Array = []) -> bool:
+func notify(connection_id: int, method: String, arguments: Array = []) -> bool:
 	notifications := get_notifications(connection_id)
 	if notifications == null:
 		return false
-	notifications.rpc_id.callv([connection_id, method] + payload)
+	notifications.notify(connection_id, method, arguments)
 	return true
 
 ## Override this to instantiate the node serving the
