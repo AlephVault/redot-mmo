@@ -229,3 +229,55 @@ async client_entered(id: int):
 async client_left(id: int):
     ...
 ```
+
+## Authentication
+
+The package includes a reusable simple authentication protocol under
+`AlephVault__MMO__Server.Protocols.Authentication`.
+
+Use `AlephVault__MMO__Server.Protocols.Authentication.Protocol` when this server
+authenticates clients and owns their session lifecycle. Concrete implementations
+override:
+
+```gdscript
+func _authenticate(connection_id: int, method: String, payload: Variant) -> Dictionary:
+	return AlephVault__MMO__Common.Protocols.Authentication.LoginResult.reject()
+
+func _find_account(account_id: Variant) -> Variant:
+	return account_id
+
+func _if_account_already_logged_in() -> int:
+	return AlephVault__MMO__Common.Protocols.Authentication.AccountAlreadyLoggedManagementMode.REJECT
+```
+
+`_authenticate` returns `LoginResult.accept(ok_payload, account_id)` or
+`LoginResult.reject(failure_payload)`. The base protocol owns generic
+login/logout RPC routing, session maps by connection and account, duplicate
+account policy, logout, kicks, session data helpers, and login-required wrappers.
+
+It emits `session_starting(connection_id, account_data)`,
+`session_terminating(connection_id, reason)`, and
+`session_error(connection_id, stage, error)`. Concrete credential payloads, such
+as username/password strings, belong in `AlephVault.MMO.Samples` or game-specific
+packages, not in this server package.
+
+The authentication command node only routes RPC commands into public methods on
+the central authentication protocol. The base protocol exposes these methods to
+other server protocols:
+
+- `kick(account_id: Variant, reason: Variant = null) -> void`
+- `kick_connection(connection_id: int, reason: Variant = null) -> void`
+- `login_required(connection_id: int, action: Callable, allowed: Callable = Callable()) -> Variant`
+- `logout_required(connection_id: int, action: Callable) -> Variant`
+- `session_exists(connection_id: int) -> bool`
+- `get_session_account_id(connection_id: int) -> Variant`
+- `set_session_data(connection_id: int, key: String, value: Variant) -> void`
+- `get_session_data(connection_id: int, key: String) -> Variant`
+- `try_get_session_data(connection_id: int, key: String, default_value: Variant = null) -> Variant`
+- `remove_session_data(connection_id: int, key: String) -> bool`
+- `clear_session_data(connection_id: int) -> void`
+- `session_contains_key(connection_id: int, key: String) -> bool`
+
+The `handle_*` methods are RPC adapter entrypoints used by the authentication
+command node, and are not part of the protocol surface other protocols should
+call directly.

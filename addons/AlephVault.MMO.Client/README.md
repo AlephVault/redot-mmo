@@ -196,3 +196,31 @@ async client_started():
 async client_stopped():
     ...
 ```
+
+## Authentication
+
+The package includes a reusable simple authentication protocol under
+`AlephVault__MMO__Client.Protocols.Authentication`.
+
+Use `AlephVault__MMO__Client.Protocols.Authentication.Protocol` when the server
+owns authentication and session state. The base protocol sends `login(method,
+payload)` and `logout()` requests, tracks `logged_in`, and emits:
+
+- `login_ok(payload)`
+- `login_failed(payload)`
+- `kicked(payload)`
+- `logged_out`
+- `not_logged_in`
+- `account_already_in_use`
+- `already_logged_in`
+- `forbidden`
+
+The `method` string identifies the login mechanism and `payload` is an arbitrary
+Variant defined by the concrete application or sample. This package deliberately
+does not define username/password messages; those belong in
+`AlephVault.MMO.Samples` or in a game package.
+
+The authentication notification node only routes RPC notifications into public
+methods on the central authentication protocol. Application code should interact
+with the protocol through `login()`, `logout()`, `logged_in`, and the signals
+listed above.
