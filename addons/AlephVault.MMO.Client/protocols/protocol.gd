@@ -26,7 +26,7 @@ func client_stopped() -> void:
 ## This delegates the lookup to the parent Protocols node. protocol_class must
 ## be the script used by the target protocol node. Returns null if this protocol
 ## is not installed under a Protocols node, or if no matching protocol exists.
-func get_protocol(protocol_class: Script) -> AlephVault__MMO__Client.Protocols.Protocol:
+func get_protocol(protocol_class: Script):
 	var manager = get_parent() as AlephVault__MMO__Client.Protocols.Manager
 	if manager == null:
 		return null
@@ -65,7 +65,7 @@ func get_commands() -> AlephVault__MMO__Client.Protocols.Commands:
 ## Returns true when the Commands node exists and the RPC was attempted.
 ## Returns false when the connection or Commands node cannot be found.
 func command(method: String, arguments: Array = []) -> bool:
-	commands := get_commands()
+	var commands = get_commands()
 	if commands == null:
 		return false
 	commands.command(method, arguments)

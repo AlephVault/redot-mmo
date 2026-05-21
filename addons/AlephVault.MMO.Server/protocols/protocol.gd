@@ -34,7 +34,7 @@ func client_left(id: int) -> void:
 ## This delegates the lookup to the parent Protocols node. protocol_class must
 ## be the script used by the target protocol node. Returns null if this protocol
 ## is not installed under a Protocols node, or if no matching protocol exists.
-func get_protocol(protocol_class: Script) -> AlephVault__MMO__Server.Protocols.Protocol:
+func get_protocol(protocol_class: Script):
 	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager
 	if manager == null:
 		return null
@@ -73,7 +73,7 @@ func get_notifications(id: int) -> AlephVault__MMO__Server.Protocols.Notificatio
 ## Returns true when the Notifications node exists and the RPC was attempted.
 ## Returns false when the connection or Notifications node cannot be found.
 func notify(connection_id: int, method: String, arguments: Array = []) -> bool:
-	notifications := get_notifications(connection_id)
+	var notifications = get_notifications(connection_id)
 	if notifications == null:
 		return false
 	notifications.notify(connection_id, method, arguments)

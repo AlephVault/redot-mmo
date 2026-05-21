@@ -1,5 +1,7 @@
 extends Control
 
+const ChatProtocol = preload("./sample-client-chat-protocol.gd")
+
 func _enter_tree():
 	print("UI initialized")
 	%SetNickname.connect("pressed", set_nickname)
@@ -9,14 +11,16 @@ func _exit_tree():
 	%SetNickname.disconnect("pressed", set_nickname)
 	%SendCommand.disconnect("pressed", send_command)
 
+func _chat_protocol() -> ChatProtocol:
+	var main = $".." as AlephVault__MMO__Client.Main
+	return main.protocols.get_node("Chat") as ChatProtocol
+
 ## Sets the nickname via command.
 func set_nickname():
-	var connection = ($".." as AlephVault__MMO__Client.Main).connections.get_connection_node()
-	var commands = connection.get_node("Chat/Commands")
 	var nickname = $NewNickname.text.strip_edges()
 	if nickname != "":
 		$NewNickname.text = ""
-		commands.command("nick", [nickname])
+		_chat_protocol().nick(nickname)
 
 func _input(event):
 	var node = get_viewport().gui_get_focus_owner()
@@ -35,23 +39,22 @@ func send_command():
 	var command_parts = command.split(" ", false, 1)
 	var base_command: String = command_parts[0].to_lower()
 	var argument = command_parts[1].strip_edges() if len(command_parts) > 1 else ""
-	var connection = ($".." as AlephVault__MMO__Client.Main).connections.get_connection_node()
-	var commands = connection.get_node("Chat/Commands")
+	var chat = _chat_protocol()
 	if base_command == "/join":
 		# Change the current channel.
-		commands.command("join", [argument])
+		chat.join(argument)
 	elif base_command == "/part":
 		# Leaves the current channel, if any.
-		commands.command("part")
+		chat.part()
 	elif base_command == "/nick":
 		# Changes the nick.
-		commands.command("nick", [argument])
+		chat.nick(argument)
 	elif base_command == "/list":
 		# Lists the channels.
-		commands.command("list")
+		chat.list()
 	else:
 		# Sends a message.
-		commands.command("send", [command])
+		chat.send(command)
 
 func _add_line(line: String):
 	var text: String = $Messages.text
