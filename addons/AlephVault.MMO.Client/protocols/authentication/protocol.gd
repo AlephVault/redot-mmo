@@ -71,11 +71,7 @@ func _create_notifications_node() -> AlephVault__MMO__Client.Protocols.Notificat
 ## commands node is not available, usually because the client is not connected
 ## or the protocol has not been installed in the current connection.
 func login(method: String, payload: Variant = null) -> bool:
-	var commands = get_commands()
-	if commands == null:
-		return false
-	commands.rpc_id(1, "login", method, payload)
-	return true
+	return command("login", [method, payload])
 
 ## Sends a logout request to the server and clears the local logged-in flag.
 ##
@@ -83,10 +79,8 @@ func login(method: String, payload: Variant = null) -> bool:
 ## client is not connected or the protocol has not been installed in the current
 ## connection.
 func logout() -> bool:
-	var commands = get_commands()
-	if commands == null:
+	if not command("logout"):
 		return false
-	commands.rpc_id(1, "logout")
 	_logged_in = false
 	return true
 

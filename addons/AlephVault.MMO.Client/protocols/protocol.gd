@@ -57,10 +57,10 @@ func get_commands() -> AlephVault__MMO__Client.Protocols.Commands:
 		return null
 	return protocol.get_node_or_null("Commands") as AlephVault__MMO__Client.Protocols.Commands
 
-## Sends a command RPC to a client through this protocol's Commands node.
+## Sends a command RPC to the server through this protocol's Commands node.
 ##
-## The method is the RPC method name to invoke on the client-side Commands
-## node. The arguments contains the method arguments in order.
+## method is the RPC method name to invoke on the server-side Commands node.
+## arguments contains the method arguments in order.
 ##
 ## Returns true when the Commands node exists and the RPC was attempted.
 ## Returns false when the connection or Commands node cannot be found.

@@ -16,7 +16,7 @@ func set_nickname():
 	var nickname = $NewNickname.text.strip_edges()
 	if nickname != "":
 		$NewNickname.text = ""
-		commands.nick.rpc(nickname)
+		commands.command("nick", [nickname])
 
 func _input(event):
 	var node = get_viewport().gui_get_focus_owner()
@@ -39,19 +39,19 @@ func send_command():
 	var commands = connection.get_node("Chat/Commands")
 	if base_command == "/join":
 		# Change the current channel.
-		commands.join.rpc(argument)
+		commands.command("join", [argument])
 	elif base_command == "/part":
 		# Leaves the current channel, if any.
-		commands.part.rpc()
+		commands.command("part")
 	elif base_command == "/nick":
 		# Changes the nick.
-		commands.nick.rpc(argument)
+		commands.command("nick", [argument])
 	elif base_command == "/list":
 		# Lists the channels.
-		commands.list.rpc()
+		commands.command("list")
 	else:
 		# Sends a message.
-		commands.send.rpc(command)
+		commands.command("send", [command])
 
 func _add_line(line: String):
 	var text: String = $Messages.text
