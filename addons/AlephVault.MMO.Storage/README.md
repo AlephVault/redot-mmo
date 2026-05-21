@@ -43,6 +43,7 @@ Storage.Types.ResultCode
 Storage.StandardHttp.Authorization
 Storage.StandardHttp.Cursor
 Storage.StandardHttp.Root
+Storage.StandardHttp.Resource
 Storage.StandardHttp.SimpleResource
 Storage.StandardHttp.ListResource
 Storage.StandardHttp.Engine
@@ -53,6 +54,7 @@ The nested namespaces also exist:
 ```gdscript
 Storage.Types.Results.Result
 Storage.StandardHttp.Types.Root
+Storage.StandardHttp.Types.Resource
 Storage.StandardHttp.Implementation.Engine
 ```
 
@@ -82,7 +84,7 @@ func load_account(token: String) -> void:
 
 ### Authorization
 
-`Authorization` is a small data object with two fields:
+`Authorization` is a small data object with two fields, `scheme` and `value`:
 
 ```gdscript
 var auth = Storage.StandardHttp.Authorization.new("Bearer", token)
@@ -97,6 +99,15 @@ Authorization: Bearer <token>
 Use whichever scheme your server expects, such as `Bearer`, `Basic`, or a
 custom scheme.
 
+### Cursor
+
+`Cursor` stores the offset/limit pagination pair used by list resources:
+
+```gdscript
+var cursor = Storage.StandardHttp.Cursor.new(0, 50)
+print(cursor.query_string()) # offset=0&limit=50
+```
+
 ### Root
 
 `Root` stores the base endpoint and authorization header:
@@ -104,6 +115,8 @@ custom scheme.
 ```gdscript
 var root = Storage.StandardHttp.Root.new("https://storage.example.test", auth)
 ```
+
+`authorization` must not be null.
 
 The root trims a trailing slash, so these are equivalent:
 
@@ -153,6 +166,9 @@ Common success codes:
 - `ResultCode.Ok`: read, update, replace, delete, view, and operation calls
   completed.
 - `ResultCode.Created`: create completed and may include `created_id`.
+- `ResultCode.Updated`, `ResultCode.Replaced`, and `ResultCode.Deleted` exist
+  for compatibility with the wider storage model. The current standard HTTP
+  resource handles normalize update, replace, and delete successes to `Ok`.
 
 Common failure codes:
 
@@ -168,6 +184,16 @@ Common failure codes:
 - `BadRequest`: server returned a custom 400 code.
 - `Unreachable`, `Timeout`, `ServiceUnavailable`, `InternalError`: transport or
   server failures.
+
+`Result` also has static constructors used internally and available to advanced
+callers:
+
+```gdscript
+Storage.Types.Result.ok(element)
+Storage.Types.Result.ok_many(elements)
+Storage.Types.Result.created(id)
+Storage.Types.Result.failed(code, validation_errors, request_error_code)
+```
 
 ## Remote API Contract
 
@@ -623,18 +649,102 @@ Typed deserialization rules:
 
 ## CRUD Reference
 
+### Authorization
+
+```gdscript
+new(scheme: String = "", value: String = "")
+
+var scheme: String
+var value: String
+```
+
+### Cursor
+
+```gdscript
+new(offset: int = 0, limit: int = 0)
+query_string() -> String
+
+var offset: int
+var limit: int
+```
+
+### ResultCode
+
+```gdscript
+ResultCode.Unauthorized
+ResultCode.Forbidden
+ResultCode.Unsupported
+ResultCode.DoesNotExist
+ResultCode.AlreadyExists
+ResultCode.ValidationError
+ResultCode.DuplicateKey
+ResultCode.InUse
+ResultCode.Conflict
+ResultCode.FormatError
+ResultCode.BadRequest
+ResultCode.ClientError
+ResultCode.Unreachable
+ResultCode.ServiceUnavailable
+ResultCode.Timeout
+ResultCode.ServerError
+ResultCode.InternalError
+ResultCode.Created
+ResultCode.Updated
+ResultCode.Replaced
+ResultCode.Deleted
+ResultCode.Ok
+```
+
+The same values are also available through `ResultCode.Code`, using enum names
+such as `ResultCode.Code.UNAUTHORIZED` and `ResultCode.Code.OK`.
+
+### Result
+
+```gdscript
+var code: int
+var validation_errors: Variant
+var request_error_code: String
+var created_id: String
+var element: Variant
+var elements: Array
+
+static ok(element: Variant = null) -> Result
+static ok_many(elements: Array) -> Result
+static created(id: String = "") -> Result
+static failed(code: int, validation_errors: Variant = null, request_error_code: String = "") -> Result
+```
+
 ### Root
 
 ```gdscript
-new(base_endpoint: String, authorization: Authorization)
+new(base_endpoint: String = "", authorization: Authorization = null)
 get_simple(name: String, response_class: Script) -> SimpleResource
 get_list(name: String, element_class: Script) -> ListResource
+
+var base_endpoint: String
+var authorization: Authorization
+```
+
+### Resource
+
+`Resource` is the shared base class for `SimpleResource` and `ListResource`.
+Most callers use the concrete resource handles created by `Root`.
+
+```gdscript
+new(name: String = "", base_endpoint: String = "", authorization: Authorization = null)
+
+var name: String
+var base_endpoint: String
+var authorization: Authorization
 ```
 
 ### SimpleResource
 
 ```gdscript
-new(name: String, base_endpoint: String, authorization: Authorization, response_class: Script)
+new(name: String = "", base_endpoint: String = "", authorization: Authorization = null, response_class: Script = null)
+
+var response_class: Script
+
 create(body: Variant) -> Result
 read() -> Result
 read_json() -> Result
@@ -652,7 +762,10 @@ operation_to(method: String, args: Dictionary, response_class: Script, body: Var
 ### ListResource
 
 ```gdscript
-new(name: String, base_endpoint: String, authorization: Authorization, element_class: Script)
+new(name: String = "", base_endpoint: String = "", authorization: Authorization = null, element_class: Script = null)
+
+var element_class: Script
+
 list(cursor: Cursor) -> Result
 list_json(cursor: Cursor) -> Result
 create(body: Variant) -> Result
@@ -673,6 +786,38 @@ view_to(method: String, args: Dictionary, response_class: Script) -> Result
 operation_to(method: String, args: Dictionary, response_class: Script, body: Variant = null) -> Result
 item_view_to(id: String, method: String, args: Dictionary, response_class: Script) -> Result
 item_operation_to(id: String, method: String, args: Dictionary, response_class: Script, body: Variant = null) -> Result
+```
+
+### Engine
+
+`Engine` is the low-level HTTP implementation used by the resource handles. Most
+callers should prefer `Root`, `SimpleResource`, and `ListResource`, but direct
+use is available when a custom wrapper needs normalized engine dictionaries.
+
+Engine responses are dictionaries with:
+
+```gdscript
+{
+	"ok": bool,
+	"data": Variant,
+	"code": int,
+	"validation_errors": Variant,
+	"request_error_code": String,
+	"created_id": String,
+}
+```
+
+Public static methods:
+
+```gdscript
+list(endpoint: String, authorization: Authorization, cursor: Cursor) -> Dictionary
+one(endpoint: String, authorization: Authorization) -> Dictionary
+create(endpoint: String, authorization: Authorization, data: Variant) -> Dictionary
+update(endpoint: String, authorization: Authorization, patch: Variant) -> Dictionary
+replace(endpoint: String, authorization: Authorization, replacement: Variant) -> Dictionary
+delete(endpoint: String, authorization: Authorization) -> Dictionary
+view_to_json(endpoint: String, authorization: Authorization, request_args: Dictionary = {}) -> Dictionary
+operation_to_json(endpoint: String, authorization: Authorization, request_args: Dictionary = {}, body: Variant = null) -> Dictionary
 ```
 
 ## Notes
