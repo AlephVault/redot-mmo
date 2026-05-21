@@ -263,51 +263,35 @@ func _assert_session_exists(connection_id: int) -> void:
 
 ## Sends a successful-login notification to a client.
 func _send_login_ok(connection_id: int, payload: Variant = null) -> void:
-	var node = get_notifications(connection_id)
-	if node != null:
-		node.rpc_id(connection_id, "login_ok", payload)
+	notify(connection_id, "login_ok", [payload])
 
 ## Sends a failed-login notification to a client.
 func _send_login_failed(connection_id: int, payload: Variant = null) -> void:
-	var node = get_notifications(connection_id)
-	if node != null:
-		node.rpc_id(connection_id, "login_failed", payload)
+	notify(connection_id, "login_failed", [payload])
 
 ## Sends a kick notification to a client.
 func _send_kicked(connection_id: int, payload: Variant = null) -> void:
-	var node = get_notifications(connection_id)
-	if node != null:
-		node.rpc_id(connection_id, "kicked", payload)
+	notify(connection_id, "kicked", [payload])
 
 ## Sends a logout confirmation notification to a client.
 func _send_logged_out(connection_id: int) -> void:
-	var node = get_notifications(connection_id)
-	if node != null:
-		node.rpc_id(connection_id, "logged_out")
+	notify(connection_id, "logged_out")
 
 ## Sends a not-logged-in notification to a client.
 func _send_not_logged_in(connection_id: int) -> void:
-	var node = get_notifications(connection_id)
-	if node != null:
-		node.rpc_id(connection_id, "not_logged_in")
+	notify(connection_id, "not_logged_in")
 
 ## Sends an account-already-in-use notification to a client.
 func _send_account_already_in_use(connection_id: int) -> void:
-	var node = get_notifications(connection_id)
-	if node != null:
-		node.rpc_id(connection_id, "account_already_in_use")
+	notify(connection_id, "account_already_in_use")
 
 ## Sends an already-logged-in notification to a client.
 func _send_already_logged_in(connection_id: int) -> void:
-	var node = get_notifications(connection_id)
-	if node != null:
-		node.rpc_id(connection_id, "already_logged_in")
+	notify(connection_id, "already_logged_in")
 
 ## Sends a forbidden notification to a client.
 func _send_forbidden(connection_id: int) -> void:
-	var node = get_notifications(connection_id)
-	if node != null:
-		node.rpc_id(connection_id, "forbidden")
+	notify(connection_id, "forbidden")
 
 ## Disconnects a client from the server when the multiplayer peer is available.
 func _close_connection(connection_id: int) -> void:

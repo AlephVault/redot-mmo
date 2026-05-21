@@ -177,6 +177,8 @@ Server protocol nodes provide helpers for common lookups:
 - `get_connection(id: int)`: gets the connection for a peer id.
 - `get_notifications(id: int)`: gets this protocol's `Notifications` node for
   that connection.
+- `notify(id: int, method: String[, payload: Array])`: Directly notifies the
+  connection of some command to the specific connection.
 
 Server command nodes provide:
 

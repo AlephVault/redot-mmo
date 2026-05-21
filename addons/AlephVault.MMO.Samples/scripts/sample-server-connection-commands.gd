@@ -15,7 +15,7 @@ func _connection() -> AlephVault__MMO__Server.Connection:
 	return $"../.." as AlephVault__MMO__Server.Connection
 
 func _notify_owner(connection: AlephVault__MMO__Server.Connection, method: String, args: Array) -> void:
-	connection.get_node("Chat/Notifications").rpc_id.callv([connection.id, method] + args)
+	protocol_node().notify(connection.id, method, args)
 
 var _channel: String = ""
 var _current_nick: String = ""
