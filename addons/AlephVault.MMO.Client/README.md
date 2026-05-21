@@ -155,8 +155,15 @@ Client protocol nodes provide helpers for common lookups:
 - `get_connection()`: gets the current client connection, if connected.
 - `get_commands()`: gets this protocol's `Commands` node for the current
   connection.
+- `command(method: String[, arguments: Array])`: directly sends a specific command
+  to the server.
 
-Client notification nodes provide:
+Client commands nodes provide:
+
+- `command(method: String[, arguments: Array])`: directly sends a specific command
+  to the server.
+
+Client notifications nodes provide:
 
 - `connection_node()`: gets the current client connection.
 - `protocol_node()`: gets the central protocol instance that owns the

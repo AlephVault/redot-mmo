@@ -67,7 +67,7 @@ func get_notifications(id: int) -> AlephVault__MMO__Server.Protocols.Notificatio
 
 ## Sends a notification RPC to a client through this protocol's Notifications node.
 ##
-## method is the RPC method name to invoke on the client-side Notifications
+## The method is the RPC method name to invoke on the client-side Notifications
 ## node. The arguments contains the method arguments in order.
 ##
 ## Returns true when the Notifications node exists and the RPC was attempted.

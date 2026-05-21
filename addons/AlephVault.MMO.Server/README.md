@@ -177,8 +177,9 @@ Server protocol nodes provide helpers for common lookups:
 - `get_connection(id: int)`: gets the connection for a peer id.
 - `get_notifications(id: int)`: gets this protocol's `Notifications` node for
   that connection.
-- `notify(id: int, method: String[, arguments: Array])`: Directly notifies the
-  connection of some command to the specific connection.
+- `notify(id: int, method: String[, arguments: Array])`: directly notifies the
+  connection about a specific event. Typically, the id will match the one for
+  the connection.
 
 Server commands nodes provide:
 
@@ -188,9 +189,9 @@ Server commands nodes provide:
 
 Server notifications nodes provide:
 
-- `notify(id: int, method: String[, arguments: Array])`: Directly notifies the
-  connection of some command to the specific connection. Typically, the id will
-  match the one for the connection.
+- `notify(id: int, method: String[, arguments: Array])`: directly notifies the
+  connection about a specific event. Typically, the id will match the one for
+  the connection.
 
 ### Separation of Concerns
 
