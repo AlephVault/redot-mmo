@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/rps/rps-client-main.gd" id="1_main"]
+[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/rps/rps-auth-client-protocol.gd" id="2_auth"]
+[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/rps/rps-client-protocol.gd" id="3_rps"]
+
+[node name="Main" type="CanvasLayer"]
+script = ExtResource("1_main")
+
+[node name="Auth" type="Node" parent="."]
+script = ExtResource("2_auth")
+
+[node name="RPS" type="Node" parent="."]
+script = ExtResource("3_rps")
+
+[node name="Label" type="Label" parent="."]
+offset_right = 180.0
+offset_bottom = 26.0
+text = "RPS Client"

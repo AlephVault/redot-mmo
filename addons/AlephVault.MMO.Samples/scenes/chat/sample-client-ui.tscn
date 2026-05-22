@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d4ko4s876tslo"]
 
-[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/sample-client-ui.gd" id="1_ylar5"]
+[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/chat/sample-client-ui.gd" id="1_ylar5"]
 
 [node name="UI" type="Control"]
 layout_mode = 3

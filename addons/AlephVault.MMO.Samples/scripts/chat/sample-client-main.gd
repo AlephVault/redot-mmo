@@ -1,7 +1,7 @@
 extends AlephVault__MMO__Client.Main
 
 
-const _ui_scene = preload("../scenes/sample-client-ui.tscn")
+const _ui_scene = preload("../../scenes/chat/sample-client-ui.tscn")
 const _ui = preload("./sample-client-ui.gd")
 
 

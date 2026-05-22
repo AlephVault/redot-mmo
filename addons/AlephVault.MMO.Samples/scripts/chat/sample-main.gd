@@ -1,8 +1,8 @@
 extends Node
 
 
-var client = preload("res://addons/AlephVault.MMO.Samples/scenes/sample-client.tscn")
-var server = preload("res://addons/AlephVault.MMO.Samples/scenes/sample-server.tscn")
+var client = preload("res://addons/AlephVault.MMO.Samples/scenes/chat/sample-client.tscn")
+var server = preload("res://addons/AlephVault.MMO.Samples/scenes/chat/sample-server.tscn")
 
 
 # Called when the node enters the scene tree for the first time.
