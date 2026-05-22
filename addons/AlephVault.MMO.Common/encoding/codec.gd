@@ -6,6 +6,9 @@ extends Object
 const MessagePack = AlephVault__MMO__Common.Encoding.MessagePack
 const Nothing = AlephVault__MMO__Common.Encoding.Nothing
 
+const OBJECT_TO_DICTIONARY_METHOD := "to_dict"
+const OBJECT_FROM_DICTIONARY_METHOD := "from_dict"
+
 ## Encodes a value into a MsgPack structure (as a PackedByteArray).
 ##
 ## The first stage is to convert the value to a recursive structure
@@ -16,7 +19,7 @@ const Nothing = AlephVault__MMO__Common.Encoding.Nothing
 ## Then, the MsgPack-encoding process. The result is a dictionary
 ## {status=OK or error, value=PackedByteArray}.
 func encode(value: Variant) -> Dictionary:
-	var encoded = MessagePack.encode(_normalize(value))
+	var encoded = MessagePack.encode(normalize(value))
 	if encoded.status != null and encoded.status != OK:
 		push_error("Codec.encode: failed to encode normalized value")
 	return encoded
@@ -38,7 +41,7 @@ func decode(value: PackedByteArray, type_: Variant) -> Dictionary:
 	if decoded.status != null and decoded.status != OK:
 		return decoded
 
-	var denormalized = _denormalize(decoded.value, type_)
+	var denormalized = denormalize(decoded.value, type_)
 	if not denormalized.ok:
 		return {
 			"status": ERR_INVALID_DATA,
@@ -48,6 +51,23 @@ func decode(value: PackedByteArray, type_: Variant) -> Dictionary:
 		"status": OK,
 		"value": denormalized.value,
 	}
+
+## Converts a value into a recursive MessagePack-compatible structure.
+##
+## Object values must implement:
+## - to_dict(codec: Object) -> Dictionary
+func normalize(value: Variant) -> Variant:
+	return _normalize(value)
+
+## Converts normalized data into the requested Godot type.
+##
+## Object targets must implement:
+## - from_dict(codec: Object, source: Dictionary) -> void
+##
+## The result is {ok: bool, value: Variant}. When [type_] is an object
+## instance, the instance is edited in place and returned as value.
+func denormalize(data: Variant, type_: Variant, current_value: Variant = null) -> Dictionary:
+	return _denormalize(data, type_, current_value)
 
 func _normalize(value: Variant) -> Variant:
 	var value_type := typeof(value)
@@ -124,15 +144,21 @@ func _normalize_object(value: Object) -> Variant:
 		return null
 	if value is Node or value is Resource:
 		return _unsupported_value(value)
+	if not value.has_method(OBJECT_TO_DICTIONARY_METHOD):
+		push_error(
+			"Codec.normalize: object values must implement %s(codec: Object) -> Dictionary"
+			% OBJECT_TO_DICTIONARY_METHOD
+		)
+		return _unsupported_value(value)
 
-	var result := {}
-	for property in value.get_property_list():
-		var property_name = str(property.get("name", ""))
-		var usage = int(property.get("usage", 0))
-		if property_name == "script" or (usage & PROPERTY_USAGE_STORAGE) == 0:
-			continue
-		result[property_name] = _normalize(value.get(property_name))
-	return result
+	var source = value.call(OBJECT_TO_DICTIONARY_METHOD, self)
+	if typeof(source) != TYPE_DICTIONARY:
+		push_error(
+			"Codec.normalize: object %s() must return a Dictionary"
+			% OBJECT_TO_DICTIONARY_METHOD
+		)
+		return _unsupported_value(value)
+	return _normalize_dictionary(source)
 
 func _is_packed_array_type(value_type: int) -> bool:
 	return value_type in [
@@ -263,36 +289,26 @@ func _denormalize_object_instance_type(data: Variant, object_type: Variant) -> D
 	var script = object_type.get_script() as Script
 	if script == null:
 		return _failed(data)
-	return _denormalize_object(data, script)
+	return _denormalize_object(data, script, object_type)
 
-func _denormalize_object(data: Variant, script: Script) -> Dictionary:
+func _denormalize_object(data: Variant, script: Script, target_instance: Object = null) -> Dictionary:
 	if script == null or typeof(data) != TYPE_DICTIONARY:
 		return _failed(data)
 
-	var instance = script.new()
+	var instance = target_instance
+	if instance == null:
+		instance = script.new()
 	if instance is Node or instance is Resource:
 		push_error("Codec.decode: Node and Resource values are not supported")
 		return _failed(data)
-
-	var writable_properties := {}
-	for property in instance.get_property_list():
-		var property_name = str(property.get("name", ""))
-		var usage = int(property.get("usage", 0))
-		if property_name == "script" or (usage & PROPERTY_USAGE_STORAGE) == 0:
-			continue
-		writable_properties[property_name] = property
-
-	for key in data:
-		var property_name = str(key)
-		if not writable_properties.has(property_name):
-			continue
-		var converted = _denormalize_property(
-			data[key], writable_properties[property_name], instance.get(property_name)
+	if not instance.has_method(OBJECT_FROM_DICTIONARY_METHOD):
+		push_error(
+			"Codec.decode: object targets must implement %s(codec: Object, source: Dictionary) -> void"
+			% OBJECT_FROM_DICTIONARY_METHOD
 		)
-		if not converted.ok:
-			return _failed(data)
-		instance.set(property_name, converted.value)
+		return _failed(data)
 
+	instance.call(OBJECT_FROM_DICTIONARY_METHOD, self, data)
 	return _ok(instance)
 
 func _denormalize_property(data: Variant, property: Dictionary, current_value: Variant) -> Dictionary:

@@ -89,6 +89,11 @@ if encoded.status == null or encoded.status == OK:
   MessagePack bytes and restores the result as `type_`.
 - `type_` can be a `TYPE_*` constant, a `Script`, or an object instance whose
   script should be used as the target object type.
+- `normalize(value: Variant) -> Variant` converts a value into a
+  MessagePack-compatible structure.
+- `denormalize(data: Variant, type_: Variant, current_value: Variant = null) -> Dictionary`
+  restores normalized data into a requested Godot type and returns
+  `{ "ok": bool, "value": Variant }`.
 
 ### Supported Types
 
@@ -108,9 +113,26 @@ The higher-level codec additionally supports:
 - `Dictionary` and `Array`, including nested values.
 - Packed arrays: byte, int32, int64, float32, float64, string, vector2,
   vector3, vector4, and color arrays.
-- Scripted `Object` instances that are not `Node` or `Resource`. Stored
-  properties are encoded by name and restored into a new instance of the target
-  script.
+- Scripted `Object` instances that are not `Node` or `Resource` and implement
+  `to_dict(codec: Object) -> Dictionary` and
+  `from_dict(codec: Object, source: Dictionary) -> void`.
+  `to_dict()` provides the dictionary that is normalized and encoded.
+  `from_dict()` receives the decoded dictionary and edits the object in place.
+
+Custom objects can use `normalize()` and `denormalize()` inside these methods
+to handle Godot-specific nested values:
+
+```gdscript
+func to_dict(codec: AlephVault__MMO__Common.Encoding.Codec) -> Dictionary:
+	return {
+		"position": codec.normalize(position),
+	}
+
+func from_dict(codec: AlephVault__MMO__Common.Encoding.Codec, source: Dictionary) -> void:
+	var restored = codec.denormalize(source.get("position"), TYPE_VECTOR2)
+	if restored.ok:
+		position = restored.value
+```
 
 ### Caveats
 
@@ -126,12 +148,11 @@ The higher-level codec additionally supports:
   same value can collide or come back with a different type unless decoded into
   a typed object/property.
 - `Callable`, `Signal`, `Node`, and `Resource` values are not supported.
-- Object encoding only includes properties with `PROPERTY_USAGE_STORAGE`.
-  Unknown decoded fields are ignored, and missing fields keep the script
-  instance defaults.
-- Typed object and typed array restoration depends on Godot exposing enough
-  property metadata, class names, or script paths for the codec to resolve the
-  target script and element type.
+- Object encoding does not inspect stored properties. Objects are responsible
+  for their serialized shape through `to_dict()` and `from_dict()`.
+- Decoding into a `Script` creates a new instance before invoking `from_dict()`.
+  Decoding into an object instance invokes `from_dict()` on that instance and
+  returns the same instance.
 - MessagePack extension types are not implemented by the low-level decoder.
 - Low-level MessagePack floats are written as 32-bit floats, so values may lose
   precision compared to Godot's default float representation.
