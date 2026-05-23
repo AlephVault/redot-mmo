@@ -135,10 +135,35 @@ namespace:
 - `AlephVault__MMO__Server.Protocols.Protocol`: a protocol node placed directly under
   `Main` in the editor. Its static `dependencies` property controls protocol
   ordering.
+- `AlephVault__MMO__Server.Protocols.SpawningProtocol`: an abstract protocol base
+  for protocols that need their own spawn root and `MultiplayerSpawner`.
 - `AlephVault__MMO__Server.Protocols.Commands`: routes protocol commands sent
   from the client to the server.
 - `AlephVault__MMO__Server.Protocols.Notifications`: routes protocol
   notifications and responses sent from the server to the client.
+
+### Spawning Protocol
+
+`AlephVault__MMO__Server.Protocols.SpawningProtocol` is an opt-in abstract base
+for server protocols that own spawned nodes. `Main` does not create a shared
+`World` or `MultiplayerSpawner`; protocols that need spawning should inherit
+from this class and provide those nodes themselves.
+
+When a spawning protocol is moved under the generated `Protocols` node, it calls
+`_create_world()`. If that returns a node, the protocol adds it as a direct child
+named `World`, creates a sibling `MultiplayerSpawner` child, calls
+`_setup_spawner(spawner)`, and adds the spawner. Both nodes are removed when the
+protocol exits the tree.
+
+```gdscript
+extends AlephVault__MMO__Server.Protocols.SpawningProtocol
+
+func _create_world() -> Node:
+	return Node.new()
+
+func _setup_spawner(s: MultiplayerSpawner) -> void:
+	s.spawn_path = get_node("World").get_path()
+```
 
 ### Commands and Notifications
 
