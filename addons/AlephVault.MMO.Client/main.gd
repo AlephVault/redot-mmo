@@ -4,25 +4,6 @@ func _ready() -> void:
 	# First, take all the nodes that are Protocol instances.
 	var protocol_nodes := _take_protocol_nodes()
 
-	# Create the world (attach it with ownership).
-	var world = AlephVault__MMO__Client.World.new()
-	world.name = "World"
-	print("[AlephVault.MMO:Client] Adding World to: " + String(get_path()) + ":", world)
-	add_child(world, true)
-	world.owner = self
-	_world = world
-
-	# Create the spawner (attach it with ownership).
-	var spawner = MultiplayerSpawner.new()
-	spawner.name = "MultiplayerSpawner"
-	print("[AlephVault.MMO:Client] Adding MultiplayerSpawner to: " + String(get_path()) + ":", spawner)
-	add_child(spawner, true)
-	spawner.owner = self
-	_spawner = spawner
-
-	# Set, in the spawner, the spawn path to the world.
-	_spawner.spawn_path = _world.get_path()
-
 	# Also, set a place for the protocols.
 	var manager = AlephVault__MMO__Client.Protocols.Manager.new()
 	manager.name = "Protocols"
@@ -46,18 +27,6 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	leave_server()
-
-	# Remove the world.
-	if _world != null:
-		remove_child(_world)
-		_world.queue_free()
-		_world = null
-	
-	# Remove the spawner.
-	if _spawner != null:
-		remove_child(_spawner)
-		_spawner.queue_free()
-		_spawner = null
 
 	# Remove the protocols.
 	if _protocols != null:
@@ -91,26 +60,6 @@ var _address: String
 
 # The current port from the current launch.
 var _port: int
-
-# The world.
-var _world: AlephVault__MMO__Client.World
-
-## The world created for this client.
-var world: AlephVault__MMO__Client.World:
-	get:
-		return _world
-	set(value):
-		assert(false, "The client's world cannot be set this way")
-
-# The spawner.
-var _spawner: MultiplayerSpawner
-
-## The spawner created for this client.
-var spawner: MultiplayerSpawner:
-	get:
-		return _spawner
-	set(value):
-		assert(false, "The client's spawner cannot be set this way")
 
 # The parent of the protocols.
 var _protocols: AlephVault__MMO__Client.Protocols.Manager

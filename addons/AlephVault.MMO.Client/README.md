@@ -50,8 +50,6 @@ MyGame
   Protocols
     InventoryProtocol
     CombatProtocol
-  World
-  MultiplayerSpawner
   Connections
     # Then, these appear for each connection:
     Connection_<peer_id>
@@ -90,9 +88,7 @@ var stopped := my_client.leave_server()
 Useful members:
 
 - `connections: AlephVault__MMO__Client.Connections`
-- `world: AlephVault__MMO__Client.World`
 - `protocols: AlephVault__MMO__Client.Protocols.Manager`
-- `spawner: MultiplayerSpawner`
 - `address: String`
 - `port: int`
 - `signal client_started`
