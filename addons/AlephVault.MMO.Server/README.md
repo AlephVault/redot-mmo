@@ -157,17 +157,18 @@ adds every unique default/dynamic scope scene resource path as spawnable, and
 adds the spawner. Both nodes are removed when the protocol exits the tree.
 
 Default scopes are created under `World` immediately. Their ids are
-`AlephVault__MMO__Common.Scopes.make_fq_default_scope_id(index)`. Each default
-scope scene root must have a child named `MultiplayerSynchronizer`; scenes that
-do not are instantiated only long enough to be rejected. Accepted scope
-synchronizers are configured as private, with `root_path = ".."` and
-`VISIBILITY_PROCESS_NONE`. The protocol updates their visibility when server
-connection scopes change.
+`AlephVault__MMO__Common.Scopes.make_fq_default_scope_id(index)` and their root
+nodes are named `Scope<index>`. Each default scope scene root must have a child
+named `MultiplayerSynchronizer`; scenes that do not are instantiated only long
+enough to be rejected. Accepted scope synchronizers are configured as private,
+with `root_path = ".."` and `VISIBILITY_PROCESS_NONE`. The protocol updates
+their visibility when server connection scopes change.
 
 Dynamic scope templates are not created on startup. Use
 `create_dynamic_scope(template_index, id)` to create an instance with
-`make_fq_dynamic_scope_id(id)`, and `destroy_dynamic_scope(id)` to remove it
-when no connection is currently in that scope.
+`make_fq_dynamic_scope_id(id)`. Dynamic scope root nodes are named
+`DynScope<id>`. Use `destroy_dynamic_scope(id)` to remove a dynamic scope when
+no connection is currently in that scope.
 
 ```gdscript
 extends AlephVault__MMO__Server.Protocols.SpawningProtocol

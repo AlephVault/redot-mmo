@@ -133,8 +133,9 @@ named `World`, caches `_define_default_scopes()` and `_define_dynamic_scopes()`,
 creates a sibling `MultiplayerSpawner` child, calls `_setup_spawner(spawner)`,
 adds every unique default/dynamic scope scene resource path as spawnable, and
 adds the spawner. Scope instances are created by the server and replicated to
-the client through the spawner. Both nodes are removed when the protocol exits
-the tree.
+the client through the spawner. Replicated default scope root nodes are named
+`Scope<index>`, and replicated dynamic scope root nodes are named `DynScope<id>`.
+Both nodes are removed when the protocol exits the tree.
 
 ```gdscript
 extends AlephVault__MMO__Client.Protocols.SpawningProtocol
