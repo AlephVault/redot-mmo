@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=4 format=3 uid="uid://bibmcsjdm4rv8"]
 
 [ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/rps/rps-client-main.gd" id="1_main"]
 [ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/rps/rps-auth-client-protocol.gd" id="2_auth"]

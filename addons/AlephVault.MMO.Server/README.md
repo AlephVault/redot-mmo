@@ -151,18 +151,37 @@ from this class and provide those nodes themselves.
 
 When a spawning protocol is moved under the generated `Protocols` node, it calls
 `_create_world()`. If that returns a node, the protocol adds it as a direct child
-named `World`, creates a sibling `MultiplayerSpawner` child, calls
-`_setup_spawner(spawner)`, and adds the spawner. Both nodes are removed when the
-protocol exits the tree.
+named `World`, caches `_define_default_scopes()` and `_define_dynamic_scopes()`,
+creates a sibling `MultiplayerSpawner` child, calls `_setup_spawner(spawner)`,
+adds every unique default/dynamic scope scene resource path as spawnable, and
+adds the spawner. Both nodes are removed when the protocol exits the tree.
+
+Default scopes are created under `World` immediately. Their ids are
+`AlephVault__MMO__Common.Scopes.make_fq_default_scope_id(index)`. Each default
+scope scene root must have a child named `MultiplayerSynchronizer`; scenes that
+do not are instantiated only long enough to be rejected. Accepted scope
+synchronizers are configured as private, with `root_path = ".."` and
+`VISIBILITY_PROCESS_NONE`. The protocol updates their visibility when server
+connection scopes change.
+
+Dynamic scope templates are not created on startup. Use
+`create_dynamic_scope(template_index, id)` to create an instance with
+`make_fq_dynamic_scope_id(id)`, and `destroy_dynamic_scope(id)` to remove it
+when no connection is currently in that scope.
 
 ```gdscript
 extends AlephVault__MMO__Server.Protocols.SpawningProtocol
+
+@export var room_scene: PackedScene
 
 func _create_world() -> Node:
 	return Node.new()
 
 func _setup_spawner(s: MultiplayerSpawner) -> void:
 	s.spawn_path = get_node("World").get_path()
+
+func _define_dynamic_scopes() -> Array[PackedScene]:
+	return [room_scene]
 ```
 
 ### Commands and Notifications

@@ -129,18 +129,26 @@ from this class and provide those nodes themselves.
 
 When a spawning protocol is moved under the generated `Protocols` node, it calls
 `_create_world()`. If that returns a node, the protocol adds it as a direct child
-named `World`, creates a sibling `MultiplayerSpawner` child, calls
-`_setup_spawner(spawner)`, and adds the spawner. Both nodes are removed when the
-protocol exits the tree.
+named `World`, caches `_define_default_scopes()` and `_define_dynamic_scopes()`,
+creates a sibling `MultiplayerSpawner` child, calls `_setup_spawner(spawner)`,
+adds every unique default/dynamic scope scene resource path as spawnable, and
+adds the spawner. Scope instances are created by the server and replicated to
+the client through the spawner. Both nodes are removed when the protocol exits
+the tree.
 
 ```gdscript
 extends AlephVault__MMO__Client.Protocols.SpawningProtocol
+
+@export var room_scene: PackedScene
 
 func _create_world() -> Node:
 	return Node.new()
 
 func _setup_spawner(s: MultiplayerSpawner) -> void:
 	s.spawn_path = get_node("World").get_path()
+
+func _define_dynamic_scopes() -> Array[PackedScene]:
+	return [room_scene]
 ```
 
 ### Commands and Notifications
