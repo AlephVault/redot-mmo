@@ -27,6 +27,7 @@ func _enter_tree() -> void:
 	var spawner := MultiplayerSpawner.new()
 	spawner.name = "MultiplayerSpawner"
 	_setup_spawner(spawner)
+	spawner.set_multiplayer_authority(1)
 	_add_scope_spawnable_scenes(spawner)
 	add_child(spawner)
 	_spawner = spawner
