@@ -135,7 +135,14 @@ adds every unique default/dynamic scope scene resource path as spawnable, and
 adds the spawner. Scope instances are created by the server and replicated to
 the client through the spawner. Replicated default scope root nodes are named
 `Scope<index>`, and replicated dynamic scope root nodes are named `DynScope<id>`.
-Both nodes are removed when the protocol exits the tree.
+The latest replicated scope root is exposed as `active_scope`. It is updated
+from the `MultiplayerSpawner.spawned` and `MultiplayerSpawner.despawned`
+signals: when a scope is spawned, `active_scope` becomes that node; when that
+same scope is despawned, `active_scope` becomes `null`. Both nodes are removed
+when the protocol exits the tree.
+
+Custom client logic can connect `active_scope_changed(current_scope, scope)`, or
+override `_active_scope_set(scope)` and `_active_scope_unset(scope)`.
 
 ```gdscript
 extends AlephVault__MMO__Client.Protocols.SpawningProtocol
@@ -150,6 +157,12 @@ func _setup_spawner(s: MultiplayerSpawner) -> void:
 
 func _define_dynamic_scopes() -> Array[PackedScene]:
 	return [room_scene]
+
+func _active_scope_set(scope: Node) -> void:
+	print("Scope spawned: ", scope.name)
+
+func _active_scope_unset(scope: Node) -> void:
+	print("Scope despawned: ", scope.name)
 ```
 
 ### Commands and Notifications

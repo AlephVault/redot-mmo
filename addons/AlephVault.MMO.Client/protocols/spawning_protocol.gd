@@ -1,9 +1,20 @@
 extends AlephVault__MMO__Client.Protocols.Protocol
 
+## Triggered when the active replicated scope changes.
+signal active_scope_changed(current_scope: Node, scope: Node)
+
 var _world: Node
 var _spawner: MultiplayerSpawner
 var _default_scope_scenes: Array[PackedScene] = []
 var _dynamic_scope_scenes: Array[PackedScene] = []
+var _active_scope: Node
+
+## The currently replicated scope root node.
+var active_scope: Node:
+	get:
+		return _active_scope
+	set(value):
+		assert(false, "The active scope cannot be set this way")
 
 func _enter_tree() -> void:
 	if not (get_parent() is AlephVault__MMO__Client.Protocols.Manager):
@@ -25,10 +36,13 @@ func _enter_tree() -> void:
 	_setup_spawner(spawner)
 	spawner.set_multiplayer_authority(1)
 	_add_scope_spawnable_scenes(spawner)
+	spawner.spawned.connect(_on_scope_spawned)
+	spawner.despawned.connect(_on_scope_despawned)
 	add_child(spawner)
 	_spawner = spawner
 
 func _exit_tree() -> void:
+	_set_active_scope(null)
 	_default_scope_scenes.clear()
 	_dynamic_scope_scenes.clear()
 
@@ -69,3 +83,17 @@ func _add_scope_spawnable_scenes(spawner: MultiplayerSpawner) -> void:
 			continue
 		paths[scene.resource_path] = true
 		spawner.add_spawnable_scene(scene.resource_path)
+
+func _set_active_scope(scope: Node) -> void:
+	if _active_scope == scope:
+		return
+	var current_scope := _active_scope
+	_active_scope = scope
+	active_scope_changed.emit(current_scope, _active_scope)
+
+func _on_scope_spawned(scope: Node) -> void:
+	_set_active_scope(scope)
+
+func _on_scope_despawned(scope: Node) -> void:
+	if _active_scope == scope:
+		_set_active_scope(null)
