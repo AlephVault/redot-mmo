@@ -72,6 +72,10 @@ func _define_default_scopes() -> Array[PackedScene]:
 func _define_dynamic_scopes() -> Array[PackedScene]:
 	return []
 
+## Override this to configure a replicated scope root after it is spawned.
+func _setup_scope(scope: Node) -> void:
+	pass
+
 func _add_scope_spawnable_scenes(spawner: MultiplayerSpawner) -> void:
 	var scenes: Array[PackedScene] = []
 	scenes.append_array(_default_scope_scenes)
@@ -92,6 +96,7 @@ func _set_active_scope(scope: Node) -> void:
 	active_scope_changed.emit(current_scope, _active_scope)
 
 func _on_scope_spawned(scope: Node) -> void:
+	_setup_scope(scope)
 	_set_active_scope(scope)
 
 func _on_scope_despawned(scope: Node) -> void:

@@ -125,6 +125,7 @@ func _create_scope_instance(scene: PackedScene, fq_scope_id: int) -> Node:
 		scope.free()
 		return null
 
+	_setup_scope(scope)
 	_setup_scope_synchronizer(synchronizer, fq_scope_id)
 	_world.add_child(scope, true)
 	_active_scopes[fq_scope_id] = scope
@@ -145,6 +146,10 @@ func _get_scope_synchronizer(scope: Node) -> MultiplayerSynchronizer:
 	if scope == null:
 		return null
 	return scope.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
+
+## Override this to configure a scope root after it is instantiated.
+func _setup_scope(scope: Node) -> void:
+	pass
 
 func _setup_scope_synchronizer(synchronizer: MultiplayerSynchronizer, fq_scope_id: int) -> void:
 	synchronizer.public_visibility = false
