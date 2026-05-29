@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/scopes/sample-scopes-server-main.gd" id="1_bhxgx"]
+[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/scopes/sample-scopes-server-protocol.gd" id="2_j6q6m"]
+
+[node name="Main" type="CanvasLayer"]
+script = ExtResource("1_bhxgx")
+
+[node name="Scopes" type="Node" parent="."]
+script = ExtResource("2_j6q6m")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 620.0
+offset_bottom = 96.0
+text = "Scopes sample server
+F1: start server on 6777
+F2: stop server"

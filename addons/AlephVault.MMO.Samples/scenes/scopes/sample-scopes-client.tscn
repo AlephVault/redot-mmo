@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/scopes/sample-scopes-client-main.gd" id="1_vrgq1"]
+[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/scopes/sample-scopes-client-protocol.gd" id="2_4sv47"]
+
+[node name="Main" type="CanvasLayer"]
+script = ExtResource("1_vrgq1")
+
+[node name="Scopes" type="Node" parent="."]
+script = ExtResource("2_4sv47")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 620.0
+offset_bottom = 112.0
+text = "Scopes sample client
+F1: connect to 127.0.0.1:6777
+F2: disconnect
+1-4: request replicated scope"

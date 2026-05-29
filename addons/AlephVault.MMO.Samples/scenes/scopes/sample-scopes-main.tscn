@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://addons/AlephVault.MMO.Samples/scripts/scopes/sample-scopes-main.gd" id="1_mq6vq"]
+
+[node name="ScopesSampleMain" type="Node"]
+script = ExtResource("1_mq6vq")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 500.0
+offset_bottom = 80.0
+text = "Scopes sample
+C: client mode
+S: server mode"

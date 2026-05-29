@@ -131,15 +131,29 @@ When a spawning protocol is moved under the generated `Protocols` node, it calls
 `_create_world()`. If that returns a node, the protocol adds it as a direct child
 named `World`, caches `_define_default_scopes()` and `_define_dynamic_scopes()`,
 creates a sibling `MultiplayerSpawner` child, calls `_setup_spawner(spawner)`,
-adds every unique default/dynamic scope scene resource path as spawnable, and
-adds the spawner. Scope instances are created by the server and replicated to
-the client through the spawner. Replicated default scope root nodes are named
-`Scope<index>`, and replicated dynamic scope root nodes are named `DynScope<id>`.
-The latest replicated scope root is exposed as `active_scope`. It is updated
-from the `MultiplayerSpawner.spawned` and `MultiplayerSpawner.despawned`
-signals: when a scope is spawned, `active_scope` becomes that node; when that
-same scope is despawned, `active_scope` becomes `null`. Both nodes are removed
-when the protocol exits the tree.
+wraps any `spawner.spawn_function` configured there, connects spawner signals,
+and adds the spawner. Scope instances are created explicitly by the server with
+`MultiplayerSpawner.spawn(data)` and replicated to the client through the
+spawner.
+
+The wrapped spawn function receives a dictionary with `scene_index`,
+`fq_scope_id`, `scope_type`, `scope_id`, `dynamic_scope_template_index`, and
+`name`. `scene_index` is the index in the concatenated scope scene list:
+`_define_default_scopes()` followed by `_define_dynamic_scopes()`. If
+`_setup_spawner()` assigned a custom `spawn_function`, that function is invoked
+first and must return a node that is not inside the scene tree. Otherwise, the
+base implementation instantiates the scene at `scene_index`. The protocol then
+sets the root name and calls `_setup_scope(scope)` before the spawner inserts the
+node, so client-side setup can add synchronizers and support nodes before initial
+replication can use them.
+
+Replicated default scope root nodes are named `Scope<index>`, and replicated
+dynamic scope root nodes are named `DynScope<id>`. The latest replicated scope
+root is exposed as `active_scope`. It is updated from the
+`MultiplayerSpawner.spawned` and `MultiplayerSpawner.despawned` signals: when a
+scope is spawned, `active_scope` becomes that node; when that same scope is
+despawned, `active_scope` becomes `null`. Both nodes are removed when the
+protocol exits the tree.
 
 Custom client logic can connect `active_scope_changed(current_scope, scope)`, or
 override `_active_scope_set(scope)` and `_active_scope_unset(scope)`.
@@ -154,6 +168,13 @@ func _create_world() -> Node:
 
 func _setup_spawner(s: MultiplayerSpawner) -> void:
 	s.spawn_path = get_node("World").get_path()
+	s.spawn_function = func(data: Dictionary) -> Node:
+		var scenes := _define_default_scopes() + _define_dynamic_scopes()
+		var room := scenes[data["scene_index"]].instantiate()
+		var synchronizer := MultiplayerSynchronizer.new()
+		synchronizer.name = "MultiplayerSynchronizer"
+		room.add_child(synchronizer)
+		return room
 
 func _define_dynamic_scopes() -> Array[PackedScene]:
 	return [room_scene]

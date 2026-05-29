@@ -4,6 +4,7 @@ extends AlephVault__MMO__Server.Protocols.Protocol
 
 var _world: Node
 var _spawner: MultiplayerSpawner
+var _scope_spawn_function: Callable
 var _default_scope_scenes: Array[PackedScene] = []
 var _dynamic_scope_scenes: Array[PackedScene] = []
 var _active_scopes: Dictionary = {}
@@ -27,13 +28,31 @@ func _enter_tree() -> void:
 	var spawner := MultiplayerSpawner.new()
 	spawner.name = "MultiplayerSpawner"
 	_setup_spawner(spawner)
+	_scope_spawn_function = spawner.spawn_function
+	spawner.spawn_function = _spawn_scope
 	spawner.set_multiplayer_authority(1)
-	_add_scope_spawnable_scenes(spawner)
 	add_child(spawner)
 	_spawner = spawner
 
 	_connect_scope_changed(manager.get_parent() as AlephVault__MMO__Server.Main)
+
+func server_started() -> void:
 	_create_default_scope_instances()
+
+func server_stopped() -> void:
+	for scope in _active_scopes.values():
+		if scope is Node:
+			(scope as Node).queue_free()
+	_active_scopes.clear()
+
+func client_entered(id: int) -> void:
+	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager
+	if manager == null:
+		return
+	var server = manager.get_parent() as AlephVault__MMO__Server.Main
+	if server == null or server.connections == null:
+		return
+	_update_scope_visibility(server.connections.get_connection_scope(id), id)
 
 func _exit_tree() -> void:
 	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager
@@ -41,6 +60,7 @@ func _exit_tree() -> void:
 		_disconnect_scope_changed(manager.get_parent() as AlephVault__MMO__Server.Main)
 
 	_active_scopes.clear()
+	_scope_spawn_function = Callable()
 	_default_scope_scenes.clear()
 	_dynamic_scope_scenes.clear()
 
@@ -77,7 +97,12 @@ func create_dynamic_scope(dyn_scope_template_index: int, id: int) -> Node:
 	var fq_scope_id := AlephVault__MMO__Common.Scopes.make_fq_dynamic_scope_id(id)
 	if fq_scope_id < 0 or _active_scopes.has(fq_scope_id):
 		return null
-	return _create_scope_instance(_dynamic_scope_scenes[dyn_scope_template_index], fq_scope_id)
+	return _create_scope_instance(
+		_dynamic_scope_scenes[dyn_scope_template_index],
+		fq_scope_id,
+		len(_default_scope_scenes) + dyn_scope_template_index,
+		dyn_scope_template_index
+	)
 
 ## Destroys an empty dynamic scope.
 func destroy_dynamic_scope(id: int) -> void:
@@ -85,50 +110,40 @@ func destroy_dynamic_scope(id: int) -> void:
 	if fq_scope_id < 0 or not _active_scopes.has(fq_scope_id) or _scope_has_connections(fq_scope_id):
 		return
 	var scope = _active_scopes[fq_scope_id] as Node
-	_active_scopes.erase(fq_scope_id)
 	if scope != null:
-		_world.remove_child(scope)
 		scope.queue_free()
-
-func _add_scope_spawnable_scenes(spawner: MultiplayerSpawner) -> void:
-	var scenes: Array[PackedScene] = []
-	scenes.append_array(_default_scope_scenes)
-	scenes.append_array(_dynamic_scope_scenes)
-
-	var paths := {}
-	for scene in scenes:
-		if scene == null or scene.resource_path == "" or paths.has(scene.resource_path):
-			continue
-		paths[scene.resource_path] = true
-		spawner.add_spawnable_scene(scene.resource_path)
 
 func _create_default_scope_instances() -> void:
 	for index in range(len(_default_scope_scenes)):
 		_create_scope_instance(
 			_default_scope_scenes[index],
-			AlephVault__MMO__Common.Scopes.make_fq_default_scope_id(index)
+			AlephVault__MMO__Common.Scopes.make_fq_default_scope_id(index),
+			index,
+			-1
 		)
 
-func _create_scope_instance(scene: PackedScene, fq_scope_id: int) -> Node:
-	if _world == null or scene == null or fq_scope_id < 0:
+func _create_scope_instance(scene: PackedScene, fq_scope_id: int, scene_index: int, dyn_scope_template_index: int) -> Node:
+	if _world == null or _spawner == null or scene == null or fq_scope_id < 0 or scene_index < 0:
 		return null
-	var scope := scene.instantiate()
-	if scope == null:
+	if _active_scopes.has(fq_scope_id):
 		return null
 	var scope_name := _get_scope_node_name(fq_scope_id)
 	if scope_name == "":
-		scope.free()
 		return null
-	scope.name = scope_name
-	var synchronizer := _get_scope_synchronizer(scope)
-	if synchronizer == null:
-		scope.free()
+	var scope_type := fq_scope_id >> 30
+	var scope_id := fq_scope_id & ((1 << 30) - 1)
+	var scope := _spawner.spawn({
+		"scene_index": scene_index,
+		"fq_scope_id": fq_scope_id,
+		"scope_type": scope_type,
+		"scope_id": scope_id,
+		"dynamic_scope_template_index": dyn_scope_template_index,
+		"name": scope_name,
+	}) as Node
+	if scope == null:
 		return null
-
-	_setup_scope(scope)
-	_setup_scope_synchronizer(synchronizer, fq_scope_id)
-	_world.add_child(scope, true)
 	_active_scopes[fq_scope_id] = scope
+	_connect_scope_destroying(scope, fq_scope_id)
 	return scope
 
 func _get_scope_node_name(fq_scope_id: int) -> String:
@@ -146,6 +161,52 @@ func _get_scope_synchronizer(scope: Node) -> MultiplayerSynchronizer:
 	if scope == null:
 		return null
 	return scope.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
+
+func _spawn_scope(data: Variant) -> Node:
+	if not (data is Dictionary):
+		return null
+	var spawn_data := data as Dictionary
+	var fq_scope_id := int(spawn_data.get("fq_scope_id", -1))
+	var scope_name := String(spawn_data.get("name", ""))
+	if fq_scope_id < 0 or scope_name == "":
+		return null
+
+	var scope: Node
+	if _scope_spawn_function.is_valid():
+		scope = _scope_spawn_function.call(spawn_data) as Node
+	else:
+		scope = _instantiate_scope_from_spawn_data(spawn_data)
+	if scope == null or scope.is_inside_tree():
+		return null
+
+	scope.set_multiplayer_authority(1)
+	scope.name = scope_name
+	_setup_scope(scope)
+
+	var synchronizer := _get_scope_synchronizer(scope)
+	if synchronizer == null:
+		scope.free()
+		return null
+	synchronizer.set_multiplayer_authority(1)
+	_setup_scope_synchronizer(synchronizer, fq_scope_id)
+	return scope
+
+func _instantiate_scope_from_spawn_data(spawn_data: Dictionary) -> Node:
+	var scene_index := int(spawn_data.get("scene_index", -1))
+	var scene := _get_scope_scene(scene_index)
+	if scene == null:
+		return null
+	return scene.instantiate()
+
+func _get_scope_scene(scene_index: int) -> PackedScene:
+	if scene_index < 0:
+		return null
+	if scene_index < len(_default_scope_scenes):
+		return _default_scope_scenes[scene_index]
+	scene_index -= len(_default_scope_scenes)
+	if scene_index < len(_dynamic_scope_scenes):
+		return _dynamic_scope_scenes[scene_index]
+	return null
 
 ## Override this to configure a scope root after it is instantiated.
 func _setup_scope(scope: Node) -> void:
@@ -191,7 +252,15 @@ func _update_scope_visibility(fq_scope_id: int, connection_id: int) -> void:
 		return
 	var synchronizer := _get_scope_synchronizer(_active_scopes[fq_scope_id])
 	if synchronizer != null:
-		synchronizer.update_visibility(connection_id)
+		synchronizer.set_visibility_for(connection_id, _is_scope_visible_for_connection(connection_id, fq_scope_id))
+
+func _connect_scope_destroying(scope: Node, fq_scope_id: int) -> void:
+	if scope != null:
+		scope.tree_exiting.connect(_on_scope_tree_exiting.bind(scope, fq_scope_id))
+
+func _on_scope_tree_exiting(scope: Node, fq_scope_id: int) -> void:
+	if scope != null and scope.is_queued_for_deletion() and _active_scopes.get(fq_scope_id) == scope:
+		_active_scopes.erase(fq_scope_id)
 
 func _scope_has_connections(fq_scope_id: int) -> bool:
 	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager

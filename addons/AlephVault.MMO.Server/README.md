@@ -153,22 +153,37 @@ When a spawning protocol is moved under the generated `Protocols` node, it calls
 `_create_world()`. If that returns a node, the protocol adds it as a direct child
 named `World`, caches `_define_default_scopes()` and `_define_dynamic_scopes()`,
 creates a sibling `MultiplayerSpawner` child, calls `_setup_spawner(spawner)`,
-adds every unique default/dynamic scope scene resource path as spawnable, and
-adds the spawner. Both nodes are removed when the protocol exits the tree.
+wraps any `spawner.spawn_function` configured there, and adds the spawner. Both
+nodes are removed when the protocol exits the tree.
 
-Default scopes are created under `World` immediately. Their ids are
+Scopes are spawned explicitly with `MultiplayerSpawner.spawn(data)`, not by the
+auto-spawnable scene list. The wrapped spawn function receives a dictionary with
+`scene_index`, `fq_scope_id`, `scope_type`, `scope_id`,
+`dynamic_scope_template_index`, and `name`. `scene_index` is the index in the
+concatenated scope scene list: `_define_default_scopes()` followed by
+`_define_dynamic_scopes()`. If `_setup_spawner()` assigned a
+custom `spawn_function`, that function is invoked first and must return a node
+that is not inside the scene tree. Otherwise, the base implementation
+instantiates the scene at `scene_index`. The protocol then sets the root name,
+calls `_setup_scope(scope)`, finds the `MultiplayerSynchronizer` child, and
+configures visibility before the spawner inserts the node. This lets custom spawn
+code add synchronizers and support nodes before initial replication can use them.
+
+Default scopes are created under `World` when the server starts. Their ids are
 `AlephVault__MMO__Common.Scopes.make_fq_default_scope_id(index)` and their root
-nodes are named `Scope<index>`. Each default scope scene root must have a child
-named `MultiplayerSynchronizer`; scenes that do not are instantiated only long
-enough to be rejected. Accepted scope synchronizers are configured as private,
-with `root_path = ".."` and `VISIBILITY_PROCESS_NONE`. The protocol updates
-their visibility when server connection scopes change.
+nodes are named `Scope<index>`. Each scope must have a child named
+`MultiplayerSynchronizer` by the time the wrapped spawn function returns; scenes
+that do not are rejected. Accepted scope synchronizers are configured as private,
+with `root_path = ".."` and `VISIBILITY_PROCESS_NONE`. The protocol updates their
+visibility when server connection scopes change.
 
 Dynamic scope templates are not created on startup. Use
 `create_dynamic_scope(template_index, id)` to create an instance with
 `make_fq_dynamic_scope_id(id)`. Dynamic scope root nodes are named
 `DynScope<id>`. Use `destroy_dynamic_scope(id)` to remove a dynamic scope when
-no connection is currently in that scope.
+no connection is currently in that scope. If any tracked scope is destroyed via
+`queue_free()`, the protocol removes it from the active scope table; ordinary
+temporary tree exits are ignored.
 
 ```gdscript
 extends AlephVault__MMO__Server.Protocols.SpawningProtocol
@@ -180,6 +195,13 @@ func _create_world() -> Node:
 
 func _setup_spawner(s: MultiplayerSpawner) -> void:
 	s.spawn_path = get_node("World").get_path()
+	s.spawn_function = func(data: Dictionary) -> Node:
+		var scenes := _define_default_scopes() + _define_dynamic_scopes()
+		var room := scenes[data["scene_index"]].instantiate()
+		var synchronizer := MultiplayerSynchronizer.new()
+		synchronizer.name = "MultiplayerSynchronizer"
+		room.add_child(synchronizer)
+		return room
 
 func _define_dynamic_scopes() -> Array[PackedScene]:
 	return [room_scene]

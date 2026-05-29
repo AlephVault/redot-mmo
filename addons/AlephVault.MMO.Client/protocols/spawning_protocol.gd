@@ -5,6 +5,7 @@ signal active_scope_changed(current_scope: Node, scope: Node)
 
 var _world: Node
 var _spawner: MultiplayerSpawner
+var _scope_spawn_function: Callable
 var _default_scope_scenes: Array[PackedScene] = []
 var _dynamic_scope_scenes: Array[PackedScene] = []
 var _active_scope: Node
@@ -34,8 +35,9 @@ func _enter_tree() -> void:
 	var spawner := MultiplayerSpawner.new()
 	spawner.name = "MultiplayerSpawner"
 	_setup_spawner(spawner)
+	_scope_spawn_function = spawner.spawn_function
+	spawner.spawn_function = _spawn_scope
 	spawner.set_multiplayer_authority(1)
-	_add_scope_spawnable_scenes(spawner)
 	spawner.spawned.connect(_on_scope_spawned)
 	spawner.despawned.connect(_on_scope_despawned)
 	add_child(spawner)
@@ -43,6 +45,7 @@ func _enter_tree() -> void:
 
 func _exit_tree() -> void:
 	_set_active_scope(null)
+	_scope_spawn_function = Callable()
 	_default_scope_scenes.clear()
 	_dynamic_scope_scenes.clear()
 
@@ -76,18 +79,6 @@ func _define_dynamic_scopes() -> Array[PackedScene]:
 func _setup_scope(scope: Node) -> void:
 	pass
 
-func _add_scope_spawnable_scenes(spawner: MultiplayerSpawner) -> void:
-	var scenes: Array[PackedScene] = []
-	scenes.append_array(_default_scope_scenes)
-	scenes.append_array(_dynamic_scope_scenes)
-
-	var paths := {}
-	for scene in scenes:
-		if scene == null or scene.resource_path == "" or paths.has(scene.resource_path):
-			continue
-		paths[scene.resource_path] = true
-		spawner.add_spawnable_scene(scene.resource_path)
-
 func _set_active_scope(scope: Node) -> void:
 	if _active_scope == scope:
 		return
@@ -95,8 +86,48 @@ func _set_active_scope(scope: Node) -> void:
 	_active_scope = scope
 	active_scope_changed.emit(current_scope, _active_scope)
 
-func _on_scope_spawned(scope: Node) -> void:
+func _spawn_scope(data: Variant) -> Node:
+	if not (data is Dictionary):
+		return null
+	var spawn_data := data as Dictionary
+	var scope_name := String(spawn_data.get("name", ""))
+	if scope_name == "":
+		return null
+
+	var scope: Node
+	if _scope_spawn_function.is_valid():
+		scope = _scope_spawn_function.call(spawn_data) as Node
+	else:
+		scope = _instantiate_scope_from_spawn_data(spawn_data)
+	if scope == null or scope.is_inside_tree():
+		return null
+
+	scope.set_multiplayer_authority(1)
+	scope.name = scope_name
 	_setup_scope(scope)
+	var synchronizer := scope.get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
+	if synchronizer != null:
+		synchronizer.set_multiplayer_authority(1)
+	return scope
+
+func _instantiate_scope_from_spawn_data(spawn_data: Dictionary) -> Node:
+	var scene_index := int(spawn_data.get("scene_index", -1))
+	var scene := _get_scope_scene(scene_index)
+	if scene == null:
+		return null
+	return scene.instantiate()
+
+func _get_scope_scene(scene_index: int) -> PackedScene:
+	if scene_index < 0:
+		return null
+	if scene_index < len(_default_scope_scenes):
+		return _default_scope_scenes[scene_index]
+	scene_index -= len(_default_scope_scenes)
+	if scene_index < len(_dynamic_scope_scenes):
+		return _dynamic_scope_scenes[scene_index]
+	return null
+
+func _on_scope_spawned(scope: Node) -> void:
 	_set_active_scope(scope)
 
 func _on_scope_despawned(scope: Node) -> void:

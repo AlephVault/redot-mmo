@@ -1,0 +1,28 @@
+[gd_scene format=3]
+
+[node name="ScopeRoot" type="Control"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 800.0
+offset_bottom = 600.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.58, 0.24, 1)
+
+[node name="Label" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 140.0
+offset_right = 700.0
+offset_bottom = 210.0
+theme_override_font_sizes/font_size = 36
+text = "Scope 2"
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
