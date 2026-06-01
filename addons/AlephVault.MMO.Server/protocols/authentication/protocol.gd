@@ -48,7 +48,8 @@ func client_left(id: int) -> void:
 
 ## Authenticates a login request.
 ##
-## Override this method in a concrete server protocol. Return
+## Override this method in a concrete server protocol. It may return
+## immediately or await asynchronous work. Return
 ## AlephVault__MMO__Common.Protocols.Authentication.LoginResult.accept() with an
 ## account id to accept the login, or LoginResult.reject() to reject it.
 func _authenticate(connection_id: int, method: String, payload: Variant) -> Dictionary:
@@ -61,8 +62,9 @@ func _authenticate(connection_id: int, method: String, payload: Variant) -> Dict
 ## Loads account data for an accepted account id.
 ##
 ## Override this method to return the account/session data that session_starting
-## listeners need. Returning null aborts the login and kicks the client with an
-## account load error.
+## listeners need. It may return immediately or await asynchronous work.
+## Returning null aborts the login and kicks the client with an account load
+## error.
 func _find_account(account_id: Variant) -> Variant:
 	return null
 
@@ -84,7 +86,10 @@ func handle_login_requested(connection_id: int, method: String, payload: Variant
 		_send_already_logged_in(connection_id)
 		return
 
-	var result := _authenticate(connection_id, method, payload)
+	var result: Dictionary = await _authenticate(connection_id, method, payload)
+	if session_exists(connection_id):
+		_send_already_logged_in(connection_id)
+		return
 	if not AlephVault__MMO__Common.Protocols.Authentication.LoginResult.is_accepted(result):
 		_send_login_failed(connection_id, result.get("failed"))
 		_close_connection(connection_id)
@@ -92,14 +97,19 @@ func handle_login_requested(connection_id: int, method: String, payload: Variant
 
 	var account_id: Variant = result.get("account_id")
 	var mode := _if_account_already_logged_in()
-	if mode == AlephVault__MMO__Common.Protocols.Authentication.AccountAlreadyLoggedManagementMode.REJECT and _sessions_by_account_id.has(account_id):
-		_send_account_already_in_use(connection_id)
-		_close_connection(connection_id)
+	if _is_rejected_by_account_policy(connection_id, account_id, mode):
 		return
 	if mode == AlephVault__MMO__Common.Protocols.Authentication.AccountAlreadyLoggedManagementMode.GHOST:
 		kick(account_id, AlephVault__MMO__Common.Protocols.Authentication.KickReasons.ghosted())
 
-	var account_data: Variant = _find_account(account_id)
+	var account_data: Variant = await _find_account(account_id)
+	if session_exists(connection_id):
+		_send_already_logged_in(connection_id)
+		return
+	if _is_rejected_by_account_policy(connection_id, account_id, mode):
+		return
+	if mode == AlephVault__MMO__Common.Protocols.Authentication.AccountAlreadyLoggedManagementMode.GHOST:
+		kick(account_id, AlephVault__MMO__Common.Protocols.Authentication.KickReasons.ghosted())
 	if account_data == null:
 		session_error.emit(
 			connection_id,
@@ -113,6 +123,16 @@ func handle_login_requested(connection_id: int, method: String, payload: Variant
 	_add_session(connection_id, account_id)
 	_send_login_ok(connection_id, result.get("ok"))
 	session_starting.emit(connection_id, account_data)
+
+## Applies the active duplicate-account policy before a session is created.
+##
+## Returns true when the login request has been rejected and fully handled.
+func _is_rejected_by_account_policy(connection_id: int, account_id: Variant, mode: int) -> bool:
+	if mode == AlephVault__MMO__Common.Protocols.Authentication.AccountAlreadyLoggedManagementMode.REJECT and _sessions_by_account_id.has(account_id):
+		_send_account_already_in_use(connection_id)
+		_close_connection(connection_id)
+		return true
+	return false
 
 ## Handles a client logout RPC request.
 ##
