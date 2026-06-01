@@ -188,11 +188,12 @@ func login_required(connection_id: int, action: Callable, allowed: Callable = Ca
 ##
 ## If a session already exists, sends already_logged_in and returns null.
 ## Otherwise, calls action with the connection id and returns its result.
+## The action may return immediately or await asynchronous work.
 func logout_required(connection_id: int, action: Callable) -> Variant:
 	if session_exists(connection_id):
 		_send_already_logged_in(connection_id)
 		return null
-	return action.call(connection_id)
+	return await action.call(connection_id)
 
 ## Returns whether the connection has an authenticated session.
 func session_exists(connection_id: int) -> bool:
