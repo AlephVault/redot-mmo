@@ -81,27 +81,27 @@ func _login_required(connection_id: int, action: Callable, allowed: Callable = C
 	var auth := _auth()
 	if auth == null:
 		return null
-	return auth.login_required(connection_id, action, allowed)
+	return await auth.login_required(connection_id, action, allowed)
 
 
 func handle_list_connected_users(connection_id: int) -> void:
 	var action := func(id: int):
 		_notify(id, "connected_users_list", [_auth().get_connected_profiles()])
 	var allowed := func(id: int): return _is_admin(id) or _is_player(id)
-	_login_required(connection_id, action, allowed)
+	await _login_required(connection_id, action, allowed)
 
 
 func handle_me(connection_id: int) -> void:
 	var action := func(id: int):
 		_notify(id, "you", [_profile(id)])
 	var allowed := func(id: int): return _is_admin(id) or _is_player(id)
-	_login_required(connection_id, action, allowed)
+	await _login_required(connection_id, action, allowed)
 
 
 func handle_list_users(connection_id: int) -> void:
 	var action := func(id: int):
 		_notify(id, "users_list", [_auth().list_profiles()])
-	_login_required(connection_id, action, Callable(self, "_is_admin"))
+	await _login_required(connection_id, action, Callable(self, "_is_admin"))
 
 
 func handle_reset_user_score(connection_id: int, username: String) -> void:
@@ -110,7 +110,7 @@ func handle_reset_user_score(connection_id: int, username: String) -> void:
 			_notify(id, "user_not_found", [username])
 			return
 		_notify(id, "score_reset", [username])
-	_login_required(connection_id, action, Callable(self, "_is_admin"))
+	await _login_required(connection_id, action, Callable(self, "_is_admin"))
 
 
 func handle_set_user_score(connection_id: int, username: String, score: int) -> void:
@@ -119,7 +119,7 @@ func handle_set_user_score(connection_id: int, username: String, score: int) -> 
 			_notify(id, "user_not_found", [username])
 			return
 		_notify(id, "score_set", [username, score])
-	_login_required(connection_id, action, Callable(self, "_is_admin"))
+	await _login_required(connection_id, action, Callable(self, "_is_admin"))
 
 
 func handle_kick_user(connection_id: int, username: String) -> void:
@@ -130,7 +130,7 @@ func handle_kick_user(connection_id: int, username: String) -> void:
 			return
 		_notify(id, "kicked", [str(profile["username"])])
 		_auth().kick(str(profile["username"]).to_lower(), {"reason": "admin_kick", "admin": _username(id)})
-	_login_required(connection_id, action, Callable(self, "_is_admin"))
+	await _login_required(connection_id, action, Callable(self, "_is_admin"))
 
 
 func handle_admin_stop_match(connection_id: int, match_id: int) -> void:
@@ -140,7 +140,7 @@ func handle_admin_stop_match(connection_id: int, match_id: int) -> void:
 			return
 		_stop_match(match_id, _username(id))
 		_notify(id, "match_stopped", [match_id, _username(id)])
-	_login_required(connection_id, action, Callable(self, "_is_admin"))
+	await _login_required(connection_id, action, Callable(self, "_is_admin"))
 
 
 func handle_propose_match(connection_id: int, username: String) -> void:
@@ -172,7 +172,7 @@ func handle_propose_match(connection_id: int, username: String) -> void:
 		}
 		_notify(id, "match_proposed", [match_id, to_name, true])
 		_notify(to_connection_id, "match_proposed", [match_id, from_name, false])
-	_login_required(connection_id, action, Callable(self, "_is_player"))
+	await _login_required(connection_id, action, Callable(self, "_is_player"))
 
 
 func handle_cancel_match(connection_id: int, match_id: int) -> void:
@@ -189,7 +189,7 @@ func handle_cancel_match(connection_id: int, match_id: int) -> void:
 		_notify(id, "match_proposal_canceled", [match_id, true])
 		if other_id != 0:
 			_notify(other_id, "match_proposal_canceled", [match_id, false])
-	_login_required(connection_id, action, Callable(self, "_is_player"))
+	await _login_required(connection_id, action, Callable(self, "_is_player"))
 
 
 func handle_accept_match(connection_id: int, match_id: int) -> void:
@@ -206,7 +206,7 @@ func handle_accept_match(connection_id: int, match_id: int) -> void:
 		_notify(id, "match_proposal_accepted", [match_id, true])
 		if other_id != 0:
 			_notify(other_id, "match_proposal_accepted", [match_id, false])
-	_login_required(connection_id, action, Callable(self, "_is_player"))
+	await _login_required(connection_id, action, Callable(self, "_is_player"))
 
 
 func handle_decline_match(connection_id: int, match_id: int) -> void:
@@ -223,7 +223,7 @@ func handle_decline_match(connection_id: int, match_id: int) -> void:
 		_notify(id, "match_proposal_declined", [match_id, true])
 		if other_id != 0:
 			_notify(other_id, "match_proposal_declined", [match_id, false])
-	_login_required(connection_id, action, Callable(self, "_is_player"))
+	await _login_required(connection_id, action, Callable(self, "_is_player"))
 
 
 func handle_play_match(connection_id: int, match_id: int, action: String) -> void:
@@ -258,7 +258,7 @@ func handle_play_match(connection_id: int, match_id: int, action: String) -> voi
 			_notify(opponent_id, "match_play", [match_id, false, ""])
 		if match_["play_from"] != ACTION_PENDING and match_["play_to"] != ACTION_PENDING:
 			_finish_match(match_id)
-	_login_required(connection_id, play_action, Callable(self, "_is_player"))
+	await _login_required(connection_id, play_action, Callable(self, "_is_player"))
 
 
 func _finish_match(match_id: int) -> void:

@@ -336,6 +336,8 @@ packages, not in this server package.
 `_authenticate` and `_find_account` may be implemented either synchronously or
 as coroutine methods that await external storage, HTTP, or other asynchronous
 work. The base protocol awaits both hooks before it creates the session.
+The `login_required()` helper also awaits the optional `allowed` predicate and
+the wrapped action, so both callables may be synchronous or coroutine-based.
 
 The authentication command node only routes RPC commands into public methods on
 the central authentication protocol. The base protocol exposes these methods to

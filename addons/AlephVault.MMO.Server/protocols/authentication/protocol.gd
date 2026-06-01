@@ -168,14 +168,20 @@ func kick_connection(connection_id: int, reason: Variant = null) -> void:
 ## If the session is missing, sends not_logged_in and returns null. If allowed
 ## is valid and returns false for the connection id, sends forbidden and returns
 ## null. Otherwise, calls action with the connection id and returns its result.
+## Both allowed and action may return immediately or await asynchronous work.
 func login_required(connection_id: int, action: Callable, allowed: Callable = Callable()) -> Variant:
 	if not session_exists(connection_id):
 		_send_not_logged_in(connection_id)
 		return null
-	if allowed.is_valid() and not bool(allowed.call(connection_id)):
-		_send_forbidden(connection_id)
-		return null
-	return action.call(connection_id)
+	if allowed.is_valid():
+		var allowed_result: Variant = await allowed.call(connection_id)
+		if not session_exists(connection_id):
+			_send_not_logged_in(connection_id)
+			return null
+		if not bool(allowed_result):
+			_send_forbidden(connection_id)
+			return null
+	return await action.call(connection_id)
 
 ## Runs an action only when the connection does not have an authenticated
 ## session.
