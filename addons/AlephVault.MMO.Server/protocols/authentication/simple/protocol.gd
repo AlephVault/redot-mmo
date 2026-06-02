@@ -24,6 +24,13 @@ func _create_notifications_node() -> AlephVault__MMO__Server.Protocols.Notificat
 func _is_account_multiprofile(account_data: Variant) -> bool:
 	return false
 
+## Override this method to return the profile previews available to an account.
+##
+## The returned values are sent to the client with profiles_list. They are not
+## expected to be complete profile data.
+func _list_account_profile_previews(account_id: Variant) -> Array[Variant]:
+	return []
+
 func _on_session_starting(connection_id: int, account_data: Variant) -> void:
 	var is_multi_profile: bool = await _is_account_multiprofile(account_data)
 	if not session_exists(connection_id):
@@ -31,11 +38,33 @@ func _on_session_starting(connection_id: int, account_data: Variant) -> void:
 	if not is_multi_profile:
 		_set_profile(connection_id, _MONOPROFILE_ID, _MONOPROFILE_DATA)
 		profile_starting.emit(connection_id)
+		return
+
+	var account_id: Variant = get_session_account_id(connection_id)
+	var profiles: Array[Variant] = await _list_account_profile_previews(account_id)
+	if not session_exists(connection_id):
+		return
+	_move_connection_to_account_dashboard(connection_id)
+	send_profiles_list(connection_id, profiles)
 
 func _set_profile(connection_id: int, profile_id: Variant, profile_data: Variant) -> void:
 	_assert_session_exists(connection_id)
 	_sessions_by_connection_id[connection_id]["profile_id"] = profile_id
 	_sessions_by_connection_id[connection_id]["profile_data"] = profile_data
+
+func _move_connection_to_account_dashboard(connection_id: int) -> void:
+	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager
+	if manager == null:
+		return
+	var main = manager.get_parent() as AlephVault__MMO__Server.Main
+	if main == null or main.connections == null or not main.connections.has_connection(connection_id):
+		return
+	main.connections.set_connection_scope(
+		connection_id,
+		AlephVault__MMO__Common.Scopes.make_fq_special_scope_id(
+			AlephVault__MMO__Common.Scopes.SCOPE_ACCOUNT_DASHBOARD
+		)
+	)
 
 func handle_list_profiles_requested(connection_id: int) -> void:
 	pass
