@@ -360,3 +360,9 @@ other server protocols:
 The `handle_*` methods are RPC adapter entrypoints used by the authentication
 command node, and are not part of the protocol surface other protocols should
 call directly.
+
+### Simple Authentication Profile
+
+`AlephVault__MMO__Server.Protocols.Authentication.Simple.Protocol` extends the
+base server authentication protocol and implements some default authentication
+flows for profiles management.

@@ -10,6 +10,8 @@ This package exposes the global namespace `AlephVault__MMO__Common`.
 - `AlephVault__MMO__Common.ProtocolUtils`: helpers for protocols.
 - `AlephVault__MMO__Common.Protocols.Authentication`: shared authentication
   protocol constants and result helpers.
+- `AlephVault__MMO__Common.Protocols.Authentication.Simple`: shared helpers
+  for the simple protocol (e.g. profile flows).
 - `AlephVault__MMO__Common.Encoding`: MessagePack encoding helpers and
   higher-level Godot Variant codec support.
 
@@ -183,6 +185,11 @@ types used by the client and server authentication protocols:
 
 Concrete credential shapes, such as username/password payloads, do not belong in
 this package. They should be implemented by application or sample protocols.
+
+### Simple Authentication Profile
+
+`AlephVault__MMO__Common.Protocols.Authentication.Simple` defines shared helpers
+for the simple protocol (e.g. profile flows).
 
 ## Related Packages
 

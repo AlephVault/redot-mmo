@@ -1,0 +1,1 @@
+extends AlephVault__MMO__Server.Protocols.Authentication.Protocol

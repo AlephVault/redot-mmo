@@ -295,3 +295,9 @@ The authentication notification node only routes RPC notifications into public
 methods on the central authentication protocol. Application code should interact
 with the protocol through `login()`, `logout()`, `logged_in`, and the signals
 listed above.
+
+### Simple Authentication Profile
+
+`AlephVault__MMO__Client.Protocols.Authentication.Simple.Protocol` extends the
+base server authentication protocol and implements some default authentication
+flows for profiles management.
