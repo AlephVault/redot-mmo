@@ -24,7 +24,7 @@ const INTERNAL_SESSION_PREFIX := "__AV:MMO:AUTH__"
 
 ## Active sessions indexed by multiplayer connection id.
 ##
-## Each value is a Dictionary containing "connection_id", "account_id", and "data".
+## Each value is a Dictionary containing "connection_id", "account_id", and "account_data".
 var _sessions_by_connection_id: Dictionary = {}
 
 ## Active connection ids grouped by authenticated account id.
@@ -211,7 +211,7 @@ func get_session_account_id(connection_id: int) -> Variant:
 ## Fails an assertion when the session does not exist.
 func set_session_data(connection_id: int, key: String, value: Variant) -> void:
 	_assert_session_exists(connection_id)
-	_sessions_by_connection_id[connection_id]["data"][key] = value
+	_sessions_by_connection_id[connection_id]["account_data"][key] = value
 
 ## Returns a value from the connection's session data dictionary, or
 ## default_value when the key is missing.
@@ -219,7 +219,7 @@ func set_session_data(connection_id: int, key: String, value: Variant) -> void:
 ## Fails an assertion when the session does not exist.
 func get_session_data(connection_id: int, key: String, default_value: Variant = null) -> Variant:
 	_assert_session_exists(connection_id)
-	return _sessions_by_connection_id[connection_id]["data"].get(key, default_value)
+	return _sessions_by_connection_id[connection_id]["account_data"].get(key, default_value)
 
 ## Removes a key from the connection's session data dictionary.
 ##
@@ -227,7 +227,7 @@ func get_session_data(connection_id: int, key: String, default_value: Variant = 
 ## not exist.
 func remove_session_data(connection_id: int, key: String) -> bool:
 	_assert_session_exists(connection_id)
-	return _sessions_by_connection_id[connection_id]["data"].erase(key)
+	return _sessions_by_connection_id[connection_id]["account_data"].erase(key)
 
 ## Clears data stored in the connection's session data dictionary.
 ##
@@ -235,7 +235,7 @@ func remove_session_data(connection_id: int, key: String) -> bool:
 ## preserved. Fails an assertion when the session does not exist.
 func clear_session_data(connection_id: int) -> void:
 	_assert_session_exists(connection_id)
-	var data: Dictionary = _sessions_by_connection_id[connection_id]["data"]
+	var data: Dictionary = _sessions_by_connection_id[connection_id]["account_data"]
 	for key in data.keys():
 		if not str(key).begins_with(INTERNAL_SESSION_PREFIX):
 			data.erase(key)
@@ -245,14 +245,14 @@ func clear_session_data(connection_id: int) -> void:
 ## Fails an assertion when the session does not exist.
 func session_contains_key(connection_id: int, key: String) -> bool:
 	_assert_session_exists(connection_id)
-	return _sessions_by_connection_id[connection_id]["data"].has(key)
+	return _sessions_by_connection_id[connection_id]["account_data"].has(key)
 
 ## Creates a session for a connection and account id.
 ##
 ## This updates both session indexes. Existing entries for the same connection
 ## id are overwritten.
 func _add_session(connection_id: int, account_id: Variant) -> void:
-	var session := {"connection_id": connection_id, "account_id": account_id, "data": {}}
+	var session := {"connection_id": connection_id, "account_id": account_id, "account_data": {}}
 	_sessions_by_connection_id[connection_id] = session
 	if not _sessions_by_account_id.has(account_id):
 		_sessions_by_account_id[account_id] = {}
