@@ -8,6 +8,11 @@ signal profile_starting(connection_id: int)
 static var _MONOPROFILE_ID = Object.new()
 static var _MONOPROFILE_DATA = Object.new()
 
+const PROFILE_STATUS_OK := "ok"
+const PROFILE_STATUS_INVALID := "invalid"
+const PROFILE_STATUS_UNAVAILABLE := "unavailable"
+const PROFILE_STATUS_AVAILABLE := "available"
+
 func _ready() -> void:
 	session_starting.connect(_on_session_starting)
 
@@ -30,6 +35,26 @@ func _is_account_multiprofile(account_data: Variant) -> bool:
 ## expected to be complete profile data.
 func _list_account_profile_previews(account_id: Variant) -> Array[Variant]:
 	return []
+
+## Override this method to load complete profile data for an account profile id.
+##
+## Return a Dictionary with status "ok", "invalid", or "unavailable". On
+## success, include "profile_data". On failure, include "reason". The literal
+## status "available" is also treated as unavailable for compatibility with
+## early profile result shapes.
+func _get_account_profile_data(account_id: Variant, profile_id: Variant) -> Dictionary:
+	return {
+		"status": PROFILE_STATUS_INVALID,
+		"reason": "not_implemented",
+		"profile_data": null,
+	}
+
+## Override this method to choose what profile data is sent to the client after
+## a profile is selected.
+##
+## The default implementation returns the complete profile data unchanged.
+func _get_profile_user_view(profile_data: Variant) -> Variant:
+	return profile_data
 
 func _on_session_starting(connection_id: int, account_data: Variant) -> void:
 	var is_multi_profile: bool = await _is_account_multiprofile(account_data)
@@ -61,16 +86,24 @@ func _move_connection_to_account_dashboard(connection_id: int) -> void:
 		return
 	main.connections.set_connection_scope(
 		connection_id,
-		AlephVault__MMO__Common.Scopes.make_fq_special_scope_id(
-			AlephVault__MMO__Common.Scopes.SCOPE_ACCOUNT_DASHBOARD
-		)
+		_account_dashboard_scope_id()
 	)
 
 func handle_list_profiles_requested(connection_id: int) -> void:
-	pass
+	await login_required(
+		connection_id,
+		func(id: int):
+			return await _refresh_account_profile_previews(id),
+		Callable(self, "_is_connection_in_account_dashboard")
+	)
 
 func handle_select_profile_requested(connection_id: int, profile_id: Variant) -> void:
-	pass
+	await login_required(
+		connection_id,
+		func(id: int):
+			return await _select_account_profile(id, profile_id),
+		Callable(self, "_is_connection_in_account_dashboard")
+	)
 
 func handle_close_profile_requested(connection_id: int) -> void:
 	pass
@@ -84,8 +117,63 @@ func send_profile_invalid(connection_id: int, reason: Variant) -> bool:
 func send_profile_unavailable(connection_id: int, reason: Variant) -> bool:
 	return notify(connection_id, "profile_unavailable", [reason])
 
-func send_profile_selected(connection_id: int, profile: Variant) -> bool:
-	return notify(connection_id, "profile_selected", [profile])
+func send_profile_selected(connection_id: int, profile_id: Variant, profile: Variant) -> bool:
+	return notify(connection_id, "profile_selected", [profile_id, profile])
+
+func _refresh_account_profile_previews(connection_id: int) -> void:
+	var account_id: Variant = get_session_account_id(connection_id)
+	var profiles: Array[Variant] = await _list_account_profile_previews(account_id)
+	if not session_exists(connection_id) or not _is_connection_in_account_dashboard(connection_id):
+		return
+	send_profiles_list(connection_id, profiles)
+
+func _select_account_profile(connection_id: int, profile_id: Variant) -> void:
+	var account_id: Variant = get_session_account_id(connection_id)
+	var result: Dictionary = await _get_account_profile_data(account_id, profile_id)
+	if not session_exists(connection_id) or not _is_connection_in_account_dashboard(connection_id):
+		return
+
+	if _profile_result_is_invalid(result):
+		send_profile_invalid(connection_id, _profile_result_reason(result))
+		return
+	if _profile_result_is_unavailable(result):
+		send_profile_unavailable(connection_id, _profile_result_reason(result))
+		return
+	if not _profile_result_is_ok(result):
+		send_profile_invalid(connection_id, _profile_result_reason(result))
+		return
+
+	var profile_data: Variant = result.get("profile_data")
+	_set_profile(connection_id, profile_id, profile_data)
+	send_profile_selected(connection_id, profile_id, await _get_profile_user_view(profile_data))
+	profile_starting.emit(connection_id)
+
+func _profile_result_is_ok(result: Dictionary) -> bool:
+	return result.get("status") == PROFILE_STATUS_OK
+
+func _profile_result_is_invalid(result: Dictionary) -> bool:
+	return result.get("status") == PROFILE_STATUS_INVALID
+
+func _profile_result_is_unavailable(result: Dictionary) -> bool:
+	var status: Variant = result.get("status")
+	return status == PROFILE_STATUS_UNAVAILABLE or status == PROFILE_STATUS_AVAILABLE
+
+func _profile_result_reason(result: Dictionary) -> Variant:
+	return result.get("reason")
+
+func _is_connection_in_account_dashboard(connection_id: int) -> bool:
+	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager
+	if manager == null:
+		return false
+	var main = manager.get_parent() as AlephVault__MMO__Server.Main
+	if main == null or main.connections == null or not main.connections.has_connection(connection_id):
+		return false
+	return main.connections.get_connection_scope(connection_id) == _account_dashboard_scope_id()
+
+func _account_dashboard_scope_id() -> int:
+	return AlephVault__MMO__Common.Scopes.make_fq_special_scope_id(
+		AlephVault__MMO__Common.Scopes.SCOPE_ACCOUNT_DASHBOARD
+	)
 
 ## Stores a value in the selected profile data dictionary.
 ##
