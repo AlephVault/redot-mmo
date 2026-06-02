@@ -1,0 +1,1 @@
+extends AlephVault__MMO__Client.Protocols.Authentication.Notifications
