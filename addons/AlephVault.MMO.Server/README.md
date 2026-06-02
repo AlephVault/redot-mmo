@@ -366,3 +366,75 @@ call directly.
 `AlephVault__MMO__Server.Protocols.Authentication.Simple.Protocol` extends the
 base server authentication protocol and implements some default authentication
 flows for profiles management.
+
+After the base authentication protocol creates a session, the simple protocol
+listens to `session_starting(connection_id, account_data)` and asks:
+
+```gdscript
+var is_multi_profile: bool = await _is_account_multiprofile(account_data)
+```
+
+Override `_is_account_multiprofile(account_data)` to distinguish account types.
+The default returns `false`.
+
+For mono-profile accounts, the protocol sets an internal sentinel profile id and
+profile data, then emits `profile_starting(connection_id)`. The sentinels are
+private implementation values; mono-profile account data is still available
+through the normal session data helpers.
+
+For multi-profile accounts, the protocol:
+
+- loads preview data with `_list_account_profile_previews(account_id)`,
+- moves the connection to `SCOPE_ACCOUNT_DASHBOARD`,
+- sends `profiles_list(previews)` to the client.
+
+`list_profiles()` and `select_profile(profile_id)` RPCs are only honored while
+the logged-in connection is in `SCOPE_ACCOUNT_DASHBOARD`. Refreshing delegates
+to `_refresh_account_profile_previews(connection_id)`, which can be wrapped or
+overridden for throttling or policy. Selecting delegates to
+`_select_account_profile(connection_id, profile_id)`, which loads data through:
+
+```gdscript
+func _get_account_profile_data(account_id: Variant, profile_id: Variant) -> Dictionary:
+	return {
+		"status": "ok", # or "invalid" / "unavailable"
+		"profile_data": profile_data,
+		"reason": null,
+	}
+```
+
+On `"invalid"` the server sends `profile_invalid(reason)`. On `"unavailable"`
+it sends `profile_unavailable(reason)`. On `"ok"`, it stores the selected
+profile id/data, sends `profile_selected(profile_id, await
+_get_profile_user_view(profile_data))`, then emits
+`profile_starting(connection_id)`. Override `_get_profile_user_view(profile_data)`
+to control the profile data exposed to the client; the default returns
+`profile_data` unchanged.
+
+`close_profile()` delegates to `kick_profile(connection_id, null)`. A null reason
+means graceful close. `kick_profile(connection_id, reason)` is also public for
+server-side logic that needs to stop a selected profile. It returns:
+
+- `OK`: profile data was cleared, `profile_closed(reason)` was sent, the
+  connection was moved to `SCOPE_ACCOUNT_DASHBOARD`, and
+  `profile_terminating(connection_id)` was emitted.
+- `NO_ACCOUNT`: the connection is not logged in.
+- `MONOPROFILE`: the connection is logged in but uses the mono-profile path.
+- `NO_PROFILE_SELECTED`: the connection is logged in but has no selected
+  multi-profile profile.
+
+`kick_profile()` only sends the success notification. The same-user
+`close_profile()` handler translates error statuses into the appropriate client
+notifications.
+
+Selected profile data can be edited through:
+
+- `set_session_profile_data(connection_id, key, value)`
+- `get_session_profile_data(connection_id, key, default_value)`
+- `remove_session_profile_data(connection_id, key)`
+- `clear_session_profile_data(connection_id)`
+- `session_profile_contains_key(connection_id, key)`
+
+These helpers assert that the account session exists. They no-op or return the
+default/false when the session is mono-profile, has no selected profile, or the
+selected profile data is not a `Dictionary`.

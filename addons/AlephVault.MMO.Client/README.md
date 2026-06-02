@@ -299,5 +299,31 @@ listed above.
 ### Simple Authentication Profile
 
 `AlephVault__MMO__Client.Protocols.Authentication.Simple.Protocol` extends the
-base server authentication protocol and implements some default authentication
-flows for profiles management.
+base client authentication protocol with profile-management commands and
+notifications.
+
+Client code can call:
+
+- `list_profiles()`: asks the server to refresh the current account's profile
+  previews.
+- `select_profile(profile_id)`: asks the server to open a profile.
+- `close_profile()`: asks the server to close the currently selected profile.
+
+The server only accepts `list_profiles()` and `select_profile()` while the
+connection is logged in and in `SCOPE_ACCOUNT_DASHBOARD`. `close_profile()` is
+accepted while logged in, but the server reports profile-specific errors when
+the account is mono-profile or no profile is currently selected.
+
+The protocol emits:
+
+- `profiles_list(list)`: profile previews available for selection.
+- `profile_invalid(reason)`: the requested profile id is invalid.
+- `profile_unavailable(reason)`: the requested profile exists but cannot be
+  opened.
+- `profile_selected(profile_id, profile)`: a profile was opened. `profile` is
+  the server-defined client-facing view.
+- `profile_closed(reason)`: the selected profile was closed or stopped. `null`
+  means a graceful close.
+- `profile_not_selected(reason)`: close was requested without an open profile.
+- `profile_not_closeable(reason)`: close was requested for a session that cannot
+  close profiles, such as a mono-profile account.
