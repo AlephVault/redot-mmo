@@ -252,7 +252,10 @@ func session_contains_key(connection_id: int, key: String) -> bool:
 ## This updates both session indexes. Existing entries for the same connection
 ## id are overwritten.
 func _add_session(connection_id: int, account_id: Variant) -> void:
-	var session := {"connection_id": connection_id, "account_id": account_id, "account_data": {}}
+	var session := {
+		"connection_id": connection_id, "account_id": account_id, "account_data": {},
+		"profile_id": null, "profile_data": null
+	}
 	_sessions_by_connection_id[connection_id] = session
 	if not _sessions_by_account_id.has(account_id):
 		_sessions_by_account_id[account_id] = {}
