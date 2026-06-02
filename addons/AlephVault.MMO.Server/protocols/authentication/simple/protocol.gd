@@ -5,6 +5,11 @@ extends AlephVault__MMO__Server.Protocols.Authentication.Protocol
 ## is already available for querying via session profile data methods.
 signal profile_starting(connection_id: int)
 
+## The signal triggered after a selected profile is closed or forcibly stopped.
+##
+## The connection has already been moved back to the account dashboard scope.
+signal profile_terminating(connection_id: int)
+
 static var _MONOPROFILE_ID = Object.new()
 static var _MONOPROFILE_DATA = Object.new()
 
@@ -187,6 +192,7 @@ func kick_profile(connection_id: int, reason: Variant = null) -> int:
 	_clear_profile(connection_id)
 	_send_profile_closed(connection_id, reason)
 	_move_connection_to_account_dashboard(connection_id)
+	profile_terminating.emit(connection_id)
 	return OK
 
 func _profile_result_is_ok(result: Dictionary) -> bool:
