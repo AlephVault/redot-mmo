@@ -13,6 +13,14 @@ const PROFILE_STATUS_INVALID := "invalid"
 const PROFILE_STATUS_UNAVAILABLE := "unavailable"
 const PROFILE_STATUS_AVAILABLE := "available"
 
+const OK := 0
+const NO_ACCOUNT := 1
+const MONOPROFILE := 2
+const NO_PROFILE_SELECTED := 3
+
+const PROFILE_CLOSE_REASON_MONOPROFILE := "monoprofile"
+const PROFILE_CLOSE_REASON_NOT_SELECTED := "not_selected"
+
 func _ready() -> void:
 	session_starting.connect(_on_session_starting)
 
@@ -70,7 +78,7 @@ func _on_session_starting(connection_id: int, account_data: Variant) -> void:
 	if not session_exists(connection_id):
 		return
 	_move_connection_to_account_dashboard(connection_id)
-	send_profiles_list(connection_id, profiles)
+	_send_profiles_list(connection_id, profiles)
 
 func _set_profile(connection_id: int, profile_id: Variant, profile_data: Variant) -> void:
 	_assert_session_exists(connection_id)
@@ -106,26 +114,41 @@ func handle_select_profile_requested(connection_id: int, profile_id: Variant) ->
 	)
 
 func handle_close_profile_requested(connection_id: int) -> void:
-	pass
+	var result := kick_profile(connection_id, null)
+	if result == NO_ACCOUNT:
+		_send_not_logged_in(connection_id)
+	elif result == MONOPROFILE:
+		_send_profile_not_closeable(connection_id, PROFILE_CLOSE_REASON_MONOPROFILE)
+	elif result == NO_PROFILE_SELECTED:
+		_send_profile_not_selected(connection_id, PROFILE_CLOSE_REASON_NOT_SELECTED)
 
-func send_profiles_list(connection_id: int, profiles: Array[Variant]) -> bool:
+func _send_profiles_list(connection_id: int, profiles: Array[Variant]) -> bool:
 	return notify(connection_id, "profiles_list", [profiles])
 
-func send_profile_invalid(connection_id: int, reason: Variant) -> bool:
+func _send_profile_invalid(connection_id: int, reason: Variant) -> bool:
 	return notify(connection_id, "profile_invalid", [reason])
 
-func send_profile_unavailable(connection_id: int, reason: Variant) -> bool:
+func _send_profile_unavailable(connection_id: int, reason: Variant) -> bool:
 	return notify(connection_id, "profile_unavailable", [reason])
 
-func send_profile_selected(connection_id: int, profile_id: Variant, profile: Variant) -> bool:
+func _send_profile_selected(connection_id: int, profile_id: Variant, profile: Variant) -> bool:
 	return notify(connection_id, "profile_selected", [profile_id, profile])
+
+func _send_profile_closed(connection_id: int, reason: Variant = null) -> bool:
+	return notify(connection_id, "profile_closed", [reason])
+
+func _send_profile_not_selected(connection_id: int, reason: Variant = null) -> bool:
+	return notify(connection_id, "profile_not_selected", [reason])
+
+func _send_profile_not_closeable(connection_id: int, reason: Variant = null) -> bool:
+	return notify(connection_id, "profile_not_closeable", [reason])
 
 func _refresh_account_profile_previews(connection_id: int) -> void:
 	var account_id: Variant = get_session_account_id(connection_id)
 	var profiles: Array[Variant] = await _list_account_profile_previews(account_id)
 	if not session_exists(connection_id) or not _is_connection_in_account_dashboard(connection_id):
 		return
-	send_profiles_list(connection_id, profiles)
+	_send_profiles_list(connection_id, profiles)
 
 func _select_account_profile(connection_id: int, profile_id: Variant) -> void:
 	var account_id: Variant = get_session_account_id(connection_id)
@@ -134,19 +157,37 @@ func _select_account_profile(connection_id: int, profile_id: Variant) -> void:
 		return
 
 	if _profile_result_is_invalid(result):
-		send_profile_invalid(connection_id, _profile_result_reason(result))
+		_send_profile_invalid(connection_id, _profile_result_reason(result))
 		return
 	if _profile_result_is_unavailable(result):
-		send_profile_unavailable(connection_id, _profile_result_reason(result))
+		_send_profile_unavailable(connection_id, _profile_result_reason(result))
 		return
 	if not _profile_result_is_ok(result):
-		send_profile_invalid(connection_id, _profile_result_reason(result))
+		_send_profile_invalid(connection_id, _profile_result_reason(result))
 		return
 
 	var profile_data: Variant = result.get("profile_data")
 	_set_profile(connection_id, profile_id, profile_data)
-	send_profile_selected(connection_id, profile_id, await _get_profile_user_view(profile_data))
+	_send_profile_selected(connection_id, profile_id, await _get_profile_user_view(profile_data))
 	profile_starting.emit(connection_id)
+
+## Closes or forcibly stops the selected profile for a multi-profile session.
+##
+## reason is sent to the client with profile_closed. A null reason means a
+## graceful close. Returns OK, NO_ACCOUNT, MONOPROFILE, or NO_PROFILE_SELECTED.
+## Error statuses do not send notifications to the target connection.
+func kick_profile(connection_id: int, reason: Variant = null) -> int:
+	if not session_exists(connection_id):
+		return NO_ACCOUNT
+	if _session_has_monoprofile(connection_id):
+		return MONOPROFILE
+	if not _session_has_selected_profile(connection_id):
+		return NO_PROFILE_SELECTED
+
+	_clear_profile(connection_id)
+	_send_profile_closed(connection_id, reason)
+	_move_connection_to_account_dashboard(connection_id)
+	return OK
 
 func _profile_result_is_ok(result: Dictionary) -> bool:
 	return result.get("status") == PROFILE_STATUS_OK
@@ -160,6 +201,16 @@ func _profile_result_is_unavailable(result: Dictionary) -> bool:
 
 func _profile_result_reason(result: Dictionary) -> Variant:
 	return result.get("reason")
+
+func _clear_profile(connection_id: int) -> void:
+	_set_profile(connection_id, null, null)
+
+func _session_has_monoprofile(connection_id: int) -> bool:
+	return _sessions_by_connection_id[connection_id]["profile_id"] == _MONOPROFILE_ID
+
+func _session_has_selected_profile(connection_id: int) -> bool:
+	var profile_id: Variant = _sessions_by_connection_id[connection_id]["profile_id"]
+	return profile_id != null and profile_id != _MONOPROFILE_ID
 
 func _is_connection_in_account_dashboard(connection_id: int) -> bool:
 	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager
@@ -235,7 +286,6 @@ func session_profile_contains_key(connection_id: int, key: String) -> bool:
 	return _sessions_by_connection_id[connection_id]["profile_data"].has(key)
 
 func _session_has_selected_profile_data(connection_id: int) -> bool:
-	var profile_id: Variant = _sessions_by_connection_id[connection_id]["profile_id"]
-	if profile_id == null or profile_id == _MONOPROFILE_ID:
+	if not _session_has_selected_profile(connection_id):
 		return false
 	return _sessions_by_connection_id[connection_id]["profile_data"] is Dictionary

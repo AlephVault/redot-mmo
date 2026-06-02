@@ -3,7 +3,10 @@ extends AlephVault__MMO__Client.Protocols.Authentication.Protocol
 signal profiles_list(list: Array[Variant])
 signal profile_invalid(reason: Variant)
 signal profile_unavailable(reason: Variant)
-signal profile_selected(profile: Variant)
+signal profile_selected(profile_id: Variant, profile: Variant)
+signal profile_closed(reason: Variant)
+signal profile_not_selected(reason: Variant)
+signal profile_not_closeable(reason: Variant)
 
 func _create_commands_node() -> AlephVault__MMO__Client.Protocols.Commands:
 	return AlephVault__MMO__Client.Protocols.Authentication.Simple.Commands.new()
@@ -29,5 +32,14 @@ func handle_profile_invalid(reason: Variant) -> void:
 func handle_profile_unavailable(reason: Variant) -> void:
 	profile_unavailable.emit(reason)
 
-func handle_profile_selected(profile: Variant) -> void:
-	profile_selected.emit(profile)
+func handle_profile_selected(profile_id: Variant, profile: Variant) -> void:
+	profile_selected.emit(profile_id, profile)
+
+func handle_profile_closed(reason: Variant = null) -> void:
+	profile_closed.emit(reason)
+
+func handle_profile_not_selected(reason: Variant = null) -> void:
+	profile_not_selected.emit(reason)
+
+func handle_profile_not_closeable(reason: Variant = null) -> void:
+	profile_not_closeable.emit(reason)

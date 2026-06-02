@@ -13,5 +13,17 @@ func profile_unavailable(reason: Variant) -> void:
 	pass
 
 @rpc("authority", "call_remote", "reliable")
-func profile_selected(profile: Variant) -> void:
+func profile_selected(profile_id: Variant, profile: Variant) -> void:
+	pass
+
+@rpc("authority", "call_remote", "reliable")
+func profile_closed(reason: Variant = null) -> void:
+	pass
+
+@rpc("authority", "call_remote", "reliable")
+func profile_not_selected(reason: Variant = null) -> void:
+	pass
+
+@rpc("authority", "call_remote", "reliable")
+func profile_not_closeable(reason: Variant = null) -> void:
 	pass
