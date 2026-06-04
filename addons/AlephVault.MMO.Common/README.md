@@ -43,6 +43,13 @@ const ROOM = Scopes.make_fq_dynamic_scope_id(15)
 
 Use `unpack_scope_id(scope_id)` to recover the relative id and scope type.
 
+### Related scope nodes
+
+Finally, use `get_scope_node_name` from a fully-qualified scope id to get the
+full name for a node. Nodes might be called `ScopeXXXX` or `DynScopeXXXX`. This
+utility returns an empty string for special scopes, since they don't have any
+related node for them.
+
 ## Encoding
 
 The encoding package contains two layers:
