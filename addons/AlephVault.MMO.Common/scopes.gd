@@ -59,7 +59,7 @@ static func unpack_scope_id(id: int) -> Dictionary:
 	return {"id": id & ((1 << 30) - 1), "type": ScopeType.get(id >> 30)}
 
 ## Gets the node name for a spawned scope.
-status func get_scope_node_name(fq_scope_id: int) -> String:
+static func get_scope_node_name(fq_scope_id: int) -> String:
 	var scope_type := fq_scope_id >> 30
 	var scope_id := fq_scope_id & ((1 << 30) - 1)
 	match scope_type:
