@@ -146,17 +146,6 @@ func _create_scope_instance(scene: PackedScene, fq_scope_id: int, scene_index: i
 	_connect_scope_destroying(scope, fq_scope_id)
 	return scope
 
-func _get_scope_node_name(fq_scope_id: int) -> String:
-	var scope_type := fq_scope_id >> 30
-	var scope_id := fq_scope_id & ((1 << 30) - 1)
-	match scope_type:
-		AlephVault__MMO__Common.Scopes.ScopeType.DEFAULT:
-			return "Scope%d" % scope_id
-		AlephVault__MMO__Common.Scopes.ScopeType.DYNAMIC:
-			return "DynScope%d" % scope_id
-		_:
-			return ""
-
 func _get_scope_synchronizer(scope: Node) -> MultiplayerSynchronizer:
 	if scope == null:
 		return null
