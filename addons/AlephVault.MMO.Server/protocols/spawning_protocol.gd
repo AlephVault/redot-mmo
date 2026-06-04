@@ -127,7 +127,7 @@ func _create_scope_instance(scene: PackedScene, fq_scope_id: int, scene_index: i
 		return null
 	if _active_scopes.has(fq_scope_id):
 		return null
-	var scope_name := _get_scope_node_name(fq_scope_id)
+	var scope_name := AlephVault__MMO__Common.Scopes.get_scope_node_name(fq_scope_id)
 	if scope_name == "":
 		return null
 	var scope_type := fq_scope_id >> 30
