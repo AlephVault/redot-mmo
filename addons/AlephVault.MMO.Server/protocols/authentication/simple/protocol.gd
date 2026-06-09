@@ -212,11 +212,11 @@ func _clear_profile(connection_id: int) -> void:
 	_set_profile(connection_id, null, null)
 
 func _session_has_monoprofile(connection_id: int) -> bool:
-	return _sessions_by_connection_id[connection_id]["profile_id"] == _MONOPROFILE_ID
+	return is_same(_sessions_by_connection_id[connection_id]["profile_id"], _MONOPROFILE_ID)
 
 func _session_has_selected_profile(connection_id: int) -> bool:
 	var profile_id: Variant = _sessions_by_connection_id[connection_id]["profile_id"]
-	return profile_id != null and profile_id != _MONOPROFILE_ID
+	return profile_id != null and not is_same(profile_id, _MONOPROFILE_ID)
 
 func _is_connection_in_account_dashboard(connection_id: int) -> bool:
 	var manager = get_parent() as AlephVault__MMO__Server.Protocols.Manager
