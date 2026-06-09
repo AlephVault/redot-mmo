@@ -30,6 +30,9 @@ var _sessions_by_connection_id: Dictionary = {}
 ## Active connection ids grouped by authenticated account id.
 var _sessions_by_account_id: Dictionary = {}
 
+## Connections scheduled to close after their final notification is flushed.
+var _pending_connection_closes: Dictionary = {}
+
 ## Creates the server commands RPC node used to receive authentication requests
 ## from clients.
 func _create_commands_node() -> AlephVault__MMO__Server.Protocols.Commands:
@@ -325,6 +328,22 @@ func _send_forbidden(connection_id: int) -> void:
 
 ## Disconnects a client from the server when the multiplayer peer is available.
 func _close_connection(connection_id: int) -> void:
+	if _pending_connection_closes.has(connection_id):
+		return
+	_pending_connection_closes[connection_id] = true
+	call_deferred("_close_connection_deferred", connection_id)
+
+## Gives reliable RPC notifications a short chance to leave the server before
+## closing the ENet peer. Immediate disconnects can race login_failed/kicked RPCs.
+func _close_connection_deferred(connection_id: int) -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_pending_connection_closes.erase(connection_id)
 	var main = get_parent().get_parent() as AlephVault__MMO__Server.Main
-	if main != null and is_instance_valid(main.multiplayer.multiplayer_peer):
+	if (
+		main != null
+		and main.connections != null
+		and main.connections.has_connection(connection_id)
+		and is_instance_valid(main.multiplayer.multiplayer_peer)
+	):
 		main.multiplayer.multiplayer_peer.disconnect_peer(connection_id)

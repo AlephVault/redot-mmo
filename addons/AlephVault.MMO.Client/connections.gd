@@ -31,6 +31,7 @@ func _on_client_stopped() -> void:
 # Adds a new connection object for the current
 # connection id. It will be the only one here.
 func _add_client() -> AlephVault__MMO__Client.Connection:
+	_remove_client()
 	# Create the node.
 	var node = AlephVault__MMO__Client.Connection.new()
 	var id = multiplayer.get_unique_id()
@@ -43,15 +44,15 @@ func _add_client() -> AlephVault__MMO__Client.Connection:
 
 ## Returns the only client connection object.
 func get_connection_node() -> AlephVault__MMO__Client.Connection:
+	if get_child_count() == 0:
+		return null
 	return get_child(0)
 
 # Removes a client connection object for the
 # given connection id.
 func _remove_client():
-	# Remove the node. It will be only one single
-	# child, and the id might not be THAT retrievable
-	# because by this point the connection might be
-	# terminated.
-	var node = get_connection_node()
-	if node:
+	# Remove all children so stale nodes from previous disconnect paths cannot
+	# keep protocol commands bound to an old connection.
+	for node in get_children():
 		remove_child(node)
+		node.queue_free()

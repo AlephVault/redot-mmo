@@ -205,12 +205,15 @@ func leave_server() -> bool:
 	multiplayer.multiplayer_peer = null
 	_address = ""
 	_port = 0
+	client_stopped.emit()
 	return true
 
 func _on_connected_to_server():
 	client_started.emit()
 
 func _on_server_disconnected():
+	_address = ""
+	_port = 0
 	client_stopped.emit()
 
 func _on_connection_failed():
