@@ -55,6 +55,45 @@ signal client_failed
 ## With (-1) for the scope, it means complete removal.
 signal scope_changed(current_scope_id: int, scope_id: int)
 
+## The type of peer to create when joining a server.
+@export var peer_type: AlephVault__MMO__Common.Setup.PeerType = AlephVault__MMO__Common.Setup.PeerType.ENET
+
+## ENet channel count to use when joining a server.
+@export var enet_channel_count: int = 0
+
+## ENet inbound bandwidth limit to use when joining a server.
+@export var enet_in_bandwidth: int = 0
+
+## ENet outbound bandwidth limit to use when joining a server.
+@export var enet_out_bandwidth: int = 0
+
+## ENet local port to bind when joining a server.
+@export var enet_local_port: int = 0
+
+## Whether WebSocket connections should use wss:// instead of ws://.
+@export var ws_secure: bool = false
+
+## WebSocket path to append when address is not already a ws:// or wss:// URL.
+@export var ws_path: String = "/"
+
+## WebSocket protocols to offer during the handshake.
+@export var ws_supported_protocols: PackedStringArray = PackedStringArray()
+
+## WebSocket headers to include during the handshake.
+@export var ws_handshake_headers: PackedStringArray = PackedStringArray()
+
+## WebSocket handshake timeout in seconds.
+@export var ws_handshake_timeout: float = 3.0
+
+## WebSocket inbound buffer size.
+@export var ws_inbound_buffer_size: int = 65535
+
+## WebSocket outbound buffer size.
+@export var ws_outbound_buffer_size: int = 65535
+
+## WebSocket maximum queued packet count.
+@export var ws_max_queued_packets: int = 4096
+
 # The current address from the current launch.
 var _address: String
 
@@ -159,21 +198,32 @@ func _node_extends_protocol(node: Node) -> bool:
 
 ## Joins a server.
 ##
-## All the parameters are forwarded to create_client.
+## ENet-specific parameters override the exported enet_* properties when they
+## are not -1. WebSocket parameters are read from exported ws_* properties.
 func join_server(
-	address: String, port: int, channel_count: int = 0,
-	in_bandwidth: int = 0, out_bandwidth: int = 0, local_port: int = 0
+	address: String, port: int, channel_count: int = -1,
+	in_bandwidth: int = -1, out_bandwidth: int = -1, local_port: int = -1
 ) -> Error:
 	"""
 	Joins a server.
 	
-	All the parameters are forwarded to create_client.
+	ENet-specific parameters override the exported enet_* properties when they
+	are not -1. WebSocket parameters are read from exported ws_* properties.
 	"""
 
-	var peer = ENetMultiplayerPeer.new()
-	var err: Error = peer.create_client(
-		address, port, channel_count, in_bandwidth, out_bandwidth, local_port
-	)
+	var peer: MultiplayerPeer
+	var err: Error
+	match peer_type:
+		AlephVault__MMO__Common.Setup.PeerType.ENET:
+			peer = ENetMultiplayerPeer.new()
+			err = _create_enet_client(
+				peer, address, port, channel_count, in_bandwidth, out_bandwidth, local_port
+			)
+		AlephVault__MMO__Common.Setup.PeerType.WEBSOCKETS:
+			peer = WebSocketMultiplayerPeer.new()
+			err = _create_ws_client(peer, address, port)
+		_:
+			return ERR_INVALID_PARAMETER
 	if err != OK:
 		return err
 	_address = address
@@ -186,6 +236,40 @@ func join_server(
 	if not multiplayer.connection_failed.is_connected(_on_connection_failed):
 		multiplayer.connection_failed.connect(_on_connection_failed)
 	return OK
+
+func _create_enet_client(
+	peer: ENetMultiplayerPeer, address: String, port: int, channel_count: int,
+	in_bandwidth: int, out_bandwidth: int, local_port: int
+) -> Error:
+	return peer.create_client(
+		address, port,
+		enet_channel_count if channel_count == -1 else channel_count,
+		enet_in_bandwidth if in_bandwidth == -1 else in_bandwidth,
+		enet_out_bandwidth if out_bandwidth == -1 else out_bandwidth,
+		enet_local_port if local_port == -1 else local_port
+	)
+
+func _create_ws_client(peer: WebSocketMultiplayerPeer, address: String, port: int) -> Error:
+	_configure_ws_peer(peer)
+	return peer.create_client(_get_ws_url(address, port))
+
+func _configure_ws_peer(peer: WebSocketMultiplayerPeer) -> void:
+	peer.supported_protocols = ws_supported_protocols
+	peer.handshake_headers = ws_handshake_headers
+	peer.handshake_timeout = ws_handshake_timeout
+	peer.inbound_buffer_size = ws_inbound_buffer_size
+	peer.outbound_buffer_size = ws_outbound_buffer_size
+	peer.max_queued_packets = ws_max_queued_packets
+
+func _get_ws_url(address: String, port: int) -> String:
+	if address.begins_with("ws://") or address.begins_with("wss://"):
+		return address
+	var path := ws_path.strip_edges()
+	if path == "":
+		path = "/"
+	elif not path.begins_with("/"):
+		path = "/" + path
+	return "%s://%s:%d%s" % ["wss" if ws_secure else "ws", address, port, path]
 
 ## Leaves the current server.
 ##

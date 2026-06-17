@@ -79,12 +79,36 @@ var err := my_server.launch(6777, 32)
 var stopped := my_server.stop()
 ```
 
+Set `peer_type` to choose the multiplayer peer implementation before calling
+`launch()`:
+
+```gdscript
+my_server.peer_type = AlephVault__MMO__Common.Setup.PeerType.WEBSOCKETS
+my_server.ws_bind_address = "*"
+var err := my_server.launch(6777)
+```
+
 Useful members:
 
 - `connections: AlephVault__MMO__Server.Connections`
 - `protocols: AlephVault__MMO__Server.Protocols.Manager`
 - `address: String`
 - `port: int`
+- `peer_type: AlephVault__MMO__Common.Setup.PeerType`
+- `enet_bind_address: String`
+- `enet_max_clients: int`
+- `enet_max_channels: int`
+- `enet_in_bandwidth: int`
+- `enet_out_bandwidth: int`
+- `ws_bind_address: String`
+- `ws_supported_protocols: PackedStringArray`
+- `ws_handshake_headers: PackedStringArray`
+- `ws_handshake_timeout: float`
+- `ws_inbound_buffer_size: int`
+- `ws_outbound_buffer_size: int`
+- `ws_max_queued_packets: int`
+- `ws_certificate_path: String`
+- `ws_key_path: String`
 - `signal server_started`
 - `signal server_stopped`
 - `signal client_entered(id: int)`

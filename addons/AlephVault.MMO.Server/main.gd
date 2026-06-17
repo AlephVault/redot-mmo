@@ -60,6 +60,51 @@ signal client_left(id: int)
 ## With (-1) for the scope, it means complete removal.
 signal scope_changed(connection_id: int, current_scope_id: int, scope_id: int)
 
+## The type of peer to create when launching the server.
+@export var peer_type: AlephVault__MMO__Common.Setup.PeerType = AlephVault__MMO__Common.Setup.PeerType.ENET
+
+## ENet bind address to use when launching the server.
+@export var enet_bind_address: String = "*"
+
+## ENet maximum client count.
+@export var enet_max_clients: int = 4095
+
+## ENet maximum channel count.
+@export var enet_max_channels: int = 0
+
+## ENet inbound bandwidth limit.
+@export var enet_in_bandwidth: int = 0
+
+## ENet outbound bandwidth limit.
+@export var enet_out_bandwidth: int = 0
+
+## WebSocket bind address.
+@export var ws_bind_address: String = "*"
+
+## WebSocket protocols to accept during the handshake.
+@export var ws_supported_protocols: PackedStringArray = PackedStringArray()
+
+## WebSocket headers to include during the handshake.
+@export var ws_handshake_headers: PackedStringArray = PackedStringArray()
+
+## WebSocket handshake timeout in seconds.
+@export var ws_handshake_timeout: float = 3.0
+
+## WebSocket inbound buffer size.
+@export var ws_inbound_buffer_size: int = 65535
+
+## WebSocket outbound buffer size.
+@export var ws_outbound_buffer_size: int = 65535
+
+## WebSocket maximum queued packet count.
+@export var ws_max_queued_packets: int = 4096
+
+## WebSocket TLS certificate resource path.
+@export_file var ws_certificate_path: String = ""
+
+## WebSocket TLS private key resource path.
+@export_file var ws_key_path: String = ""
+
 # The current address from the current launch.
 var _address: String
 
@@ -174,27 +219,33 @@ func _node_extends_protocol(node: Node) -> bool:
 
 ## Launches a server.
 ##
-## All the parameters are forwarded to set_bind_ip
-## or create_server, respectively.
+## ENet-specific parameters override the exported enet_* properties when they
+## are not -1. WebSocket parameters are read from exported ws_* properties.
 func launch(
-	port: int, max_clients: int = 4095, max_channels: int = 0,
-	in_bandwidth: int = 0, out_bandwidth: int = 0
+	port: int, max_clients: int = -1, max_channels: int = -1,
+	in_bandwidth: int = -1, out_bandwidth: int = -1
 ) -> Error:
 	"""
 	Launches a server.
 	
-	All the parameters are forwarded to set_bind_ip
-	or create_server, respectively.
+	ENet-specific parameters override the exported enet_* properties when they
+	are not -1. WebSocket parameters are read from exported ws_* properties.
 	"""
 	
-	var peer = ENetMultiplayerPeer.new()
-	var err: Error = peer.create_server(
-		port, max_clients, max_channels, in_bandwidth,
-		out_bandwidth
-	)
+	var peer: MultiplayerPeer
+	var err: Error
+	match peer_type:
+		AlephVault__MMO__Common.Setup.PeerType.ENET:
+			peer = ENetMultiplayerPeer.new()
+			err = _create_enet_server(peer, port, max_clients, max_channels, in_bandwidth, out_bandwidth)
+		AlephVault__MMO__Common.Setup.PeerType.WEBSOCKETS:
+			peer = WebSocketMultiplayerPeer.new()
+			err = _create_ws_server(peer, port)
+		_:
+			return ERR_INVALID_PARAMETER
 	if err != OK:
 		return err
-	_address = address
+	_address = enet_bind_address if peer_type == AlephVault__MMO__Common.Setup.PeerType.ENET else ws_bind_address
 	_port = port
 	multiplayer.multiplayer_peer = peer
 	if not multiplayer.peer_connected.is_connected(_on_peer_connected):
@@ -203,6 +254,44 @@ func launch(
 		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	server_started.emit()
 	return OK
+
+func _create_enet_server(
+	peer: ENetMultiplayerPeer, port: int, max_clients: int, max_channels: int,
+	in_bandwidth: int, out_bandwidth: int
+) -> Error:
+	peer.set_bind_ip(enet_bind_address)
+	return peer.create_server(
+		port,
+		enet_max_clients if max_clients == -1 else max_clients,
+		enet_max_channels if max_channels == -1 else max_channels,
+		enet_in_bandwidth if in_bandwidth == -1 else in_bandwidth,
+		enet_out_bandwidth if out_bandwidth == -1 else out_bandwidth
+	)
+
+func _create_ws_server(peer: WebSocketMultiplayerPeer, port: int) -> Error:
+	_configure_ws_peer(peer)
+	var tls_options: TLSOptions
+	if ws_certificate_path != "" or ws_key_path != "":
+		if ws_certificate_path == "" or ws_key_path == "":
+			return ERR_INVALID_PARAMETER
+		var certificate := X509Certificate.new()
+		var err := certificate.load(ws_certificate_path)
+		if err != OK:
+			return err
+		var key := CryptoKey.new()
+		err = key.load(ws_key_path)
+		if err != OK:
+			return err
+		tls_options = TLSOptions.server(key, certificate)
+	return peer.create_server(port, ws_bind_address, tls_options)
+
+func _configure_ws_peer(peer: WebSocketMultiplayerPeer) -> void:
+	peer.supported_protocols = ws_supported_protocols
+	peer.handshake_headers = ws_handshake_headers
+	peer.handshake_timeout = ws_handshake_timeout
+	peer.inbound_buffer_size = ws_inbound_buffer_size
+	peer.outbound_buffer_size = ws_outbound_buffer_size
+	peer.max_queued_packets = ws_max_queued_packets
 
 ## Stops a server.
 ##

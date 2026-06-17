@@ -85,12 +85,35 @@ var err := my_client.join_server("127.0.0.1", 6777)
 var stopped := my_client.leave_server()
 ```
 
+Set `peer_type` to choose the multiplayer peer implementation before calling
+`join_server()`:
+
+```gdscript
+my_client.peer_type = AlephVault__MMO__Common.Setup.PeerType.WEBSOCKETS
+my_client.ws_secure = false
+my_client.ws_path = "/"
+var err := my_client.join_server("127.0.0.1", 6777)
+```
+
 Useful members:
 
 - `connections: AlephVault__MMO__Client.Connections`
 - `protocols: AlephVault__MMO__Client.Protocols.Manager`
 - `address: String`
 - `port: int`
+- `peer_type: AlephVault__MMO__Common.Setup.PeerType`
+- `enet_channel_count: int`
+- `enet_in_bandwidth: int`
+- `enet_out_bandwidth: int`
+- `enet_local_port: int`
+- `ws_secure: bool`
+- `ws_path: String`
+- `ws_supported_protocols: PackedStringArray`
+- `ws_handshake_headers: PackedStringArray`
+- `ws_handshake_timeout: float`
+- `ws_inbound_buffer_size: int`
+- `ws_outbound_buffer_size: int`
+- `ws_max_queued_packets: int`
 - `signal client_started`
 - `signal client_stopped`
 - `signal client_failed`
