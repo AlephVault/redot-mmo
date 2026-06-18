@@ -1,9 +1,6 @@
 extends AlephVault__MMO__Storage.StandardHttp.BaseResource
 
 const EngineImpl = AlephVault__MMO__Storage.StandardHttp.RequestEngine
-const Result = AlephVault__MMO__Storage.Types.Result
-const ResultCode = AlephVault__MMO__Storage.Types.ResultCode
-const Authorization = AlephVault__MMO__Storage.StandardHttp.Authorization
 
 # Handle for a standard HTTP simple resource.
 #
