@@ -46,7 +46,7 @@ Storage.StandardHttp.Root
 Storage.StandardHttp.BaseResource
 Storage.StandardHttp.SimpleResource
 Storage.StandardHttp.ListResource
-Storage.StandardHttp.Engine
+Storage.StandardHttp.RequestEngine
 ```
 
 Prefer the shorter direct names unless you need the folder-shaped namespace.

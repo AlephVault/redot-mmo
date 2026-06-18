@@ -31,7 +31,7 @@ class StandardHttp:
 	## Entry point for creating resource handles.
 	const Root = preload("./standard_http/types/root.gd")
 	## Low-level HTTP request engine.
-	const Engine = preload("./standard_http/implementation/engine.gd")
+	const RequestEngine = preload("./standard_http/implementation/engine.gd")
 
 	## Compatibility namespace matching the standard_http/types folder.
 	class Types:

@@ -250,8 +250,8 @@ func _deserialize_plain_value(data: Variant, expected_type: int) -> Dictionary:
 
 ## Returns the script declared for an object property, when discoverable.
 func _script_from_property(property: Dictionary) -> Script:
-	var class_name = str(property.get("class_name", ""))
-	var script = _script_from_class_name(class_name)
+	var _class_name = str(property.get("_class_name", ""))
+	var script = _script_from_class_name(_class_name)
 	if script != null:
 		return script
 
@@ -288,17 +288,17 @@ func _script_from_hint_string(hint_string: String) -> Script:
 			return loaded
 
 	for global_class in ProjectSettings.get_global_class_list():
-		var class_name = str(global_class.get("class", ""))
-		if class_name != "" and hint_string.find(class_name) != -1:
-			return _script_from_class_name(class_name)
+		var _class_name = str(global_class.get("class", ""))
+		if _class_name != "" and hint_string.find(_class_name) != -1:
+			return _script_from_class_name(_class_name)
 	return null
 
 ## Resolves a globally registered class name into its script.
-func _script_from_class_name(class_name: String) -> Script:
-	if class_name == "":
+func _script_from_class_name(_class_name: String) -> Script:
+	if _class_name == "":
 		return null
 	for global_class in ProjectSettings.get_global_class_list():
-		if str(global_class.get("class", "")) == class_name:
+		if str(global_class.get("class", "")) == _class_name:
 			var loaded = load(str(global_class.get("path", "")))
 			if loaded is Script:
 				return loaded
