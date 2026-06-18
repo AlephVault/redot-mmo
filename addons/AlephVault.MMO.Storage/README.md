@@ -43,19 +43,10 @@ Storage.Types.ResultCode
 Storage.StandardHttp.Authorization
 Storage.StandardHttp.Cursor
 Storage.StandardHttp.Root
-Storage.StandardHttp.Resource
+Storage.StandardHttp.BaseResource
 Storage.StandardHttp.SimpleResource
 Storage.StandardHttp.ListResource
 Storage.StandardHttp.Engine
-```
-
-The nested namespaces also exist:
-
-```gdscript
-Storage.Types.Results.Result
-Storage.StandardHttp.Types.Root
-Storage.StandardHttp.Types.Resource
-Storage.StandardHttp.Implementation.Engine
 ```
 
 Prefer the shorter direct names unless you need the folder-shaped namespace.

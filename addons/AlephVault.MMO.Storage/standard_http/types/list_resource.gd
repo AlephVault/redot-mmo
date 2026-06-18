@@ -1,4 +1,4 @@
-extends "res://addons/AlephVault.MMO.Storage/standard_http/types/resource.gd"
+extends AlephVault__MMO__Storage.StandardHttp.BaseResource
 
 const EngineImpl = AlephVault__MMO__Storage.StandardHttp.Engine
 const Result = AlephVault__MMO__Storage.Types.Result

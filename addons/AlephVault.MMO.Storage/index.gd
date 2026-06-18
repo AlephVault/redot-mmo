@@ -23,7 +23,7 @@ class StandardHttp:
 	## Offset/limit cursor for list endpoints.
 	const Cursor = preload("./standard_http/types/cursor.gd")
 	## Shared base class for resource handles.
-	const Resource = preload("./standard_http/types/resource.gd")
+	const BaseResource = preload("./standard_http/types/resource.gd")
 	## Handle for one-object resources.
 	const SimpleResource = preload("./standard_http/types/simple_resource.gd")
 	## Handle for collection resources.
@@ -39,16 +39,3 @@ class StandardHttp:
 		const Authorization = preload("./standard_http/types/authorization.gd")
 		## Offset/limit cursor for list endpoints.
 		const Cursor = preload("./standard_http/types/cursor.gd")
-		## Shared base class for resource handles.
-		const Resource = preload("./standard_http/types/resource.gd")
-		## Handle for one-object resources.
-		const SimpleResource = preload("./standard_http/types/simple_resource.gd")
-		## Handle for collection resources.
-		const ListResource = preload("./standard_http/types/list_resource.gd")
-		## Entry point for creating resource handles.
-		const Root = preload("./standard_http/types/root.gd")
-
-	## Compatibility namespace matching the standard_http/implementation folder.
-	class Implementation:
-		## Low-level HTTP request engine.
-		const Engine = preload("./standard_http/implementation/engine.gd")
